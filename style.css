@@ -1,4 +1,4 @@
-/* Estilos de el login */
+/* Estilos de iniciar sesión */
 
 
 * {
@@ -136,7 +136,106 @@ body {
     }
 }
 
-/* Estilos de iniciar sesión */
+/* Estilos para botones de redes sociales */
+        .botones-sociales {
+            margin-bottom: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .boton-social {
+            width: 100%;
+            padding: 12px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            background: white;
+            color: #333;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-family: inherit;
+        }
+
+        .boton-social:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .boton-social i {
+            font-size: 18px;
+        }
+
+        /* Botón de Facebook */
+        .boton-facebook {
+            border-color: #4267B2;
+            color: #4267B2;
+        }
+
+        .boton-facebook:hover {
+            background: #4267B2;
+            color: white;
+        }
+
+        /* Botón de Google */
+        .boton-google {
+            border-color: #db4437;
+            color: #db4437;
+        }
+
+        .boton-google:hover {
+            background: #db4437;
+            color: white;
+        }
+
+        /* Separador */
+        .separador {
+            text-align: center;
+            margin: 25px 0;
+            position: relative;
+        }
+
+        .separador::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #e0e0e0;
+            z-index: 1;
+        }
+
+        .texto-separador {
+            background: white;
+            padding: 0 15px;
+            position: relative;
+            z-index: 2;
+            color: #999;
+            font-size: 14px;
+        }
+
+        /* Responsive para dispositivos móviles */
+        @media (max-width: 480px) {
+            .boton-social {
+                padding: 14px 16px;
+                font-size: 13px;
+            }
+            
+            .boton-social i {
+                font-size: 16px;
+            }
+        }
+
+
+
+
+/* Estilos de login */
 
 :root {
     --rosa-claro: #f8a4d8;
@@ -286,6 +385,85 @@ body {
     font-weight: 500;
 }
 
+
+ /* Estilos para mensajes de error */
+        .mensaje-error {
+            color: #e74c3c;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+            padding: 5px;
+            background: rgba(231, 76, 60, 0.1);
+            border-radius: 4px;
+            border-left: 3px solid #e74c3c;
+        }
+
+        .campo-error {
+            border-color: #e74c3c !important;
+            background-color: rgba(231, 76, 60, 0.05) !important;
+        }
+
+
+        .mensaje-confirmacion {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #27ae60;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 5px;
+            z-index: 1000;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .boton-registrar:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .campo-requerido {
+            border-color: #ffc107 !important;
+            background-color: rgba(255, 193, 7, 0.05) !important;
+        }
+
+        /* Botón para mostrar/ocultar contraseña */
+        .toggle-password {
+            position: absolute;
+            right: 55px;
+            top: 30%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            font-size: 18px;
+            z-index: 10;
+        }
+
+        .toggle-password:hover {
+            color: #333;
+        }
+
+        .contenedor-icono {
+            position: relative;
+        }
 /* Estilos responsivos */
 @media (max-width: 768px) {
     body {

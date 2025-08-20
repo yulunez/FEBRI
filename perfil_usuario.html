@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil de Usuario</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+            min-height: 100vh;
+        }
+
+        /* Encabezado */
+        .encabezado {
+            background: white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .contenido-encabezado {
+            max-width: 1024px;
+            margin: 0 auto;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .boton-regresar {
+            margin-right: 0.75rem;
+            color: #64748b;
+        }
+
+        .encabezado h1 {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        /* Contenedor Principal */
+        .contenedor {
+            max-width: 1024px;
+            margin: 0 auto;
+            padding: 1.5rem 1rem;
+        }
+
+        /* Tarjeta de Usuario */
+        .tarjeta-usuario {
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e2e8f0;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .contenido-usuario {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        /* Imagen de Perfil */
+        .imagen-perfil {
+            position: relative;
+        }
+
+        .circulo-perfil {
+            width: 6rem;
+            height: 6rem;
+            border-radius: 50%;
+            background: linear-gradient(135deg,#f8a4d8 , #f0f0f0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .interior-perfil {
+            width: 5rem;
+            height: 5rem;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .avatar-perfil {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 50%;
+            background: #d1d5db;
+        }
+
+        .insignia-perfil {
+            position: absolute;
+            bottom: -0.25rem;
+            right: -0.25rem;
+            width: 2rem;
+            height: 2rem;
+            background: #ec4899;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icono-corazon {
+            width: 1rem;
+            height: 1rem;
+            color: white;
+            fill: white;
+        }
+
+        /* Detalles del Usuario */
+        .detalles-usuario {
+            text-align: center;
+            flex: 1;
+        }
+
+        .detalles-usuario h2 {
+            font-size: 1.875rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .info-usuario {
+            color: #64748b;
+            margin-bottom: 1rem;
+        }
+
+        .info-usuario p {
+            margin-bottom: 0.25rem;
+        }
+
+        .info-usuario span {
+            font-weight: 500;
+        }
+
+        .boton-editar {
+            background: #ec4899;
+            color: white;
+            border: none;
+            padding: 0.5rem 1.5rem;
+            border-radius: 9999px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .boton-editar:hover {
+            background: #db2777;
+        }
+
+        /* Sección de Estadísticas */
+        .cuadricula-estadisticas {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .tarjeta-estadistica {
+            background: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e2e8f0;
+            padding: 1.5rem;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .contenedor-icono-estadistica {
+            padding: 1rem;
+            border-radius: 50%;
+            background: #f8fafc;
+            margin-bottom: 0.75rem;
+        }
+
+        .icono-estadistica {
+            width: 2.5rem;
+            height: 2.5rem;
+        }
+
+        .icono-estadistica.carrito {
+            color: #3b82f6;
+        }
+
+        .icono-estadistica.camion {
+            color: #10b981;
+        }
+
+        .valor-estadistica {
+            font-size: 1.875rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .etiqueta-estadistica {
+            font-size: 1rem;
+            color: #64748b;
+        }
+
+        /* Tarjeta de Contenido */
+        .tarjeta-contenido {
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+        }
+
+        .encabezado-pestana {
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .boton-pestana {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            background: none;
+            border: none;
+            font-weight: 500;
+            text-align: center;
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+            color: #ec4899;
+            background: #fdf2f8;
+            border-bottom-color: #ec4899;
+        }
+
+        .seccion-contenido {
+            padding: 1.5rem;
+        }
+
+        .encabezado-seccion {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+
+        .titulo-seccion {
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+
+        .contador-seccion {
+            font-size: 0.875rem;
+            color: #64748b;
+        }
+
+        /* Cuadrícula de Productos */
+        .cuadricula-productos {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        .tarjeta-producto {
+            background: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+        }
+
+        .imagen-producto {
+            position: relative;
+            aspect-ratio: 1;
+            background: #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .img-producto {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .boton-corazon-producto {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            padding: 0.5rem;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(4px);
+            border: none;
+            cursor: pointer;
+        }
+
+        .icono-corazon-producto {
+            width: 1.25rem;
+            height: 1.25rem;
+            color: #ec4899;
+            fill: #ec4899;
+        }
+
+        .info-producto {
+            padding: 1rem;
+        }
+
+        .nombre-producto {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #f8a4d8;
+        }
+
+        .precio-producto {
+            font-size: 1.125rem;
+            color: #666666;
+        }
+
+        /* Responsivo */
+        @media (min-width: 768px) {
+            .contenido-usuario {
+                flex-direction: row;
+                text-align: left;
+            }
+
+            .detalles-usuario {
+                text-align: left;
+            }
+
+            .circulo-perfil {
+                width: 7rem;
+                height: 7rem;
+            }
+
+            .interior-perfil {
+                width: 6rem;
+                height: 6rem;
+            }
+
+            .avatar-perfil {
+                width: 3.5rem;
+                height: 3.5rem;
+            }
+
+            .cuadricula-productos {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .cuadricula-productos {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        /* Iconos SVG */
+        .icono {
+            fill: currentColor;
+        }
+    </style>
+</head>
+<body>
+    <!-- Encabezado -->
+    <div class="encabezado">
+        <div class="contenido-encabezado">
+            <a href="inicio.html"><svg class="boton-regresar" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="15,18 9,12 15,6"></polyline>
+            </svg></a>
+            <h1>Perfil</h1>
+        </div>
+    </div>
+
+    <div class="contenedor">
+        <!-- Tarjeta de Información del Usuario -->
+        <div class="tarjeta-usuario">
+            <div class="contenido-usuario">
+                <!-- Imagen de Perfil -->
+                <div class="imagen-perfil">
+                    <div class="circulo-perfil">
+                        <div class="interior-perfil">
+                            <div class="avatar-perfil"></div>
+                        </div>
+                    </div>
+                    <div class="insignia-perfil">
+                        <svg class="icono-corazon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Detalles del Usuario -->
+                <div class="detalles-usuario">
+                    <h2>Juan Pérez</h2>
+                    <div class="info-usuario">
+                        <p><span>Correo:</span> juanperez@email.com</p>
+                        <p><span>Dirección:</span> Calle Falsa 123, Ciudad</p>
+                        <p><span>Teléfono:</span> 1345676567</p>
+                    </div>
+                    <button class="boton-editar">Editar perfil</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección de Estadísticas -->
+        <div class="cuadricula-estadisticas">
+            <div class="tarjeta-estadistica">
+                <div class="contenedor-icono-estadistica">
+                    <svg class="icono-estadistica carrito" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="9" cy="21" r="1"></circle>
+                        <circle cx="20" cy="21" r="1"></circle>
+                        <path d="m1 1 4 4 16 2-8 8H8l-2-2"></path>
+                        <path d="m16 8 1 1"></path>
+                    </svg>
+                </div>
+               
+                <div class="etiqueta-estadistica">Compras</div>
+            </div>
+            <div class="tarjeta-estadistica">
+                <div class="contenedor-icono-estadistica">
+                    <svg class="icono-estadistica camion" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect width="16" height="13" x="1" y="6" rx="2"></rect>
+                        <path d="m17 6 4 4v7h-2"></path>
+                        <circle cx="6" cy="19" r="2"></circle>
+                        <circle cx="18" cy="19" r="2"></circle>
+                    </svg>
+                </div>
+                <div class="etiqueta-estadistica">Envío</div>
+            </div>
+        </div>
+
+        <!-- Sección de Contenido -->
+        <div class="tarjeta-contenido">
+            <!-- Encabezado de Pestaña -->
+            <div class="encabezado-pestana">
+                <button class="boton-pestana">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                    </svg>
+                    Me gusta
+                </button>
+            </div>
+
+            <!-- Contenido -->
+            <div class="seccion-contenido">
+                <div class="encabezado-seccion">
+                    <h3 class="titulo-seccion">Productos favoritos</h3>
+                    <span class="contador-seccion">3 productos</span>
+                </div>
+                
+                <div class="cuadricula-productos">
+                    <div class="tarjeta-producto">
+                        <div class="imagen-producto">
+                            <img src="imagenes/llavero-inicio.jpeg" alt="Llavero de K" class="img-producto">
+                            <button class="boton-corazon-producto">
+                                <svg class="icono-corazon-producto" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="info-producto">
+                            <h3 class="nombre-producto">Llavero de K</h3>
+                            <p class="precio-producto">$25.000</p>
+                        </div>
+                    </div>
+
+                    <div class="tarjeta-producto">
+                        <div class="imagen-producto">
+                            <img src="imagenes/decoracion-inicio.avif" alt="Cuadro decorativo" class="img-producto">
+                            <button class="boton-corazon-producto">
+                                <svg class="icono-corazon-producto" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="info-producto">
+                            <h3 class="nombre-producto">Cuadro decorativo</h3>
+                            <p class="precio-producto">$25.000</p>
+                        </div>
+                    </div>
+
+                    <div class="tarjeta-producto">
+                        <div class="imagen-producto">
+                            <img src="imagenes/jarron.webp" alt="Jarrón moderno" class="img-producto">
+                            <button class="boton-corazon-producto">
+                                <svg class="icono-corazon-producto" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="info-producto">
+                            <h3 class="nombre-producto">Jarrón moderno</h3>
+                            <p class="precio-producto">$15.000</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Funcionalidad para los botones de corazón
+        document.querySelectorAll('.boton-corazon-producto').forEach(boton => {
+            boton.addEventListener('click', function() {
+                const iconoCorazon = this.querySelector('.icono-corazon-producto');
+                // Toggle del estado de favorito
+                if (iconoCorazon.style.opacity === '0.5') {
+                    iconoCorazon.style.opacity = '1';
+                    iconoCorazon.style.color = '#ec4899';
+                } else {
+                    iconoCorazon.style.opacity = '0.5';
+                    iconoCorazon.style.color = '#9ca3af';
+                }
+            });
+        });
+
+        // Funcionalidad para el botón de editar perfil
+        document.querySelector('.boton-editar').addEventListener('click', function() {
+            alert('Función de editar perfil');
+        });
+
+        
+        
+    </script>
+</body>
+</html>

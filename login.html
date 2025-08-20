@@ -5,65 +5,385 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Formulario de Registro Responsivo</title>
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
     <link rel="stylesheet" href="style.css">
+    
 </head>
-<body class="body-inicio" >
+<body class="body-inicio">
     <div class="contenedor">
-        <form class="formulario-registro">
+        <form class="formulario-registro" id="formularioRegistro">
             <div class="avatar">
                 <i class='bx bxs-user-circle'></i>
             </div>
             
             <div class="fila-formulario">
-                <input type="text" placeholder="Nombre" class="entrada-mitad">
-                <input type="text" placeholder="Apellidos" class="entrada-mitad">
-            </div>
-
-            <div class="grupo-formulario">
-                <div class="contenedor-icono">
-                    <i class='bx bxs-calendar'></i>
-                    <input type="date" class="control-formulario">
+                <div style="flex: 1; margin-right: -10px;">
+                    <input type="text" placeholder="Nombre" class="entrada-mitad" id="nombre" required autocomplete="off">
+                    <div class="mensaje-error" id="error-nombre"></div>
+                </div>
+                <div style="flex: 1; margin-left: 10px;">
+                    <input type="text" placeholder="Apellidos" class="entrada-mitad" id="apellidos" required autocomplete="off">
                 </div>
             </div>
 
             <div class="grupo-formulario">
                 <div class="contenedor-icono">
-                    <i class='bx bxs-map'></i>
-                    <input type="text" placeholder="Ingrese su dirección" class="control-formulario">
+                    <i class='bx bxs-calendar'></i>
+                    <input type="date" class="control-formulario" id="fecha" required>
+                </div>
+            </div>
+
+            <div class="grupo-formulario">
+                <div class="contenedor-icono">
+                    <i class='bx bxs-map' id="icono-mapa" title="Clic para seleccionar en el mapa"></i>
+                    <input type="text" placeholder="Ingrese su dirección" class="control-formulario" id="direccion" required autocomplete="off">
                 </div>
             </div>
 
             <div class="grupo-formulario">
                 <div class="contenedor-icono">
                     <i class='bx bxs-envelope'></i>
-                    <input type="email" placeholder="Ingresar correo electronico" class="control-formulario">
+                    <input type="email" placeholder="Ingresar correo electrónico" class="control-formulario" id="email" required autocomplete="off">
                 </div>
+                <div class="mensaje-error" id="error-email"></div>
             </div>
 
             <div class="grupo-formulario">
                 <div class="contenedor-icono">
                     <i class='bx bxs-phone'></i>
-                    <input type="tel" placeholder="ingresar telefono" class="control-formulario">
+                    <input type="tel" placeholder="Ingresar teléfono" class="control-formulario" id="telefono" required autocomplete="off">
                 </div>
+                <div class="mensaje-error" id="error-telefono"></div>
             </div>
 
             <div class="grupo-formulario">
                 <div class="contenedor-icono">
                     <i class='bx bxs-lock-alt'></i>
-                    <input type="password" placeholder="ingresar contraseña" class="control-formulario">
+                    <input type="password" placeholder="Ingresar contraseña" class="control-formulario" id="password" required autocomplete="new-password">
+                    <button type="button" class="toggle-password" id="togglePassword">
+                        <i class='bx bx-hide' id="toggleIcon"></i>
+                    </button>
                 </div>
+                <div class="mensaje-error" id="error-password"></div>
             </div>
 
             <div class="grupo-formulario">
                 <div class="contenedor-icono">
                     <i class='bx bxs-lock-alt'></i>
-                    <input type="password" placeholder="Confirmar contraseña" class="control-formulario">
+                    <input type="password" placeholder="Confirmar contraseña" class="control-formulario" id="confirmarPassword" required autocomplete="new-password">
+                    <button type="button" class="toggle-password" id="toggleConfirmPassword">
+                        <i class='bx bx-hide' id="toggleConfirmIcon"></i>
+                    </button>
                 </div>
+                <div class="mensaje-error" id="error-confirmar"></div>
             </div>
 
-            <button type="submit" class="boton-registrar">Registrar</button>
+            <button type="submit" class="boton-registrar" id="botonRegistrar">Registrar</button>
         </form>
     </div>
-    
+
+    <!-- Mensaje de confirmación -->
+    <div class="mensaje-confirmacion" id="mensajeConfirmacion">
+        ¡Registro exitoso! ...
+    </div>
+
+    <script>
+        // Variables del formulario
+        const formulario = document.getElementById('formularioRegistro');
+        const campos = {
+            nombre: document.getElementById('nombre'),
+            apellidos: document.getElementById('apellidos'),
+            fecha: document.getElementById('fecha'),
+            direccion: document.getElementById('direccion'),
+            email: document.getElementById('email'),
+            telefono: document.getElementById('telefono'),
+            password: document.getElementById('password'),
+            confirmarPassword: document.getElementById('confirmarPassword')
+        };
+
+        const botonRegistrar = document.getElementById('botonRegistrar');
+        const mensajeConfirmacion = document.getElementById('mensajeConfirmacion');
+        const togglePassword = document.getElementById('togglePassword');
+        const toggleIcon = document.getElementById('toggleIcon');
+        const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
+        const toggleConfirmIcon = document.getElementById('toggleConfirmIcon');
+
+        // LIMPIAR VALORES PREDETERMINADOS AL CARGAR LA PÁGINA
+        window.addEventListener('load', function() {
+            // Limpiar todos los valores que puedan estar autocompletados
+            Object.keys(campos).forEach(key => {
+                campos[key].value = '';
+            });
+            
+            // Ocultar mensajes de error
+            document.querySelectorAll('.mensaje-error').forEach(error => {
+                error.style.display = 'none';
+            });
+        });
+
+        // Funcionalidad para mostrar/ocultar contraseña principal
+        togglePassword.addEventListener('click', function() {
+            const type = campos.password.getAttribute('type') === 'password' ? 'text' : 'password';
+            campos.password.setAttribute('type', type);
+            
+            // Cambiar el ícono
+            if (type === 'text') {
+                toggleIcon.className = 'bx bx-show';
+            } else {
+                toggleIcon.className = 'bx bx-hide';
+            }
+        });
+
+        // Funcionalidad para mostrar/ocultar confirmación de contraseña
+        toggleConfirmPassword.addEventListener('click', function() {
+            const type = campos.confirmarPassword.getAttribute('type') === 'password' ? 'text' : 'password';
+            campos.confirmarPassword.setAttribute('type', type);
+            
+            // Cambiar el ícono
+            if (type === 'text') {
+                toggleConfirmIcon.className = 'bx bx-show';
+            } else {
+                toggleConfirmIcon.className = 'bx bx-hide';
+            }
+        });
+
+        // Validar nombre en tiempo real
+        campos.nombre.addEventListener('input', function() {
+            validarNombre();
+        });
+
+        // Validar email en tiempo real
+        campos.email.addEventListener('input', function() {
+            validarEmail();
+        });
+
+        // Validar teléfono en tiempo real
+        campos.telefono.addEventListener('input', function() {
+            validarTelefono();
+        });
+
+        // Validar contraseña en tiempo real
+        campos.password.addEventListener('input', function() {
+            validarPassword();
+        });
+
+        // Validar confirmación de contraseña
+        campos.confirmarPassword.addEventListener('input', function() {
+            validarConfirmacionPassword();
+        });
+
+        // Función para validar nombre
+        function validarNombre() {
+            const nombre = campos.nombre.value.trim();
+            const soloLetras = /^[a-zA-ZÀ-ÿ\s]+$/.test(nombre);
+            
+            if (nombre === '') {
+                campos.nombre.classList.add('campo-error');
+                mostrarError('error-nombre', 'El nombre es requerido');
+                return false;
+            } else if (nombre.length < 2) {
+                campos.nombre.classList.add('campo-error');
+                mostrarError('error-nombre', 'El nombre debe tener al menos 2 caracteres');
+                return false;
+            } else if (!soloLetras) {
+                campos.nombre.classList.add('campo-error');
+                mostrarError('error-nombre', 'El nombre solo puede contener letras');
+                return false;
+            } else {
+                campos.nombre.classList.remove('campo-error');
+                ocultarError('error-nombre');
+                return true;
+            }
+        }
+
+        // Función para validar email
+        function validarEmail() {
+            const email = campos.email.value.trim();
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            
+            if (email === '') {
+                campos.email.classList.add('campo-error');
+                mostrarError('error-email', 'El correo electrónico es requerido');
+                return false;
+            } else if (!email.includes('@')) {
+                campos.email.classList.add('campo-error');
+                mostrarError('error-email', 'El correo debe contener el símbolo @');
+                return false;
+            } else if (!emailRegex.test(email)) {
+                campos.email.classList.add('campo-error');
+                mostrarError('error-email', 'Por favor ingrese un correo válido (ejemplo: usuario@dominio.com)');
+                return false;
+            } else {
+                campos.email.classList.remove('campo-error');
+                ocultarError('error-email');
+                return true;
+            }
+        }
+
+        // Función para validar teléfono
+        function validarTelefono() {
+            const telefono = campos.telefono.value.replace(/\s/g, '');
+            const soloNumeros = /^\d+$/.test(telefono);
+            
+            if (telefono === '') {
+                campos.telefono.classList.add('campo-error');
+                mostrarError('error-telefono', 'El teléfono es requerido');
+                return false;
+            } else if (!soloNumeros) {
+                campos.telefono.classList.add('campo-error');
+                mostrarError('error-telefono', 'El teléfono solo puede contener números');
+                return false;
+            } else if (telefono.length !== 10) {
+                campos.telefono.classList.add('campo-error');
+                mostrarError('error-telefono', 'El teléfono debe tener exactamente 10 dígitos');
+                return false;
+            } else {
+                campos.telefono.classList.remove('campo-error');
+                ocultarError('error-telefono');
+                return true;
+            }
+        }
+
+        // Función para validar contraseña
+        function validarPassword() {
+            const password = campos.password.value;
+            
+            if (password === '') {
+                campos.password.classList.add('campo-error');
+                mostrarError('error-password', 'La contraseña es requerida');
+                return false;
+            } else if (password.length < 8) {
+                campos.password.classList.add('campo-error');
+                mostrarError('error-password', 'La contraseña debe tener al menos 8 caracteres');
+                return false;
+            } else if (!/[A-Z]/.test(password)) {
+                campos.password.classList.add('campo-error');
+                mostrarError('error-password', 'La contraseña debe contener al menos una letra mayúscula');
+                return false;
+            } else if (!/[a-z]/.test(password)) {
+                campos.password.classList.add('campo-error');
+                mostrarError('error-password', 'La contraseña debe contener al menos una letra minúscula');
+                return false;
+            } else if (!/\d/.test(password)) {
+                campos.password.classList.add('campo-error');
+                mostrarError('error-password', 'La contraseña debe contener al menos un número');
+                return false;
+            } else if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+                campos.password.classList.add('campo-error');
+                mostrarError('error-password', 'La contraseña debe contener al menos un carácter especial (!@#$%^&*)');
+                return false;
+            } else {
+                campos.password.classList.remove('campo-error');
+                ocultarError('error-password');
+                return true;
+            }
+        }
+
+        // Función para validar confirmación de contraseña
+        function validarConfirmacionPassword() {
+            const password = campos.password.value;
+            const confirmacion = campos.confirmarPassword.value;
+            
+            if (confirmacion === '') {
+                campos.confirmarPassword.classList.add('campo-error');
+                mostrarError('error-confirmar', 'Debe confirmar la contraseña');
+                return false;
+            } else if (password !== confirmacion) {
+                campos.confirmarPassword.classList.add('campo-error');
+                mostrarError('error-confirmar', 'Las contraseñas no coinciden');
+                return false;
+            } else {
+                campos.confirmarPassword.classList.remove('campo-error');
+                ocultarError('error-confirmar');
+                return true;
+            }
+        }
+
+        // Función para verificar que todos los campos estén llenos
+        function todosLosCamposLlenos() {
+            let todosLlenos = true;
+            
+            Object.keys(campos).forEach(key => {
+                const campo = campos[key];
+                if (campo.value.trim() === '') {
+                    campo.classList.add('campo-requerido');
+                    todosLlenos = false;
+                } else {
+                    campo.classList.remove('campo-requerido');
+                }
+            });
+            
+            return todosLlenos;
+        }
+
+        // Funciones auxiliares
+        function mostrarError(id, mensaje) {
+            const elementoError = document.getElementById(id);
+            elementoError.textContent = mensaje;
+            elementoError.style.display = 'block';
+        }
+
+        function ocultarError(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+
+        // Limpiar estilos cuando el usuario empieza a escribir
+        Object.keys(campos).forEach(key => {
+            campos[key].addEventListener('input', function() {
+                this.classList.remove('campo-requerido');
+                if (this.classList.contains('campo-error') && this.value.trim() !== '') {
+                    // Solo remover error si no es nombre, email, teléfono o contraseña (que tienen validación específica)
+                    if (key !== 'nombre' && key !== 'email' && key !== 'telefono' && key !== 'password' && key !== 'confirmarPassword') {
+                        this.classList.remove('campo-error');
+                    }
+                }
+            });
+        });
+
+        // Envío del formulario
+        formulario.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // Verificar que todos los campos estén llenos
+            const camposLlenos = todosLosCamposLlenos();
+            
+            if (!camposLlenos) {
+                alert('Por favor, complete todos los campos');
+                return;
+            }
+
+            // Validar campos específicos
+            const nombreValido = validarNombre();
+            const emailValido = validarEmail();
+            const telefonoValido = validarTelefono();
+            const passwordValida = validarPassword();
+            const confirmacionValida = validarConfirmacionPassword();
+
+            if (nombreValido && emailValido && telefonoValido && passwordValida && confirmacionValida) {
+                // Mostrar loading
+                botonRegistrar.disabled = true;
+                botonRegistrar.textContent = 'Registrando...';
+                document.querySelector('.formulario-registro').classList.add('loading');
+
+                // Simular registro
+                setTimeout(function() {
+                    // Mostrar mensaje de éxito
+                    mensajeConfirmacion.style.display = 'block';
+                    
+                    // Redireccionar al inicio de sesión después de 2 segundos
+                    setTimeout(function() {
+                        window.location.href = 'iniciar_sesion.html';
+                    }, 2000);
+                }, 1500);
+            } else {
+                // Scroll al primer error
+                const primerError = document.querySelector('.campo-error');
+                if (primerError) {
+                    primerError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+        });
+    </script>
+
 </body>
 </html>
