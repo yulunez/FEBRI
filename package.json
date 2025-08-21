@@ -1,0 +1,24 @@
+{
+  "name": "febri-1",
+  "version": "1.0.0",
+  "description": "",
+  "main": "script.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yulunez/FEBRI.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/yulunez/FEBRI/issues"
+  },
+  "homepage": "https://github.com/yulunez/FEBRI#readme",
+  "dependencies": {
+    "express": "^5.1.0",
+    "mssql": "^11.0.1"
+  }
+}

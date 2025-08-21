@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+      <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+      <!-- Barra de navegación para pantallas grandes -->
+    <nav class="nav-grande">
+        <div class="logo">
+            <img src="imagenes/logo.png" alt="Logo">
+        </div>
+        <div class="barra-busqueda">
+            <input type="text" placeholder="Buscar productos...">
+            <i class='bx bx-search'></i>
+        </div>
+        <div class="menu-items">
+            <a href="index.html" class="nav-link">Inicio</a>
+            <a href="categorias.html" class="nav-link">Categorías</a>
+            <a href="ofertas.html" class="nav-link">Ofertas</a>
+            <a href="contactos.html" class="nav-link">Contáctos</a>
+            <div class="btn-registrar"><a href="iniciar_seccion.html">Iniciar sesión</a></div>
+                <i class='bx bx-user perfil-icon'></i>
+               
+        </div>
+    </nav>
+
+    <!-- Menú móvil para pantallas pequeñas -->
+    <nav class="nav-pequeno">
+        <div class="menu-superior">
+            <i class='bx bx-menu menu-icon'></i>
+            <div class="barra-busqueda-movil">
+                <input type="text" placeholder="Buscar productos...">
+                <i class='bx bx-search'></i>
+            </div>
+                <i class='bx bx-user'></i>
+           
+        </div>
+        
+        <!-- Menú lateral -->
+        <div class="menu-lateral">
+            <div class="menu-items-movil">
+                <a href="inicio.html" class="nav-link-movil">
+                    <i class='bx bx-home-alt'></i>
+                    <span>Inicio</span>
+                </a>
+                <a href="contactos.html" class="nav-link-movil">
+                    <i class='bx bx-phone'></i>
+                    <span>Contáctos</span>
+                </a>
+                <a href="categorias.html" class="nav-link-movil">
+                    <i class='bx bx-category'></i>
+                    <span>Categorías</span>
+                </a>
+                <a href="ofertas.html" class="nav-link-movil">
+                    <i class='bx bx-gift'></i>
+                    <span>Ofertas</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+  <section class="contactos-seccion">
+    <div class="contactos-contenedor">
+        <div class="contactos-grid">
+            <div class="contactos-info-cards">
+                <div class="info-card">
+                    <i class='bx bx-map-pin'></i>
+                    <h3>Nuestra ubicación principal</h3>
+                    <p>Calle 123, Rionegro, Antioquia</p>
+                </div>
+                <div class="info-card">
+                    <i class='bx bx-phone'></i>
+                    <h3>Número de teléfono</h3>
+                    <p>320 6458678</p>
+                </div>
+                <div class="info-card">
+                    <i class='bx bx-time-five'></i>
+                    <h3>Horario</h3>
+                    <p>Lun a Vie: 9am - 6pm</p>
+                </div>
+                <div class="info-card">
+                    <i class='bx bx-envelope'></i>
+                    <h3>Correo electrónico</h3>
+                    <p>febriinc@gmail.com</p>
+                </div>
+            </div>
+            
+            <div class="contacto-formulario">
+                <h2>Contáctenos</h2>
+                <form>
+                    <div class="form-grupo">
+                        <input type="text" placeholder="Nombre completo" required>
+                    </div>
+                    <div class="form-grupo">
+                        <input type="email" placeholder="Correo electrónico" required>
+                    </div>
+                    <div class="form-grupo">
+                        <textarea placeholder="Tu mensaje" required></textarea>
+                    </div>
+                    <button type="submit" class="btn-enviar">Enviar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+<script src="script.js"></script>
+    
+</body>
+</html>

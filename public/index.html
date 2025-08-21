@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Navegación</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body >
+    <!-- Barra de navegación para pantallas grandes -->
+    <nav class="nav-grande">
+        <div class="logo">
+            <img src="imagenes/logo.png" alt="Logo">
+        </div>
+        <div class="barra-busqueda">
+            <input type="text" placeholder="Buscar productos...">
+            <i class='bx bx-search'></i>
+        </div>
+        <div class="menu-items">
+            <a href="index.html" class="nav-link">Inicio</a>
+            <a href="categorias.html" class="nav-link">Categorías</a>
+            <a href="ofertas.html" class="nav-link">Ofertas</a>
+            <a href="contactos.html" class="nav-link">Contáctos</a>
+            <div class="btn-registrar"><a href="iniciar_seccion.html">Iniciar sesión</a></div>
+                <i class='bx bx-user perfil-icon'></i>
+                
+        </div>
+    </nav>
+
+    <!-- Menú móvil para pantallas pequeñas -->
+    <nav class="nav-pequeno">
+        <div class="menu-superior">
+            <i class='bx bx-menu menu-icon'></i>
+            <div class="barra-busqueda-movil">
+                <input type="text" placeholder="Buscar productos...">
+                <i class='bx bx-search'></i>
+            </div>
+        
+                <i class='bx bx-user'></i>
+        </div>
+        
+        <!-- Menú lateral -->
+        <div class="menu-lateral">
+            <div class="menu-items-movil">
+                <a href="inicio.html" class="nav-link-movil">
+                    <i class='bx bx-home-alt'></i>
+                    <span>Inicio</span>
+                </a>
+                <a href="#" class="nav-link-movil">
+                    <i class='bx bx-phone'></i>
+                    <span>Contáctos</span>
+                </a>
+                <a href="categorias.html" class="nav-link-movil">
+                    <i class='bx bx-category'></i>
+                    <span>Categorías</span>
+                </a>
+                <a href="#" class="nav-link-movil">
+                    <i class='bx bx-gift'></i>
+                    <span>Ofertas</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+    <section class="hero-seccion">
+        <div class="hero-contenido">
+            <h2 class="hero-subtitulo">Bienvenido a Febri</h2>
+            <h1 class="hero-titulo">¡Tu destino favorito para descubrir productos increíbles!</h1>
+            <p class="hero-descripcion">
+                Tu tienda en línea de confianza. Elige el producto que desees y nosotros nos 
+                encargamos de llevarlo hasta la puerta de tu casa. En Febri, nos apasiona 
+                ofrecerte una experiencia de compra fácil, cómoda y segura,con la garantía 
+                de que recibirás siempre lo mejor.
+            </p>
+            
+            <a href="categorias.html" class="hero-boton">Descubre más</a>
+        </div>
+        <div class="hero-imagen">
+            <img src="imagenes/inicio.webp" alt="">
+        </div>
+        
+    </section>
+   <section class="productos-populares">
+    <h2 class="titulo-seccion">Tendencias del Momento</h2>
+    <div class="contenedor-carrusel">
+        <button class="boton-carrusel anterior ">
+            <i class='bx bx-chevron-left'></i>
+        </button>
+        <div class="productos-carrusel">
+            <div class="tarjeta-producto">
+                <img src="imagenes/llavero-inicio.jpeg" alt="Llavero de K">
+                <div class="producto-info">
+                    <h3>Llavero de K</h3>
+                    <p class="precio">$ 25.000</p>
+                     <i class='bx bx-heart corazon-vacio'></i>
+                  </div>
+            </div>
+            <div class="tarjeta-producto">
+                <img src="imagenes/libreta-inicio.jpeg" alt="Agenda">
+                <div class="producto-info">
+                    <h3>Agenda</h3>
+                    <p class="precio-descuento">$ 30.000</p>
+                    <p class="precio">$ 35.000</p>
+                    <i class='bx bx-heart corazon-vacio'></i>
+                </div>
+            </div>
+           <div class="tarjeta-producto"><a href="categorias.html"> 
+                <img src="imagenes/decoracion-inicio.avif" alt="Pulsera"></a>
+                <div class="producto-info">
+                    <h3>Decoración </h3>
+                    <p class="precio">$ 20.000</p>
+                    <i class='bx bx-heart corazon-vacio'></i>
+                </div>
+                
+            </div>
+             <div class="tarjeta-producto">
+                <img src="imagenes/boligrafo-inicio.jpg" alt="Lapicero">
+                <div class="producto-info">
+                    <h3>Boligrafo <br> personalizado</h3>
+                    <p class="precio-descuento">$ 20.000</p>
+                    <p class="precio">$ 17.500</p>
+                <i class='bx bx-heart corazon-vacio'></i> </div>
+            </div>
+            <div class="tarjeta-producto"><a href="categorias.html"> 
+                <img src="imagenes/joyas5.jpg" alt=""></a>
+                <div class="producto-info">
+                    <h3>Aretes Flor Coral </h3>
+                    <p class="precio">$ 20.000</p>
+                    <i class='bx bx-heart corazon-vacio'></i>
+                </div>
+            </div>
+            <div class="tarjeta-producto">
+                <img src="imagenes/juegos 1.jpg" alt="Lapicero">
+                <div class="producto-info">
+                    <h3>ajedrez</h3>
+                    <p class="precio">$ 45.500</p>
+                <i class='bx bx-heart corazon-vacio'></i> </div>
+            </div>
+        </div>
+        
+        
+        
+        
+        <button class="boton-carrusel siguiente">
+            <i class='bx bx-chevron-right'></i>
+        </button>
+    </div>
+</section>
+
+<section class="caracteristicas">
+    <div class="caracteristicas-contenedor">
+        <div class="caracteristica-card">
+            <i class='bx bx-diamond caracteristica-icono'></i>
+            <h3 class="caracteristica-titulo">Diseños Únicos</h3>
+            <p class="caracteristica-descripcion">Cada pieza es cuidadosamente seleccionada para garantizar exclusividad y estilo.</p>
+        </div>
+        <div class="caracteristica-card">
+            <i class='bx bx-gift caracteristica-icono'></i>
+            <h3 class="caracteristica-titulo">Empaque Especial</h3>
+            <p class="caracteristica-descripcion">Presentación elegante para regalo con detalles personalizados.</p>
+        </div>
+        <div class="caracteristica-card">
+            <i class='bx bx-heart caracteristica-icono'></i>
+            <h3 class="caracteristica-titulo">Calidad Premium</h3>
+            <p class="caracteristica-descripcion">Materiales de primera calidad para una durabilidad garantizada.</p>
+        </div>
+    </div>
+</section>
+
+<!-- Banner promocional -->
+<div class="banner-promo-especial">
+    <div class="banner-contenido-promo">
+        <h2 class="banner-titulo-promo">¡Ofertas Especiales!</h2>
+        <p class="banner-texto-promo">Descubre nuestras increíbles promociones en accesorios seleccionados. ¡No te pierdas estas ofertas exclusivas!</p>
+        <a href="ofertas.html"class="banner-boton-promo">Ver Ofertas</a>
+    </div>
+    <div class="banner-imagen-promo">
+        <img src="imagenes/oferta_inicio.jpeg" alt="Ofertas especiales">
+        <span class="etiqueta-descuento">-50%</span>
+    </div>
+</div>
+
+
+
+<section class="marcas-seccion">
+    <div class="marcas-contenedor">
+        <div class="marcas-texto">
+            <h1 class="marcas-titulo">Conoce Nuestros productos</h1>
+            <a href="categorias.html" class="marcas-boton">Conócelos todos</a>
+        </div>
+        <div class="marcas-imagen">
+            <img src="imagenes/carrito1.png" alt="">
+        </div>
+    </div>
+    
+    <div class="circulo-decorativo circulo-1"></div>
+    <div class="circulo-decorativo circulo-2"></div>
+</section>
+
+
+<section class="blog-posts">
+    <div class="post-card">
+        <div class="post-image-container">
+            <img src="imagenes/joyas descri.jpg" alt="" class="post-image hover-effect">
+        </div>
+        <h3 class="post-titulo">Joyas Únicas en Resina: Arte que Puedes Llevar</h3>
+        <p class="post-descripcion">Descubre nuestra colección exclusiva de joyas artesanales en resina. Cada pieza es única y cuenta una historia especial, perfecta para quienes buscan accesorios originales y llenos de personalidad.</p>
+    </div>
+
+    <div class="post-card">
+        <div class="post-image-container">
+            <img src="imagenes/arte descri.jpg" alt="" class="post-image hover-effect">
+        </div>
+        <h3 class="post-titulo">Decoración que Transforma tu Espacio</h3>
+        <p class="post-descripcion">Elementos decorativos en resina que darán vida a tu hogar. Desde centros de mesa hasta esculturas modernas, cada pieza está diseñada para crear ambientes únicos y especiales.</p>
+    </div>
+
+    <div class="post-card">
+        <div class="post-image-container">
+            <img src="imagenes/decoracion descri.jpg" alt="" class="post-image hover-effect">
+        </div>
+        <h3 class="post-titulo">Arte en Resina: Donde la Imaginación Fluye</h3>
+        <p class="post-descripcion">Obras de arte únicas que combinan color, transparencia y creatividad. Nuestras piezas artísticas en resina son perfectas para coleccionistas y amantes del arte contemporáneo.</p>
+    </div>
+
+    <div class="post-card">
+        <div class="post-image-container">
+            <img src="imagenes/juegos descri.webp" alt="Juegos y Entretenimiento" class="post-image hover-effect">
+        </div>
+        <h3 class="post-titulo">Diversión y Creatividad en Resina</h3>
+        <p class="post-descripcion">Juegos y elementos de entretenimiento únicos elaborados en resina. Desde dados personalizados hasta piezas de ajedrez artísticas, la diversión nunca había sido tan elegante.</p>
+    </div>
+</section>
+
+    <script>
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        const menuIcon = document.querySelector('.menu-icon');
+        const menuLateral = document.querySelector('.menu-lateral');
+        
+        menuIcon.addEventListener('click', function() {
+            menuLateral.classList.toggle('activo');
+        });
+    });
+
+    //estilo para boton favorito
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Seleccionar todos los botones de favoritos
+    const botonesFavoritos = document.querySelectorAll('.corazon-vacio');
+    
+    // Agregar el evento click a cada botón
+    botonesFavoritos.forEach(boton => {
+        boton.addEventListener('click', function() {
+            // Alternar la clase 'activo'
+            this.classList.toggle('corazon-activo');
+        });
+    });
+});
+//estilo para pasar imagen
+
+document.addEventListener('DOMContentLoaded', function() {
+    const carrusel = document.querySelector('.productos-carrusel');
+    const btnAnterior = document.querySelector('.anterior');
+    const btnSiguiente = document.querySelector('.siguiente');
+    const tarjetas = document.querySelectorAll('.tarjeta-producto');
+    
+    let posicionActual = 0;
+    const tarjetasPorVista = 4;
+    const totalTarjetas = tarjetas.length;
+    
+    function moverCarrusel(direccion) {
+        const anchoTarjeta = tarjetas[0].offsetWidth + 20; // ancho + gap
+        
+        if (direccion === 'siguiente' && posicionActual < totalTarjetas - tarjetasPorVista) {
+            posicionActual++;
+        } else if (direccion === 'anterior' && posicionActual > 0) {
+            posicionActual--;
+        }
+        
+        const desplazamiento = -posicionActual * anchoTarjeta;
+        carrusel.style.transform = `translateX(${desplazamiento}px)`;
+        
+        // Actualizar estado de botones
+        btnAnterior.style.opacity = posicionActual === 0 ? '0.5' : '1';
+        btnSiguiente.style.opacity = 
+            posicionActual >= totalTarjetas - tarjetasPorVista ? '0.5' : '1';
+    }
+    
+    btnSiguiente.addEventListener('click', () => moverCarrusel('siguiente'));
+    btnAnterior.addEventListener('click', () => moverCarrusel('anterior'));
+});
+
+
+    </script>
+</body>
+</html>
