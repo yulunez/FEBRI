@@ -15,6 +15,9 @@ app.get("/", (req, res) => {
 
 // Iniciar servidor
 const PORT = 3000;
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
+
+  // Llamamos a la conexión con la BD
+  await conectarBD();
 });
