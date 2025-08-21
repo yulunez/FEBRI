@@ -1,0 +1,273 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrito de Compras - Productos de Resina</title>
+     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="carrito.css">
+   
+</head>
+<body>
+    <div class="carrito-container">
+       <!-- Barra de navegación para pantallas grandes -->
+    <nav class="nav-grande">
+        <div class="logo">
+            <img src="imagenes/logo.png" alt="Logo">
+        </div>
+        <div class="barra-busqueda">
+            <input type="text" placeholder="Buscar productos...">
+            <i class='bx bx-search'></i>
+        </div>
+        <div class="menu-items">
+            <a href="inicio.html" class="nav-link">Inicio</a>
+            <a href="categorias.html" class="nav-link">Categorías</a>
+            <a href="ofertas.html" class="nav-link">Ofertas</a>
+            <a href="contactos.html" class="nav-link">Contáctos</a>
+            <div class="btn-registrar"><a href="iniciar_seccion.html">Iniciar sesión</a></div>
+                <i class='bx bx-user perfil-icon'></i>
+                
+        </div>
+    </nav>
+
+    <!-- Menú móvil para pantallas pequeñas -->
+    <nav class="nav-pequeno">
+        <div class="menu-superior">
+            <i class='bx bx-menu menu-icon'></i>
+            <div class="barra-busqueda-movil">
+                <input type="text" placeholder="Buscar productos...">
+                <i class='bx bx-search'></i>
+            </div>
+        
+                <i class='bx bx-user'></i>
+        </div>
+        
+        <!-- Menú lateral -->
+        <div class="menu-lateral">
+            <div class="menu-items-movil">
+                <a href="inicio.html" class="nav-link-movil">
+                    <i class='bx bx-home-alt'></i>
+                    <span>Inicio</span>
+                </a>
+                <a href="contactos.html" class="nav-link-movil">
+                    <i class='bx bx-phone'></i>
+                    <span>Contáctos</span>
+                </a>
+                <a href="categorias.html" class="nav-link-movil">
+                    <i class='bx bx-category'></i>
+                    <span>Categorías</span>
+                </a>
+                <a href="ofertas.html" class="nav-link-movil">
+                    <i class='bx bx-gift'></i>
+                    <span>Ofertas</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+        <div class="carrito-body">
+            <div id="productos-carrito">
+    
+            </div>
+
+            <div id="carrito-vacio" class="carrito-vacio" style="display: none;">
+                <div class="carrito-vacio-icon">🛒</div>
+                <h3>Tu carrito está vacío</h3>
+                <p>Agrega algunos productos de resina para continuar con tu compra</p>
+            </div>
+        </div>
+
+        <div class="total-section" id="total-section">
+            <div class="botones-total-container">
+                <button class="btn-accion btn-comprar" onclick="comprar()">
+                     Comprar Ahora
+                </button>
+                <div class="total-info">
+                    <span class="total-label">Total a pagar:</span>
+                    <div class="total-precio" id="total-precio">$0</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de confirmación -->
+    <div class="modal" id="modal-confirmacion">
+        <div class="modal-content">
+            <div class="checkmark">✓</div>
+            <p style="margin-top: 20px;"><strong>Total pagado: <span id="total-modal">$0</span></strong></p>
+        </div>
+    </div>
+
+    <script>
+        // Productos de resina en el carrito
+        let productosCarrito = [
+            {
+                id: 1,
+                nombre: "Llavero de K",
+                precio: 25000,
+                descripcion: "Llavero personalizado con la letra K. Fabricado en material resistente y duradero. Perfecto para regalar o uso personal. Incluye argolla de metal de alta calidad que no se oxida.",
+                imagen: "imagenes/llavero-inicio.jpeg",
+                cantidad: 1
+            },
+            {
+                id: 2,
+               nombre: "Agenda",
+                precio: 30000,
+                descripcion: "Agenda elegante con páginas de alta calidad. Ideal para organizar tu día a día con estilo. Incluye separadores y marcapáginas. Cubierta resistente al agua y páginas con papel de 80gr.",
+                imagen: "imagenes/libreta-inicio.jpeg",
+                cantidad: 2
+            },
+            {
+                id: 3,
+                nombre: "Decoración",
+                precio: 20000,
+                descripcion: "Este objeto decorativo en resina está formado por dos piezas de aspecto metálico con detalles en dorado y azul. Una de ellas presenta una forma circular con una hendidura central que contiene un pequeño punto rojo, mientras que la otra tiene un diseño tipo abanico con textura.",
+                imagen: "imagenes/decoracion-inicio.avif",
+                cantidad: 1
+            },
+            {
+                id: 4,
+                nombre: "Bolígrafo Personalizado",
+                precio:17500,
+                descripcion: "Este bolígrafo decorativo en tono rosa lleva grabado el mensaje “Sé fuerte y sé valiente” en letras doradas, transmitiendo motivación con estilo. Está acompañado por un llavero con clip en forma de corazón y dos dijes de flechas con brillo y detalles coloridos que aportan encanto artesanal.",
+                imagen: "imagenes/boligrafo-inicio.jpg",
+                cantidad: 2
+            }
+        ];
+
+        // Formatear precio en pesos colombianos
+        function formatearPrecio(precio) {
+            return new Intl.NumberFormat('es-CO', {
+                style: 'currency',
+                currency: 'COP',
+                minimumFractionDigits: 0
+            }).format(precio);
+        }
+
+        // Renderizar productos del carrito
+        function renderizarCarrito() {
+            const contenedor = document.getElementById('productos-carrito');
+            const carritoVacio = document.getElementById('carrito-vacio');
+            const totalSection = document.getElementById('total-section');
+            
+            if (productosCarrito.length === 0) {
+                contenedor.innerHTML = '';
+                carritoVacio.style.display = 'block';
+                totalSection.style.display = 'none';
+                return;
+            }
+
+            carritoVacio.style.display = 'none';
+            totalSection.style.display = 'block';
+
+            contenedor.innerHTML = productosCarrito.map(producto => 
+                '<div class="producto-item">' +
+                    '<div class="producto-content">' +
+                        '<img src="' + producto.imagen + '" alt="' + producto.nombre + '" class="producto-imagen">' +
+                        '<div class="producto-details">' +
+                            '<div class="producto-header">' +
+                                '<div class="producto-info">' +
+                                    '<h3>' + producto.nombre + '</h3>' +
+                                    '<div class="producto-precio">' + formatearPrecio(producto.precio) + ' </div>' +
+                                '</div>' +
+                                '<button class="btn-eliminar" onclick="eliminarProducto(' + producto.id + ')" title="Eliminar producto">' +
+                                    '<i class="bx bx-trash"></i>' +
+                                '</button>' +
+                            '</div>' +
+                            '<div class="producto-descripcion">' + producto.descripcion + '</div>' +
+                            '<div class="cantidad-section">' +
+                                '<div class="cantidad-controls">' +
+                                    '<button class="btn-cantidad" onclick="cambiarCantidad(' + producto.id + ', -1)" ' + (producto.cantidad <= 1 ? 'disabled' : '') + '>-</button>' +
+                                    '<span class="cantidad">' + producto.cantidad + '</span>' +
+                                    '<button class="btn-cantidad" onclick="cambiarCantidad(' + producto.id + ', 1)">+</button>' +
+                                '</div>' +
+                                '<div class="subtotal">Subtotal: ' + formatearPrecio(producto.precio * producto.cantidad) + '</div>' +
+                            '</div>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>'
+            ).join('');
+
+            actualizarTotales();
+        }
+
+        // Cambiar cantidad de un producto
+        function cambiarCantidad(productoId, cambio) {
+            const producto = productosCarrito.find(p => p.id === productoId);
+            if (producto) {
+                const nuevaCantidad = producto.cantidad + cambio;
+                if (nuevaCantidad >= 1) {
+                    producto.cantidad = nuevaCantidad;
+                    renderizarCarrito();
+                }
+            }
+        }
+
+        // Eliminar producto del carrito con animación
+        function eliminarProducto(productoId) {
+            if (confirm('¿Estás seguro de que quieres eliminar este producto del carrito?')) {
+                // Encontrar el elemento del producto
+                const productoElement = document.querySelector(`[onclick="eliminarProducto(${productoId})"]`).closest('.producto-item');
+                
+                // Agregar clase de animación
+                productoElement.classList.add('eliminando');
+                
+                // Esperar a que termine la animación antes de eliminar del array
+                setTimeout(() => {
+                    productosCarrito = productosCarrito.filter(p => p.id !== productoId);
+                    renderizarCarrito();
+                }, 500);
+            }
+        }
+
+        // Actualizar totales y contador
+        function actualizarTotales() {
+            const totalItems = productosCarrito.reduce((total, producto) => total + producto.cantidad, 0);
+            const totalPrecio = productosCarrito.reduce((total, producto) => total + (producto.precio * producto.cantidad), 0);
+
+            const contadorElement = document.getElementById('contador-items');
+            if (contadorElement) {
+                contadorElement.textContent = totalItems;
+            }
+            document.getElementById('total-precio').textContent = formatearPrecio(totalPrecio);
+        }
+
+        // Realizar compra - Redirigir a página de pago
+        function comprar() {
+            if (productosCarrito.length === 0) {
+                alert('No hay productos en el carrito');
+                return;
+            }
+
+            // Guardar los productos del carrito en localStorage para la página de pago
+            localStorage.setItem('carritoCompra', JSON.stringify(productosCarrito));
+            localStorage.setItem('totalCompra', productosCarrito.reduce((sum, producto) => sum + (producto.precio * producto.cantidad), 0));
+
+            // Redirigir a la página de pago
+            window.location.href = 'pago.html';
+        }
+
+     
+
+        // Cerrar modal al hacer clic fuera
+        document.getElementById('modal-confirmacion').addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.style.display = 'none';
+            }
+        });
+
+          document.addEventListener('DOMContentLoaded', function() {
+        const menuIcon = document.querySelector('.menu-icon');
+        const menuLateral = document.querySelector('.menu-lateral');
+        
+        menuIcon.addEventListener('click', function() {
+            menuLateral.classList.toggle('activo');
+        });
+    });
+
+        // Inicializar carrito
+        renderizarCarrito();
+    </script>
+</body>
+</html>

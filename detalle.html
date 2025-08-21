@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="nav-grande">
+        <div class="logo">
+            <img src="imagenes/logo.png" alt="Logo">
+        </div>
+        <div class="barra-busqueda">
+            <input type="text" placeholder="Buscar productos...">
+            <i class='bx bx-search'></i>
+        </div>
+        <div class="menu-items">
+            <a href="inicio.html" class="nav-link">Inicio</a>
+            <a href="categorias.html" class="nav-link">Categorías</a>
+            <a href="ofertas.html" class="nav-link">Ofertas</a>
+            <a href="contactos.html" class="nav-link">Contáctos</a>
+            <div class="btn-registrar"><a href="iniciar_seccion.html">Iniciar sesión</a></div>
+                <i class='bx bx-user perfil-icon'></i>
+                
+        </div>
+    </nav>
+
+    <!-- Menú móvil para pantallas pequeñas -->
+    <nav class="nav-pequeno">
+        <div class="menu-superior">
+            <i class='bx bx-menu menu-icon'></i>
+            <div class="barra-busqueda-movil">
+                <input type="text" placeholder="Buscar productos...">
+                <i class='bx bx-search'></i>
+            </div>
+        
+                <i class='bx bx-user'></i>
+        </div>
+        
+        <!-- Menú lateral -->
+        <div class="menu-lateral">
+            <div class="menu-items-movil">
+                <a href="inicio.html" class="nav-link-movil">
+                    <i class='bx bx-home-alt'></i>
+                    <span>Inicio</span>
+                </a>
+                <a href="contactos.html" class="nav-link-movil">
+                    <i class='bx bx-phone'></i>
+                    <span>Contáctos</span>
+                </a>
+                <a href="categorias.html" class="nav-link-movil">
+                    <i class='bx bx-category'></i>
+                    <span>Categorías</span>
+                </a>
+                <a href="ofertas.html" class="nav-link-movil">
+                    <i class='bx bx-gift'></i>
+                    <span>Ofertas</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mensaje de carga -->
+    <div id="loading-message" style="text-align: center; padding: 50px; font-size: 18px; color: #666;">
+        Cargando producto...
+    </div>
+
+    <!-- Mensaje de error -->
+    <div id="error-message" style="display: none; text-align: center; padding: 50px; color: #dc3545; font-size: 18px;">
+        <h2>Producto no encontrado</h2>
+        <p>El producto que buscas no existe o ha sido eliminado.</p>
+        <a href="index.html" style="color: #007bff; text-decoration: none;">← Volver al catálogo</a>
+    </div>
+
+    <main id="producto-main" style="display: none;">
+        <section class="producto-detalle">
+            <div class="producto-imagen15">
+                <img id="producto-imagen" src="" alt="Producto">
+            </div>
+
+            <div class="producto-info">
+                <h1 class="producto-tituloa15" id="producto-titulo">Cargando...</h1>
+                <div class="producto-precio-fav">
+                    <span id="precio-anterior" class="precio-anterior" style="display: none; color: #999; text-decoration: line-through; font-size: 14px; margin-right: 10px;"></span>
+                    <span class="producto-precioa15" id="producto-precio">$0</span>
+                    <button class="btn-favorito" title="Agregar a favoritos">❤</button>
+                </div>
+                <p class="producto-descripciona15" id="producto-descripcion">Cargando descripción...</p>
+                <div class="producto-acciones">
+                    <div class="cantidad-carrito">
+                        <button class="btn-cantidad" id="restar">-</button>
+                        <input type="text" id="cantidad" value="1" readonly>
+                        <button class="btn-cantidad" id="sumar">+</button>
+                        
+                    </div>
+                    
+                    <button class="btn-agregar-carrito">
+                        <span>Comprar ahora</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24"><path fill="#fff" d="M7 18c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zM7.16 14.26l.03.01L7.2 14.3c.27.14.57.2.88.2h7.72c.7 0 1.31-.37 1.62-.93l3.24-5.88A1 1 0 0 0 20 6H6.21l-.94-2H2v2h2l3.6 7.59-1.35 2.44zM17.16 16H7.83l1.1-2h7.45l-1.22 2z"/></svg>
+                    </button>
+                    
+                </div>
+                <div class="calificacion">
+                    <div class="corazones">
+                       <span class="heart" data-index="1">&#10084;</span>
+                        <span class="heart" data-index="2">&#10084;</span>
+                        <span class="heart" data-index="3">&#10084;</span>
+                        <span class="heart" data-index="4">&#10084;</span>
+                        <span class="heart" data-index="5">&#10084;</span>
+                    </div>
+                </div>
+        </section>
+
+        <section class="comentarios">
+            <h2>Comentarios</h2>
+            <div id="lista-comentarios"></div>
+            <form id="form-comentario">
+                <textarea id="comentario" placeholder="Escribe tu comentario..." required></textarea>
+                <button type="submit">Enviar</button>
+            </form>
+            
+        </section>
+    </main>
+
+    <script>
+        // Base de datos de productos
+        const productos = {
+            'llavero': {
+                nombre: "Llavero de K",
+                precio: "$ 25.000",
+                imagen: "imagenes/llavero-inicio.jpeg",
+                descripcion: "Llavero personalizado con la letra K. Fabricado en material resistente y duradero. Perfecto para regalar o uso personal. Incluye argolla de metal de alta calidad que no se oxida."
+            },
+            'agenda': {
+                nombre: "Agenda",
+                precio: "$ 30.000",
+                precioAnterior: "$ 35.000",
+                imagen: "imagenes/libreta-inicio.jpeg",
+                descripcion: "Agenda elegante con páginas de alta calidad. Ideal para organizar tu día a día con estilo. Incluye separadores y marcapáginas. Cubierta resistente al agua y páginas con papel de 80gr."
+            },
+            'decoracion': {
+                nombre: "Decoración",
+                precio: "$ 20.000",
+                imagen: "imagenes/decoracion-inicio.avif",
+                descripcion: "Este objeto decorativo en resina está formado por dos piezas de aspecto metálico con detalles en dorado y azul. Una de ellas presenta una forma circular con una hendidura central que contiene un pequeño punto rojo, mientras que la otra tiene un diseño tipo abanico con textura."
+            },
+            'boligrafo': {
+                nombre: "Bolígrafo Personalizado",
+                precio: "$ 17.500",
+                precioAnterior: "$ 20.000",
+                imagen: "imagenes/boligrafo-inicio.jpg",
+                descripcion: "Este bolígrafo decorativo en tono rosa lleva grabado el mensaje “Sé fuerte y sé valiente” en letras doradas, transmitiendo motivación con estilo. Está acompañado por un llavero con clip en forma de corazón y dos dijes de flechas con brillo y detalles coloridos que aportan encanto artesanal."
+            },
+            'aretes': {
+                nombre: "Aretes Flor Coral",
+                precio: "$20.000",
+                imagen: "imagenes/joyas5.jpg",
+                descripcion: "Estos aretes en forma de flor combinan un centro rosado vibrante con un contorno metálico que resalta su delicado diseño. Están montados sobre broches tipo palanca, lo que ofrece mayor seguridad y comodidad al usarlos."
+            },
+            'ajedrez': {
+                nombre: "Ajedrez",
+                precio: "$ 45.500",
+                imagen: "imagenes/juegos 1.jpg",
+                descripcion: "Este ajedrez es una versión moderna y llamativa del clásico tablero. Las piezas están hechas de material acrílico o vidrio, con acabados brillantes y translúcidos en tonos intensos de azul y rojo."
+            }
+        };
+
+        // Función para obtener el ID del producto desde la URL
+        function obtenerProductoId() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('producto');
+        }
+
+        // Función para cargar el producto
+        function cargarProducto() {
+            const productoId = obtenerProductoId();
+            const loadingDiv = document.getElementById('loading-message');
+            const errorDiv = document.getElementById('error-message');
+            const mainDiv = document.getElementById('producto-main');
+
+            // Ocultar loading
+            loadingDiv.style.display = 'none';
+
+            if (!productoId || !productos[productoId]) {
+                // Mostrar error
+                errorDiv.style.display = 'block';
+                mainDiv.style.display = 'none';
+                return;
+            }
+
+            const producto = productos[productoId];
+            
+            // Actualizar contenido dinámicamente
+            document.getElementById('producto-imagen').src = producto.imagen;
+            document.getElementById('producto-imagen').alt = producto.nombre;
+            document.getElementById('producto-titulo').textContent = producto.nombre;
+            document.getElementById('producto-precio').textContent = producto.precio;
+            document.getElementById('producto-descripcion').textContent = producto.descripcion;
+            
+            // Mostrar precio anterior si existe
+            const precioAnteriorElement = document.getElementById('precio-anterior');
+            if (producto.precioAnterior) {
+                precioAnteriorElement.textContent = producto.precioAnterior;
+                precioAnteriorElement.style.display = 'inline';
+            } else {
+                precioAnteriorElement.style.display = 'none';
+            }
+
+            // Actualizar title de la página
+            document.title = `${producto.nombre} - Tu Tienda`;
+            
+            // Mostrar contenido principal
+            errorDiv.style.display = 'none';
+            mainDiv.style.display = 'block';
+
+            // Cargar comentarios específicos del producto
+            cargarComentarios(productoId);
+        }
+
+        // Menú móvil
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuIcon = document.querySelector('.menu-icon');
+            const menuLateral = document.querySelector('.menu-lateral');
+            
+            menuIcon.addEventListener('click', function() {
+                menuLateral.classList.toggle('activo');
+            });
+
+            // Cargar producto al cargar la página
+            cargarProducto();
+        });
+        
+        // Control de cantidad
+        document.getElementById('restar').onclick = function() {
+            let cantidad = document.getElementById('cantidad');
+            if (parseInt(cantidad.value) > 1) cantidad.value--;
+        };
+        document.getElementById('sumar').onclick = function() {
+            let cantidad = document.getElementById('cantidad');
+            cantidad.value++;
+        };
+
+        // Favoritos
+        document.querySelector('.btn-favorito').onclick = function() {
+            this.classList.toggle('activo');
+        };
+
+        // Variables para la calificación
+        let calificacionActual = 0;
+        const corazones = document.querySelectorAll('.heart');
+
+        // Evento para los corazones
+        corazones.forEach(heart => {
+            heart.addEventListener('click', () => {
+                const index = parseInt(heart.getAttribute('data-index'));
+                calificacionActual = index;
+                actualizarCorazones(index);
+            });
+        });
+
+        function actualizarCorazones(rating) {
+            corazones.forEach(heart => {
+                const index = parseInt(heart.getAttribute('data-index'));
+                if (index <= rating) {
+                    heart.classList.add('filled');
+                } else {
+                    heart.classList.remove('filled');
+                }
+            });
+        }
+
+        // Información del usuario actual
+        const usuarioActual = 'Usuario';
+
+        // Función para cargar los comentarios almacenados específicos del producto
+        function cargarComentarios(productoId) {
+            const comentariosGuardados = JSON.parse(localStorage.getItem(`comentarios_${productoId}`)) || [];
+            // Limpiar comentarios anteriores
+            document.getElementById('lista-comentarios').innerHTML = '';
+            comentariosGuardados.forEach(c => {
+                agregarComentario(c.usuario, c.texto, c.corazones);
+            });
+        }
+
+        function agregarComentario(usuario, texto, corazonesDado) {
+            const div = document.createElement('div');
+            div.className = 'comentario';
+
+            // Crear la cadena de corazones rosados
+            let corazonesHTML = '';
+            for (let i = 0; i < corazonesDado; i++) {
+                corazonesHTML += '<span class="heart filled">&#10084;</span>';
+            }
+
+            // Agregar corazones no llenos para completar los 5
+            for (let i = corazonesDado; i < 5; i++) {
+                corazonesHTML += '<span class="heart">&#10084;</span>';
+            }
+
+            div.innerHTML = `
+                <strong>${usuario}</strong>: ${texto} <br>
+                ${corazonesHTML}
+            `;
+            document.getElementById('lista-comentarios').appendChild(div);
+        }
+
+        // Evento para enviar comentario
+        document.getElementById('form-comentario').onsubmit = function(e) {
+            e.preventDefault();
+            const texto = document.getElementById('comentario').value.trim();
+            const productoId = obtenerProductoId();
+            
+            if (texto && productoId) {
+                // Guardar en localStorage específico del producto
+                const comentariosGuardados = JSON.parse(localStorage.getItem(`comentarios_${productoId}`)) || [];
+                comentariosGuardados.push({
+                    usuario: usuarioActual,
+                    texto: texto,
+                    corazones: calificacionActual
+                });
+                localStorage.setItem(`comentarios_${productoId}`, JSON.stringify(comentariosGuardados));
+                
+                // Mostrar en la vista
+                agregarComentario(usuarioActual, texto, calificacionActual);
+                
+                // Limpiar textarea y resetear calificación
+                document.getElementById('comentario').value = '';
+                actualizarCorazones(0);
+                calificacionActual = 0;
+            }
+        };
+    </script>
+</body>
+</html>
