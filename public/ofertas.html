@@ -1,11 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Ofertas Especiales - Productos de Resina</title>
     <link rel="stylesheet" href="style.css">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    
 </head>
 <body>
      <!-- Barra de navegación para pantallas grandes -->
@@ -23,6 +24,12 @@
             <a href="ofertas.html" class="nav-link">Ofertas</a>
             <a href="contactos.html" class="nav-link">Contáctos</a>
             <div class="btn-registrar"><a href="iniciar_seccion.html">Iniciar sesión</a></div>
+
+             <!-- Carrito de compras -->
+            <div class="carrito-nav" onclick="irAlCarrito()">
+                <i class='bx bx-cart'></i>
+                <span class="contador-carrito" id="contador-carrito" style="display: none;">0</span>
+            </div>
                 <i class='bx bx-user perfil-icon'></i>
                 
         </div>
@@ -36,14 +43,13 @@
                 <input type="text" placeholder="Buscar productos...">
                 <i class='bx bx-search'></i>
             </div>
-        
-                <i class='bx bx-user'></i>
+            <i class='bx bx-user'></i>
         </div>
         
         <!-- Menú lateral -->
         <div class="menu-lateral">
             <div class="menu-items-movil">
-                <a href="inicio.html" class="nav-link-movil">
+                <a href="index.html" class="nav-link-movil">
                     <i class='bx bx-home-alt'></i>
                     <span>Inicio</span>
                 </a>
@@ -62,143 +68,285 @@
             </div>
         </div>
     </nav>
+
     <section class="ofertas-seccion">
-    <h2 class="ofertas-titulo">Ofertas Irresistibles</h2>
-    <div class="ofertas-contenedor">
-        
-       
-        
-       
-        <div class="oferta-card">
-            <span class="etiqueta-descuento">-40%</span>
-            <img src="imagenes/febricollar.png" alt="" class="oferta-imagen">
-            <div class="oferta-contenido">
-                <h3 class="oferta-titulo">Collar Elegante</h3>
-                <div class="oferta-precios">
-                    <span class="precio-original">$50.000</span>
-                    <span class="precio-oferta">$30.000</span>
-                </div>
-                <div class="oferta-tiempo">
-                    <i class="fas fa-clock"></i>
-                    <span>Oferta termina en 2 días</span>
-                </div>
-                <button class="btn-comprar">¡Comprar Ahora!</button>
-            </div>
+        <h2 class="ofertas-titulo">🔥 Ofertas Irresistibles 🔥</h2>
+        <div class="ofertas-contenedor" id="ofertas-contenedor">
+            <!-- Los productos se cargarán dinámicamente -->
         </div>
-        <div class="oferta-card">
-            <span class="etiqueta-descuento">-40%</span>
-            <img src="imagenes/febricollar.png" alt="" class="oferta-imagen">
-            <div class="oferta-contenido">
-                <h3 class="oferta-titulo">Collar Elegante</h3>
-                <div class="oferta-precios">
-                    <span class="precio-original">$50.000</span>
-                    <span class="precio-oferta">$30.000</span>
+    </section>
+
+    <script>
+        // Productos en oferta disponibles
+        const productosOfertas = [
+            {
+                id: 101,
+                nombre: "Collar Pétalo Rosa Premium",
+                precioOriginal: 35900,
+                precioOferta: 21540,
+                descuento: 40,
+                imagen: "imagenes/joyas2.jpg",
+                descripcion: "Elegante collar con diseño de pétalo rosa, edición premium con acabados especiales.",
+                tiempoRestante: "2 días"
+            },
+            {
+                id: 102,
+                nombre: "Aretes Hoja Plata Deluxe",
+                precioOriginal: 18000,
+                precioOferta: 10800,
+                descuento: 40,
+                imagen: "imagenes/joyas3.jpg",
+                descripcion: "Delicados aretes en forma de hoja con acabado en plata de alta calidad.",
+                tiempoRestante: "1 día"
+            },
+            {
+                id: 103,
+                nombre: "Dije Gota Fucsia Brillante",
+                precioOriginal: 32900,
+                precioOferta: 19740,
+                descuento: 40,
+                imagen: "imagenes/joyas4.webp",
+                descripcion: "Hermoso dije en forma de gota con cristales fucsia brillantes y cadena incluida.",
+                tiempoRestante: "3 días"
+            },
+            {
+                id: 104,
+                nombre: "Aretes Flor Coral Vintage",
+                precioOriginal: 26900,
+                precioOferta: 16140,
+                descuento: 40,
+                imagen: "imagenes/joyas5.jpg",
+                descripcion: "Aretes con diseño floral vintage en tono coral, perfectos para cualquier ocasión.",
+                tiempoRestante: "12 horas"
+            },
+            {
+                id: 105,
+                nombre: "Anillo Floral Madera Artesanal",
+                precioOriginal: 45900,
+                precioOferta: 27540,
+                descuento: 40,
+                imagen: "imagenes/joya1.jpg",
+                descripcion: "Anillo único tallado artesanalmente en madera con diseño floral exclusivo.",
+                tiempoRestante: "5 días"
+            },
+            {
+                id: 106,
+                nombre: "Llavero Inicial Dorado Personalizado",
+                precioOriginal: 22900,
+                precioOferta: 13740,
+                descuento: 40,
+                imagen: "imagenes/joya6.jpg",
+                descripcion: "Llavero personalizable con cualquier inicial en acabado dorado premium.",
+                tiempoRestante: "2 días"
+            },
+            {
+                id: 107,
+                nombre: "Bolígrafo Glitter Rosa Exclusivo",
+                precioOriginal: 25000,
+                precioOferta: 17500,
+                descuento: 30,
+                imagen: "imagenes/joya7.jpeg",
+                descripcion: "Bolígrafo decorativo exclusivo con brillos rosa y detalles únicos.",
+                tiempoRestante: "6 horas"
+            },
+            {
+                id: 108,
+                nombre: "Dije Cachorro Azul Tierno",
+                precioOriginal: 28900,
+                precioOferta: 17340,
+                descuento: 40,
+                imagen: "imagenes/joya8.webp",
+                descripcion: "Adorable dije en forma de cachorro con detalles en azul y acabado suave.",
+                tiempoRestante: "4 días"
+            }
+        ];
+
+        // Formatear precio en pesos colombianos
+        function formatearPrecio(precio) {
+            return new Intl.NumberFormat('es-CO', {
+                style: 'currency',
+                currency: 'COP',
+                minimumFractionDigits: 0
+            }).format(precio);
+        }
+
+        // Renderizar productos de ofertas
+        function renderizarOfertas() {
+            const contenedor = document.getElementById('ofertas-contenedor');
+            
+            contenedor.innerHTML = productosOfertas.map(producto => `
+                <div class="oferta-card">
+                    <span class="etiqueta-descuento">-${producto.descuento}%</span>
+                    <img src="${producto.imagen}" alt="${producto.nombre}" class="oferta-imagen">
+                    <div class="oferta-contenido">
+                        <h3 class="oferta-titulo">${producto.nombre}</h3>
+                        <div class="oferta-precios">
+                            <span class="precio-original">${formatearPrecio(producto.precioOriginal)}</span>
+                            <span class="precio-oferta">${formatearPrecio(producto.precioOferta)}</span>
+                        </div>
+                        <div class="oferta-tiempo">
+                            <i class='bx bx-time-five'></i>
+                            <span>Oferta termina en ${producto.tiempoRestante}</span>
+                        </div>
+                        <button class="btn-comprar" onclick="agregarAlCarrito(${producto.id})">
+                            <i class='bx bx-shopping-bag'></i>
+                            ¡Comprar Ahora!
+                        </button>
+                    </div>
                 </div>
-                <div class="oferta-tiempo">
-                    <i class="fas fa-clock"></i>
-                    <span>Oferta termina en 2 días</span>
+            `).join('');
+        }
+
+        // Función para agregar producto al carrito
+        function agregarAlCarrito(productoId) {
+            // Encontrar el producto por ID
+            const producto = productosOfertas.find(p => p.id === productoId);
+            
+            if (!producto) {
+                console.error('Producto no encontrado');
+                return;
+            }
+
+            // Obtener carrito actual del localStorage
+            let carrito = JSON.parse(localStorage.getItem('carritoCompra')) || [];
+            
+            // Verificar si el producto ya está en el carrito
+            const productoExistente = carrito.find(item => item.id === productoId);
+            
+            if (productoExistente) {
+                // Si ya existe, incrementar la cantidad
+                productoExistente.cantidad += 1;
+                mostrarNotificacion(`Se agregó otra unidad de ${producto.nombre} al carrito`);
+            } else {
+                // Si no existe, agregarlo como nuevo producto (usar precio de oferta)
+                const nuevoProducto = {
+                    id: producto.id,
+                    nombre: producto.nombre,
+                    precio: producto.precioOferta, // Usar precio de oferta
+                    descripcion: producto.descripcion,
+                    imagen: producto.imagen,
+                    cantidad: 1,
+                    esOferta: true,
+                    precioOriginal: producto.precioOriginal,
+                    descuento: producto.descuento
+                };
+                carrito.push(nuevoProducto);
+                mostrarNotificacion(`¡${producto.nombre} agregado al carrito con ${producto.descuento}% de descuento!`);
+            }
+            
+            // Guardar carrito actualizado en localStorage
+            localStorage.setItem('carritoCompra', JSON.stringify(carrito));
+            
+            // Actualizar contador del carrito
+            actualizarContadorCarrito();
+        }
+
+        // Función para mostrar notificación
+        function mostrarNotificacion(mensaje) {
+            // Crear elemento de notificación si no existe
+            let notificacion = document.getElementById('notificacion-carrito');
+            if (!notificacion) {
+                notificacion = document.createElement('div');
+                notificacion.id = 'notificacion-carrito';
+                notificacion.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: linear-gradient(45deg, #10b981, #059669);
+                    color: white;
+                    padding: 1rem 1.5rem;
+                    border-radius: 15px;
+                    box-shadow: 0 8px 32px rgba(253, 122, 214, 0.4);
+                    z-index: 1000;
+                    transform: translateX(400px);
+                    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                    font-weight: 500;
+                    max-width: 350px;
+                    word-wrap: break-word;
+                    border: 2px solid rgba(255, 255, 255, 0.2);
+                `;
+                document.body.appendChild(notificacion);
+            }
+            
+            notificacion.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <i class='bx bx-check-circle' style="font-size: 1.5rem; color: #fff;"></i>
+                    <div>
+                        <div style="font-weight: bold; margin-bottom: 0.25rem;">¡Producto agregado!</div>
+                        <div style="font-size: 0.9rem; opacity: 0.9;">${mensaje}</div>
+                    </div>
                 </div>
-                <button class="btn-comprar">¡Comprar Ahora!</button>
-            </div>
-        </div>
-         <div class="oferta-card">
-            <span class="etiqueta-descuento">-40%</span>
-            <img src="imagenes/febricollar.png" alt="" class="oferta-imagen">
-            <div class="oferta-contenido">
-                <h3 class="oferta-titulo">Collar Elegante</h3>
-                <div class="oferta-precios">
-                    <span class="precio-original">$50.000</span>
-                    <span class="precio-oferta">$30.000</span>
-                </div>
-                <div class="oferta-tiempo">
-                    <i class="fas fa-clock"></i>
-                    <span>Oferta termina en 2 días</span>
-                </div>
-                <button class="btn-comprar">¡Comprar Ahora!</button>
-            </div>
-        </div>
-         <div class="oferta-card">
-            <span class="etiqueta-descuento">-40%</span>
-            <img src="imagenes/febricollar.png" alt="" class="oferta-imagen">
-            <div class="oferta-contenido">
-                <h3 class="oferta-titulo">Collar Elegante</h3>
-                <div class="oferta-precios">
-                    <span class="precio-original">$50.000</span>
-                    <span class="precio-oferta">$30.000</span>
-                </div>
-                <div class="oferta-tiempo">
-                    <i class="fas fa-clock"></i>
-                    <span>Oferta termina en 2 días</span>
-                </div>
-                <button class="btn-comprar">¡Comprar Ahora!</button>
-            </div>
-        </div>
-         <div class="oferta-card">
-            <span class="etiqueta-descuento">-40%</span>
-            <img src="imagenes/febricollar.png" alt="" class="oferta-imagen">
-            <div class="oferta-contenido">
-                <h3 class="oferta-titulo">Collar Elegante</h3>
-                <div class="oferta-precios">
-                    <span class="precio-original">$50.000</span>
-                    <span class="precio-oferta">$30.000</span>
-                </div>
-                <div class="oferta-tiempo">
-                    <i class="fas fa-clock"></i>
-                    <span>Oferta termina en 2 días</span>
-                </div>
-                <button class="btn-comprar">¡Comprar Ahora!</button>
-            </div>
-        </div>
-        <div class="oferta-card">
-            <span class="etiqueta-descuento">-40%</span>
-            <img src="imagenes/febricollar.png" alt="" class="oferta-imagen">
-            <div class="oferta-contenido">
-                <h3 class="oferta-titulo">Collar Elegante</h3>
-                <div class="oferta-precios">
-                    <span class="precio-original">$50.000</span>
-                    <span class="precio-oferta">$30.000</span>
-                </div>
-                <div class="oferta-tiempo">
-                    <i class="fas fa-clock"></i>
-                    <span>Oferta termina en 2 días</span>
-                </div>
-                <button class="btn-comprar">¡Comprar Ahora!</button>
-            </div>
-        </div>
-        <div class="oferta-card">
-            <span class="etiqueta-descuento">-40%</span>
-            <img src="imagenes/febricollar.png" alt="" class="oferta-imagen">
-            <div class="oferta-contenido">
-                <h3 class="oferta-titulo">Collar Elegante</h3>
-                <div class="oferta-precios">
-                    <span class="precio-original">$10.000</span>
-                    <span class="precio-oferta">$30.000</span>
-                </div>
-                <div class="oferta-tiempo">
-                    <i class="fas fa-clock"></i>
-                    <span>Oferta termina en 2 días</span>
-                </div>
-                <button class="btn-comprar">¡Comprar Ahora!</button>
-            </div>
-        </div>
-         <div class="oferta-card">
-            <span class="etiqueta-descuento">-40%</span>
-            <img src="imagenes/febricollar.png" alt="Producto en oferta" class="oferta-imagen">
-            <div class="oferta-contenido">
-                <h3 class="oferta-titulo">Collar Elegante</h3>
-                <div class="oferta-precios">
-                    <span class="precio-original">$10.000</span>
-                    <span class="precio-oferta">$30.000</span>
-                </div>
-                <div class="oferta-tiempo">
-                    <i class="fas fa-clock"></i>
-                    <span>Oferta termina en 2 días</span>
-                </div>
-                <button class="btn-comprar">¡Comprar Ahora!</button>
-            </div>
-        </div>
-    </div>
-</section>
-<script src="script.js"></script>
+            `;
+            
+            // Mostrar notificación
+            notificacion.style.transform = 'translateX(0)';
+            
+            // Ocultar después de 4 segundos
+            setTimeout(() => {
+                notificacion.style.transform = 'translateX(400px)';
+            }, 4000);
+        }
+
+        // Función para actualizar contador del carrito
+        function actualizarContadorCarrito() {
+            const carrito = JSON.parse(localStorage.getItem('carritoCompra')) || [];
+            const totalItems = carrito.reduce((total, item) => total + item.cantidad, 0);
+            
+            // Actualizar contador desktop
+            const contador = document.getElementById('contador-carrito');
+            if (contador) {
+                contador.textContent = totalItems;
+                contador.style.display = totalItems > 0 ? 'flex' : 'none';
+            }
+        }
+
+        // Función para ir al carrito
+        function irAlCarrito() {
+            window.location.href = 'carrito_compra.html';
+        }
+
+        // Inicializar cuando carga la página
+        document.addEventListener('DOMContentLoaded', function() {
+            // Renderizar ofertas
+            renderizarOfertas();
+            
+            // Actualizar contador
+            actualizarContadorCarrito();
+            
+            // Configurar menú móvil
+            const menuIcon = document.querySelector('.menu-icon');
+            const menuLateral = document.querySelector('.menu-lateral');
+            
+            if (menuIcon && menuLateral) {
+                menuIcon.addEventListener('click', function() {
+                    menuLateral.classList.toggle('activo');
+                });
+            }
+
+            // Agregar efectos visuales adicionales
+            const cards = document.querySelectorAll('.oferta-card');
+            cards.forEach((card, index) => {
+                // Animación de entrada escalonada
+                setTimeout(() => {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        });
+
+        // Estilos iniciales para animación
+        document.addEventListener('DOMContentLoaded', function() {
+            const style = document.createElement('style');
+            style.textContent = `
+                .oferta-card {
+                    opacity: 0;
+                    transform: translateY(30px);
+                    transition: all 0.6s ease;
+                }
+            `;
+            document.head.appendChild(style);
+        });
+    </script>
 </body>
 </html>

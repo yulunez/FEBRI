@@ -482,7 +482,7 @@ a{
         .carrito-vacio h3 {
             font-size: 2rem;
             margin-bottom: 15px;
-            color: #2c3e50;
+            color:var(--rosa-claro);
         }
 
         .modal {

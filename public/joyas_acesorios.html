@@ -23,7 +23,13 @@
             <a href="ofertas.html" class="nav-link">Ofertas</a>
             <a href="contactos.html" class="nav-link">Contáctos</a>
             <div class="btn-registrar"><a href="iniciar_seccion.html">Iniciar sesión</a></div>
-                <i class='bx bx-user perfil-icon'></i>
+
+             <!-- Carrito de compras -->
+            <div class="carrito-nav" onclick="irAlCarrito()">
+                <i class='bx bx-cart'></i>
+                <span class="contador-carrito" id="contador-carrito" style="display: none;">0</span>
+            </div>
+                <a href="perfil_usuario.html"><i class='bx bx-user perfil-icon'></i></a>
                 
         </div>
     </nav>
@@ -43,7 +49,7 @@
         <!-- Menú lateral -->
         <div class="menu-lateral">
             <div class="menu-items-movil">
-                <a href="inicio.html" class="nav-link-movil">
+                <a href="index.html" class="nav-link-movil">
                     <i class='bx bx-home-alt'></i>
                     <span>Inicio</span>
                 </a>
@@ -69,10 +75,10 @@
         <div class="producto-card-hogar">
             <div class="producto-imagen-hogar">
                 <img src="imagenes/joyas2.jpg" alt="">
-                <button class="btn-agregar">
-                    <i class='bx bx-cart-add'></i>
-                    Agregar al carrito
-                </button>
+               <button class="btn-agregar" onclick="agregarAlCarrito(1)">
+             <i class='bx bx-cart-add'></i>
+                Agregar al carrito
+             </button>
             </div>
             <div class="producto-info-hogar">
                 <h3 class="producto-nombre-hogar">Collar Pétalo Rosa</h3>
@@ -89,10 +95,10 @@
              <div class="producto-card-hogar">
             <div class="producto-imagen-hogar">
                 <img src="imagenes/joyas3.jpg" alt="">
-                <button class="btn-agregar">
-                    <i class='bx bx-cart-add'></i>
-                    Agregar al carrito
-                </button>
+               <button class="btn-agregar" onclick="agregarAlCarrito(2)">
+                <i class='bx bx-cart-add'></i>
+               Agregar al carrito
+        </button>
             </div>
             <div class="producto-info-hogar">
                 <h3 class="producto-nombre-hogar">Aretes Hoja Plata</h3>
@@ -109,10 +115,10 @@
              <div class="producto-card-hogar">
             <div class="producto-imagen-hogar">
                 <img src="imagenes/joyas4.webp" alt="">
-                <button class="btn-agregar">
-                    <i class='bx bx-cart-add'></i>
-                    Agregar al carrito
-                </button>
+               <button class="btn-agregar" onclick="agregarAlCarrito(3)">
+               <i class='bx bx-cart-add'></i>
+             Agregar al carrito
+             </button>
             </div>
             <div class="producto-info-hogar">
                 <h3 class="producto-nombre-hogar">Dije Gota Fucsia</h3>
@@ -129,10 +135,10 @@
              <div class="producto-card-hogar">
             <div class="producto-imagen-hogar">
                 <img src="imagenes/joyas5.jpg" alt="">
-                <button class="btn-agregar">
-                    <i class='bx bx-cart-add'></i>
-                    Agregar al carrito
-                </button>
+              <button class="btn-agregar" onclick="agregarAlCarrito(4)">
+              <i class='bx bx-cart-add'></i>
+               Agregar al carrito
+             </button>
             </div>
             <div class="producto-info-hogar">
                 <h3 class="producto-nombre-hogar">Aretes Flor Coral</h3>
@@ -148,10 +154,10 @@
              <div class="producto-card-hogar">
             <div class="producto-imagen-hogar">
                 <img src="imagenes/joya1.jpg" alt="">
-                <button class="btn-agregar">
-                    <i class='bx bx-cart-add'></i>
-                    Agregar al carrito
-                </button>
+                <button class="btn-agregar" onclick="agregarAlCarrito(5)">
+                  <i class='bx bx-cart-add'></i>
+                Agregar al carrito
+              </button>
             </div>
             <div class="producto-info-hogar">
                 <h3 class="producto-nombre-hogar">Anillo Floral Madera</h3>
@@ -167,10 +173,10 @@
              <div class="producto-card-hogar">
             <div class="producto-imagen-hogar">
                 <img src="imagenes/joya6.jpg" alt="">
-                <button class="btn-agregar">
-                    <i class='bx bx-cart-add'></i>
-                    Agregar al carrito
-                </button>
+               <button class="btn-agregar" onclick="agregarAlCarrito(6)">
+               <i class='bx bx-cart-add'></i>
+               Agregar al carrito
+           </button>
             </div>
             <div class="producto-info-hogar">
                 <h3 class="producto-nombre-hogar">Llavero Inicial Dorado</h3>
@@ -187,10 +193,10 @@
              <div class="producto-card-hogar">
             <div class="producto-imagen-hogar">
                 <img src="imagenes/joya7.jpeg" alt="">
-                <button class="btn-agregar">
-                    <i class='bx bx-cart-add'></i>
-                    Agregar al carrito
-                </button>
+               <button class="btn-agregar" onclick="agregarAlCarrito(7)">
+                <i class='bx bx-cart-add'></i>
+               Agregar al carrito
+            </button>
             </div>
             <div class="producto-info-hogar">
                 <h3 class="producto-nombre-hogar">volígrafo Glitter Rosa</h3>
@@ -206,10 +212,10 @@
           <div class="producto-card-hogar">
             <div class="producto-imagen-hogar">
                 <img src="imagenes/joya8.webp" alt="">
-                <button class="btn-agregar">
-                    <i class='bx bx-cart-add'></i>
-                    Agregar al carrito
-                </button>
+                <button class="btn-agregar" onclick="agregarAlCarrito(8)">
+                <i class='bx bx-cart-add'></i>
+               Agregar al carrito
+        </button>
             </div>
             <div class="producto-info-hogar">
                 <h3 class="producto-nombre-hogar">Dije Cachorro Azul</h3>
@@ -228,27 +234,202 @@
 </section>
 <script >
 
-      document.addEventListener('DOMContentLoaded', function() {
-        const menuIcon = document.querySelector('.menu-icon');
-        const menuLateral = document.querySelector('.menu-lateral');
-        
-        menuIcon.addEventListener('click', function() {
-            menuLateral.classList.toggle('activo');
-        });
-    });
-document.addEventListener('DOMContentLoaded', function() {
-    // Seleccionar todos los botones de favoritos
-    const botonesFavoritos = document.querySelectorAll('.btn-favorito');
-    
-    // Agregar el evento click a cada botón
-    botonesFavoritos.forEach(boton => {
-        boton.addEventListener('click', function() {
-            // Alternar la clase 'activo'
-            this.classList.toggle('activo');
-        });
-    });
-});
 
+
+
+
+
+// Array con la información de todos tus productos
+        const productosDisponibles = [
+            {
+                id: 1,
+                nombre: "Collar Pétalo Rosa",
+                precio: 25900,
+                imagen: "imagenes/joyas2.jpg",
+                descripcion: "Elegante collar con diseño de pétalo rosa, perfecto para ocasiones especiales."
+            },
+            {
+                id: 2,
+                nombre: "Aretes Hoja Plata",
+                precio: 10000,
+                imagen: "imagenes/joyas3.jpg",
+                descripcion: "Delicados aretes en forma de hoja con acabado en plata."
+            },
+            {
+                id: 3,
+                nombre: "Dije Gota Fucsia",
+                precio: 24900,
+                imagen: "imagenes/joyas4.webp",
+                descripcion: "Hermoso dije en forma de gota con tonos fucsia brillantes."
+            },
+            {
+                id: 4,
+                nombre: "Aretes Flor Coral",
+                precio: 21900,
+                imagen: "imagenes/joyas5.jpg",
+                descripcion: "Aretes con diseño floral en tono coral, ideales para el día a día."
+            },
+            {
+                id: 5,
+                nombre: "Anillo Floral Madera",
+                precio: 38900,
+                imagen: "imagenes/joya1.jpg",
+                descripcion: "Anillo único con diseño floral tallado en madera natural."
+            },
+            {
+                id: 6,
+                nombre: "Llavero Inicial Dorado",
+                precio: 12900,
+                imagen: "imagenes/joya6.jpg",
+                descripcion: "Llavero personalizado con inicial en acabado dorado."
+            },
+            {
+                id: 7,
+                nombre: "Bolígrafo Glitter Rosa",
+                precio: 19000,
+                imagen: "imagenes/joya7.jpeg",
+                descripcion: "Bolígrafo decorativo con brillos rosa y detalles elegantes."
+            },
+            {
+                id: 8,
+                nombre: "Dije Cachorro Azul",
+                precio: 19900,
+                imagen: "imagenes/joya8.webp",
+                descripcion: "Tierno dije en forma de cachorro con detalles en azul."
+            }
+        ];
+
+        // Función para agregar producto al carrito
+        function agregarAlCarrito(productoId) {
+            // Encontrar el producto por ID
+            const producto = productosDisponibles.find(p => p.id === productoId);
+            
+            if (!producto) {
+                console.error('Producto no encontrado');
+                return;
+            }
+
+            // Obtener carrito actual del localStorage
+            let carrito = JSON.parse(localStorage.getItem('carritoCompra')) || [];
+            
+            // Verificar si el producto ya está en el carrito
+            const productoExistente = carrito.find(item => item.id === productoId);
+            
+            if (productoExistente) {
+                // Si ya existe, incrementar la cantidad
+                productoExistente.cantidad += 1;
+                mostrarNotificacion(`Se agregó otra unidad de ${producto.nombre} al carrito`);
+            } else {
+                // Si no existe, agregarlo como nuevo producto
+                const nuevoProducto = {
+                    id: producto.id,
+                    nombre: producto.nombre,
+                    precio: producto.precio,
+                    descripcion: producto.descripcion,
+                    imagen: producto.imagen,
+                    cantidad: 1
+                };
+                carrito.push(nuevoProducto);
+                mostrarNotificacion(`${producto.nombre} agregado al carrito`);
+            }
+            
+            // Guardar carrito actualizado en localStorage
+            localStorage.setItem('carritoCompra', JSON.stringify(carrito));
+            
+            // Actualizar contador del carrito
+            actualizarContadorCarrito();
+        }
+
+        // Función para mostrar notificación
+        function mostrarNotificacion(mensaje) {
+            // Crear elemento de notificación si no existe
+            let notificacion = document.getElementById('notificacion-carrito');
+            if (!notificacion) {
+                notificacion = document.createElement('div');
+                notificacion.id = 'notificacion-carrito';
+                notificacion.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: linear-gradient(45deg, #10b981, #059669);
+                    color: white;
+                    padding: 1rem 1.5rem;
+                    border-radius: 10px;
+                    box-shadow: 0 5px 25px rgba(16, 185, 129, 0.3);
+                    z-index: 1000;
+                    transform: translateX(400px);
+                    transition: all 0.3s ease;
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                    font-weight: 500;
+                    max-width: 300px;
+                    word-wrap: break-word;
+                `;
+                document.body.appendChild(notificacion);
+            }
+            
+            notificacion.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <i class='bx bx-check-circle' style="font-size: 1.2rem;"></i>
+                    <span>${mensaje}</span>
+                </div>
+            `;
+            
+            // Mostrar notificación
+            notificacion.style.transform = 'translateX(0)';
+            
+            // Ocultar después de 3 segundos
+            setTimeout(() => {
+                notificacion.style.transform = 'translateX(400px)';
+            }, 3000);
+        }
+
+        // Función para actualizar contador del carrito
+        function actualizarContadorCarrito() {
+            const carrito = JSON.parse(localStorage.getItem('carritoCompra')) || [];
+            const totalItems = carrito.reduce((total, item) => total + item.cantidad, 0);
+            
+            // Actualizar contador desktop
+            const contador = document.getElementById('contador-carrito');
+            if (contador) {
+                contador.textContent = totalItems;
+                contador.style.display = totalItems > 0 ? 'flex' : 'none';
+            }
+            
+            // Actualizar contador móvil
+            const contadorMovil = document.getElementById('contador-carrito-movil');
+            if (contadorMovil) {
+                contadorMovil.textContent = totalItems;
+                contadorMovil.style.display = totalItems > 0 ? 'flex' : 'none';
+            }
+        }
+
+        // Función para ir al carrito
+        function irAlCarrito() {
+            window.location.href = 'carrito_compra.html';
+        }
+
+        // Inicializar cuando carga la página
+        document.addEventListener('DOMContentLoaded', function() {
+            actualizarContadorCarrito();
+            
+            // Tu código existente del menú móvil
+            const menuIcon = document.querySelector('.menu-icon');
+            const menuLateral = document.querySelector('.menu-lateral');
+            
+            if (menuIcon && menuLateral) {
+                menuIcon.addEventListener('click', function() {
+                    menuLateral.classList.toggle('activo');
+                });
+            }
+
+            // Funcionalidad de favoritos
+            const botonesFavoritos = document.querySelectorAll('.btn-favorito');
+            botonesFavoritos.forEach(boton => {
+                boton.addEventListener('click', function() {
+                    this.classList.toggle('activo');
+                });
+            });
+        });
 </script>
     
 </body>
