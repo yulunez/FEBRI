@@ -1,28 +1,35 @@
-const { driver } = require("mssql/lib/base");
-const sql = require("mssql/msnodesqlv8");
+const express = require('express');
+const mysql = require('mysql');
 
-const config = {
-  user: "juand",        // tu usuario de SQL Server
-  password: "",         // tu password
-  server: "localhost",  // o 127.0.0.1
-  database: "FEBRI",
-  options: {
-    trustedConnection: true,
-    enableArithAbort: true,
-    trustServerCertificate: true
-  },
-  driver:"msnodesqlv8"
-};
+const router = express.Router();
 
+// Configura tu conexión a la base de datos
+const db = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    password: '',
+    database: 'febri'
+});
 
-async function conectarBD() {
-  try {
-    const pool = await sql.connect(config);
-    console.log("Conectado a SQL Server Express");
-    return pool;
-  } catch (err) {
-    console.error("Error al conectar:", err);
-  }
-}
+// Conectar a la base de datos
+db.connect((err) => {
+    if (err) {
+        console.error('Error de conexión:', err);
+        return;
+    }
+    console.log('Conectado a la base de datos');
+});
 
-module.exports = { sql, conectarBD };
+// Ruta para consultar la tabla rol
+router.get('/consulta-rol', (req, res) => {
+    db.query('SELECT * FROM rol', (err, results) => {
+        if (err) {
+            console.error('Error en la consulta:', err);
+            return res.status(500).send('Error en la consulta');
+        }
+        console.log('Consulta a la tabla rol:', results);
+        res.json(results);
+    });
+});
+
+module.exports = router;
