@@ -3,6 +3,9 @@
             --color-icono: #f8a4d8;
             --gris-texto: #666666;
             --rosa-fondo:#ffd6ef;
+            --rosa-claro: #f8a4d8;
+            --gris-texto: #666666;
+            --blanco:#fff;
         }
 
         * {
@@ -225,14 +228,7 @@ a{
         font-size: 13px;
     }
 }
-      
-       :root {
-    --rosa-claro: #f8a4d8;
-    --rosa-fondo: #ffd6ef;
-    --morado-oscuro: #6c63ff;
-    --gris-texto: #666666;
-    --blanco:#fff;
-}
+
 
   * {
             margin: 0;
