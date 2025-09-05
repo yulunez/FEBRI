@@ -33,19 +33,31 @@
     <!-- Menú móvil para pantallas pequeñas -->
     <nav class="nav-pequeno">
         <div class="menu-superior">
-            <i class='bx bx-menu menu-icon'></i>
-            <div class="barra-busqueda-movil">
-                <input type="text" placeholder="Buscar productos...">
-                <i class='bx bx-search'></i>
+            <div class="menu-izquierda">
+                <i class='bx bx-menu menu-icon'></i>
+                <div class="barra-busqueda-movil">
+                    <input type="text" placeholder="Buscar productos...">
+                    <i class='bx bx-search'></i>
+                </div>
             </div>
-        
-                <i class='bx bx-user'></i>
+            
+            <div class="menu-superior-derecha">
+                <div class="btn-registrar-movil">
+                    <a href="iniciar_sesion.html">Iniciar</a>
+                </div>
+                <!-- Carrito de compras móvil -->
+                <div class="carrito-nav" onclick="irAlCarrito()">
+                    <i class='bx bx-cart'></i>
+                    <span class="contador-carrito" id="contador-carrito-movil" style="display: none;">0</span>
+                </div>
+                <i class='bx bx-user perfil-icon'></i>
+            </div>
         </div>
         
         <!-- Menú lateral -->
         <div class="menu-lateral">
             <div class="menu-items-movil">
-                <a href="index.html" class="nav-link-movil">
+                <a href="inicio.html" class="nav-link-movil">
                     <i class='bx bx-home-alt'></i>
                     <span>Inicio</span>
                 </a>
@@ -64,7 +76,6 @@
             </div>
         </div>
     </nav>
-
         <div class="carrito-body">
             <div id="productos-carrito">
     
