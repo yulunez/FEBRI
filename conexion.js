@@ -8,7 +8,8 @@ const db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
     password: '',
-    database: 'febri'
+    database: 'febri', 
+    port : 3307
 });
 
 // Conectar a la base de datos
