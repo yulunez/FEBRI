@@ -357,7 +357,7 @@ body::before {
     display: flex;
     align-items: center;
     padding: 15px 20px;
-    background: rgba(255, 255, 255, 0.95);
+    background: var(--rosa-fondo);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     gap: 15px;

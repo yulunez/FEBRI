@@ -1,0 +1,366 @@
+    * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+            min-height: 100vh;
+        }
+
+        /* Encabezado */
+        .encabezado {
+            background: white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .contenido-encabezado {
+            max-width: 1024px;
+            margin: 0 auto;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .boton-regresar {
+            margin-right: 0.75rem;
+            color: #64748b;
+        }
+
+        .encabezado h1 {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        /* Contenedor Principal */
+        .contenedor {
+            max-width: 1024px;
+            margin: 0 auto;
+            padding: 1.5rem 1rem;
+        }
+
+        /* Tarjeta de Usuario */
+        .tarjeta-usuario {
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e2e8f0;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .contenido-usuario {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        /* Imagen de Perfil */
+        .imagen-perfil {
+            position: relative;
+        }
+
+        .circulo-perfil {
+            width: 6rem;
+            height: 6rem;
+            border-radius: 50%;
+            background: linear-gradient(135deg,#f8a4d8 , #f0f0f0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .interior-perfil {
+            width: 5rem;
+            height: 5rem;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .avatar-perfil {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 50%;
+            background: #d1d5db;
+        }
+
+        .insignia-perfil {
+            position: absolute;
+            bottom: -0.25rem;
+            right: -0.25rem;
+            width: 2rem;
+            height: 2rem;
+            background: #ec4899;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icono-corazon {
+            width: 1rem;
+            height: 1rem;
+            color: white;
+            fill: white;
+        }
+
+        /* Detalles del Usuario */
+        .detalles-usuario {
+            text-align: center;
+            flex: 1;
+        }
+
+        .detalles-usuario h2 {
+            font-size: 1.875rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .info-usuario {
+            color: #64748b;
+            margin-bottom: 1rem;
+        }
+
+        .info-usuario p {
+            margin-bottom: 0.25rem;
+        }
+
+        .info-usuario span {
+            font-weight: 500;
+        }
+
+        .boton-editar {
+            background: #ec4899;
+            color: white;
+            border: none;
+            padding: 0.5rem 1.5rem;
+            border-radius: 9999px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .boton-editar:hover {
+            background: #db2777;
+        }
+
+        /* Sección de Estadísticas */
+        .cuadricula-estadisticas {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .tarjeta-estadistica {
+            background: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e2e8f0;
+            padding: 1.5rem;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .contenedor-icono-estadistica {
+            padding: 1rem;
+            border-radius: 50%;
+            background: #f8fafc;
+            margin-bottom: 0.75rem;
+        }
+
+        .icono-estadistica {
+            width: 2.5rem;
+            height: 2.5rem;
+        }
+
+        .icono-estadistica.carrito {
+            color: #3b82f6;
+        }
+
+        .icono-estadistica.camion {
+            color: #10b981;
+        }
+
+        .valor-estadistica {
+            font-size: 1.875rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .etiqueta-estadistica {
+            font-size: 1rem;
+            color: #64748b;
+        }
+
+        /* Tarjeta de Contenido */
+        .tarjeta-contenido {
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+        }
+
+        .encabezado-pestana {
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .boton-pestana {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            background: none;
+            border: none;
+            font-weight: 500;
+            text-align: center;
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+            color: #ec4899;
+            background: #fdf2f8;
+            border-bottom-color: #ec4899;
+        }
+
+        .seccion-contenido {
+            padding: 1.5rem;
+        }
+
+        .encabezado-seccion {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+
+        .titulo-seccion {
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+
+        .contador-seccion {
+            font-size: 0.875rem;
+            color: #64748b;
+        }
+
+        /* Cuadrícula de Productos */
+        .cuadricula-productos {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        .tarjeta-producto {
+            background: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+        }
+
+        .imagen-producto {
+            position: relative;
+            aspect-ratio: 1;
+            background: #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .img-producto {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .boton-corazon-producto {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            padding: 0.5rem;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(4px);
+            border: none;
+            cursor: pointer;
+        }
+
+        .icono-corazon-producto {
+            width: 1.25rem;
+            height: 1.25rem;
+            color: #ec4899;
+            fill: #ec4899;
+        }
+
+        .info-producto {
+            padding: 1rem;
+        }
+
+        .nombre-producto {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #f8a4d8;
+        }
+
+        .precio-producto {
+            font-size: 1.125rem;
+            color: #666666;
+        }
+
+        /* Responsivo */
+        @media (min-width: 768px) {
+            .contenido-usuario {
+                flex-direction: row;
+                text-align: left;
+            }
+
+            .detalles-usuario {
+                text-align: left;
+            }
+
+            .circulo-perfil {
+                width: 7rem;
+                height: 7rem;
+            }
+
+            .interior-perfil {
+                width: 6rem;
+                height: 6rem;
+            }
+
+            .avatar-perfil {
+                width: 3.5rem;
+                height: 3.5rem;
+            }
+
+            .cuadricula-productos {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .cuadricula-productos {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        
+        .icono {
+            fill: currentColor;
+        }
