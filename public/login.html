@@ -268,7 +268,7 @@
                 campos.password.classList.add('campo-error');
                 mostrarError('error-password', 'La contraseña debe contener al menos un número');
                 return false;
-            } else if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+            } else if (!/[!@#$%^&*()-_*,.?":{}|<>]/.test(password)) {
                 campos.password.classList.add('campo-error');
                 mostrarError('error-password', 'La contraseña debe contener al menos un carácter especial (!@#$%^&*)');
                 return false;
@@ -360,21 +360,30 @@
             const confirmacionValida = validarConfirmacionPassword();
 
             if (nombreValido && emailValido && telefonoValido && passwordValida && confirmacionValida) {
-                // Mostrar loading
-                botonRegistrar.disabled = true;
-                botonRegistrar.textContent = 'Registrando...';
-                document.querySelector('.formulario-registro').classList.add('loading');
 
-                // Simular registro
-                setTimeout(function() {
-                    // Mostrar mensaje de éxito
+
+            const datos = {
+                nombre: campos.nombre.value,
+                correo: campos.email.value,
+                telefono: campos.telefono.value,
+                password: campos.password.value,
+                direccion: campos.direccion.value,
+                fecha_nacimiento: campos.fecha.value,
+                apellidos: campos.apellidos.value
+            };
+
+            fetch('/api/registro', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(datos)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
                     mensajeConfirmacion.style.display = 'block';
-                    
-                    // Redireccionar al inicio de sesión después de 2 segundos
                     setTimeout(function() {
                         window.location.href = 'iniciar_sesion.html';
-                    }, 2000);
-                }, 1500);
+                    }, 1000);
             } else {
                 // Scroll al primer error
                 const primerError = document.querySelector('.campo-error');
@@ -382,7 +391,10 @@
                     primerError.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
             }
-        });
+            })
+                .catch(() => alert('Error en el servidor'));
+                }
+            });
     </script>
 
 </body>
