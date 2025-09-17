@@ -38,8 +38,8 @@ db.connect((err) => {
 });
 
 
-const registroRoutes = require('./routes/registro');
-app.use('/api/registro', registroRoutes);
+const registro = require('./routes/registro');
+app.use('/registro', registro);
 
 app.listen(3000, () => {
     console.log("Servidor corriendo en http://localhost:3000");
