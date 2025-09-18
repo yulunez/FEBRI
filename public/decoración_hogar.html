@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decoración del Hogar - Febri</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="categorias.css">
+    
+</head>
+<body>
+    <!-- Barra de navegación para pantallas grandes -->
+    <nav class="nav-grande">
+        <div class="logo">
+            <img src="imagenes/logo.png" alt="Logo">
+        </div>
+        <div class="barra-busqueda">
+            <input type="text" placeholder="Buscar productos en Febri...">
+            <i class='bx bx-search'></i>
+        </div>
+        <div class="menu-items">
+            <a href="index.html" class="nav-link">Inicio</a>
+            <a href="categorias.html" class="nav-link">Categorías</a>
+            <a href="ofertas.html" class="nav-link">Ofertas</a>
+            <a href="contactos.html" class="nav-link">Contáctos</a>
+            <div class="btn-registrar"><a href="iniciar_seccion.html">Iniciar sesión</a></div>
+
+            <!-- Carrito de compras -->
+            <div class="carrito-nav" onclick="irAlCarrito()">
+                <i class='bx bx-cart'></i>
+                <span class="contador-carrito" id="contador-carrito" style="display: none;">0</span>
+            </div>
+            <a href="perfil_usuario.html"><i class='bx bx-user perfil-icon'></i></a>
+        </div>
+    </nav>
+
+    <!-- Menú móvil para pantallas pequeñas -->
+    <nav class="nav-pequeno">
+        <div class="menu-superior">
+            <div class="menu-izquierda">
+                <i class='bx bx-menu menu-icon'></i>
+                <div class="barra-busqueda-movil">
+                    <input type="text" placeholder="Buscar productos en Febri...">
+                    <i class='bx bx-search'></i>
+                </div>
+            </div>
+            
+            <div class="menu-superior-derecha">
+                <!-- Carrito de compras móvil -->
+                <div class="carrito-nav" onclick="irAlCarrito()">
+                    <i class='bx bx-cart'></i>
+                    <span class="contador-carrito" id="contador-carrito-movil" style="display: none;">0</span>
+                </div>
+                <i class='bx bx-user perfil-icon'></i>
+            </div>
+        </div>
+        
+        <!-- Menú lateral -->
+        <div class="menu-lateral">
+            <div class="menu-items-movil">
+                <a href="index.html" class="nav-link-movil">
+                    <i class='bx bx-home-alt'></i>
+                    <span>Inicio</span>
+                </a>
+                <a href="contactos.html" class="nav-link-movil">
+                    <i class='bx bx-phone'></i>
+                    <span>Contáctos</span>
+                </a>
+                <a href="categorias.html" class="nav-link-movil">
+                    <i class='bx bx-category'></i>
+                    <span>Categorías</span>
+                </a>
+                <a href="ofertas.html" class="nav-link-movil">
+                    <i class='bx bx-gift'></i>
+                    <span>Ofertas</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="productos-categoria">
+        <div class="contenedor-productos-hogar">
+            
+            <!-- Producto 1: Lámpara Moderna -->
+            <div class="producto-card-hogar">
+                <div class="producto-imagen-hogar">
+                    <img src="https://m.media-amazon.com/images/I/61PyshiPocL._AC_SL1500_.jpg" alt="Lámpara Moderna">
+                    <button class="btn-agregar" onclick="agregarAlCarrito(1)">
+                        <i class='bx bx-cart-add'></i>
+                        Agregar al carrito
+                    </button>
+                </div>
+                <div class="producto-info-hogar">
+                    <h3 class="producto-nombre-hogar">Lámpara Mesa Moderna</h3>
+                    <div class="producto-precios-hogar">
+                        <span class="precio-original-hogar">$85.900</span>
+                    </div>
+                    <button class="btn-favorito">
+                        <i class='bx bx-heart'></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Producto 2: Cojín Decorativo -->
+            <div class="producto-card-hogar">
+                <div class="producto-imagen-hogar">
+                    <img src="imagenes/hogar2.jpg" alt="Cojín Decorativo">
+                    <button class="btn-agregar" onclick="agregarAlCarrito(2)">
+                        <i class='bx bx-cart-add'></i>
+                        Agregar al carrito
+                    </button>
+                </div>
+                <div class="producto-info-hogar">
+                    <h3 class="producto-nombre-hogar">Cojín Terciopelo Azul</h3>
+                    <div class="producto-precios-hogar">
+                        <span class="precio-descuento-hogar">$45.000</span>
+                        <span class="precio-original-hogar">$35.900</span>
+                    </div>
+                    <button class="btn-favorito">
+                        <i class='bx bx-heart'></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Producto 3: Florero Minimalista -->
+            <div class="producto-card-hogar">
+                <div class="producto-imagen-hogar">
+                    <img src="imagenes/hogar3.jpg" alt="Florero Minimalista">
+                    <button class="btn-agregar" onclick="agregarAlCarrito(3)">
+                        <i class='bx bx-cart-add'></i>
+                        Agregar al carrito
+                    </button>
+                </div>
+                <div class="producto-info-hogar">
+                    <h3 class="producto-nombre-hogar">Florero Cerámica Blanca</h3>
+                    <div class="producto-precios-hogar">
+                        <span class="precio-original-hogar">$62.500</span>
+                    </div>
+                    <button class="btn-favorito">
+                        <i class='bx bx-heart'></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Producto 4: Espejo Decorativo -->
+            <div class="producto-card-hogar">
+                <div class="producto-imagen-hogar">
+                    <img src="imagenes/hogar4.jpg" alt="Espejo Decorativo">
+                    <button class="btn-agregar" onclick="agregarAlCarrito(4)">
+                        <i class='bx bx-cart-add'></i>
+                        Agregar al carrito
+                    </button>
+                </div>
+                <div class="producto-info-hogar">
+                    <h3 class="producto-nombre-hogar">Espejo Marco Dorado</h3>
+                    <div class="producto-precios-hogar">
+                        <span class="precio-descuento-hogar">$120.000</span>
+                        <span class="precio-original-hogar">$95.900</span>
+                    </div>
+                    <button class="btn-favorito">
+                        <i class='bx bx-heart'></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Producto 5: Maceta Decorativa -->
+            <div class="producto-card-hogar">
+                <div class="producto-imagen-hogar">
+                    <img src="imagenes/hogar5.jpg" alt="Maceta Decorativa">
+                    <button class="btn-agregar" onclick="agregarAlCarrito(5)">
+                        <i class='bx bx-cart-add'></i>
+                        Agregar al carrito
+                    </button>
+                </div>
+                <div class="producto-info-hogar">
+                    <h3 class="producto-nombre-hogar">Maceta Cemento Industrial</h3>
+                    <div class="producto-precios-hogar">
+                        <span class="precio-original-hogar">$42.900</span>
+                    </div>
+                    <button class="btn-favorito">
+                        <i class='bx bx-heart'></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Producto 6: Cuadro Abstracto -->
+            <div class="producto-card-hogar">
+                <div class="producto-imagen-hogar">
+                    <img src="imagenes/hogar6.jpg" alt="Cuadro Abstracto">
+                    <button class="btn-agregar" onclick="agregarAlCarrito(6)">
+                        <i class='bx bx-cart-add'></i>
+                        Agregar al carrito
+                    </button>
+                </div>
+                <div class="producto-info-hogar">
+                    <h3 class="producto-nombre-hogar">Cuadro Abstracto Colores</h3>
+                    <div class="producto-precios-hogar">
+                        <span class="precio-descuento-hogar">$78.000</span>
+                        <span class="precio-original-hogar">$65.900</span>
+                    </div>
+                    <button class="btn-favorito">
+                        <i class='bx bx-heart'></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Producto 7: Vela Aromática -->
+            <div class="producto-card-hogar">
+                <div class="producto-imagen-hogar">
+                    <img src="imagenes/hogar7.jpg" alt="Vela Aromática">
+                    <button class="btn-agregar" onclick="agregarAlCarrito(7)">
+                        <i class='bx bx-cart-add'></i>
+                        Agregar al carrito
+                    </button>
+                </div>
+                <div class="producto-info-hogar">
+                    <h3 class="producto-nombre-hogar">Vela Aromática Lavanda</h3>
+                    <div class="producto-precios-hogar">
+                        <span class="precio-original-hogar">$28.500</span>
+                    </div>
+                    <button class="btn-favorito">
+                        <i class='bx bx-heart'></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Producto 8: Reloj de Pared -->
+            <div class="producto-card-hogar">
+                <div class="producto-imagen-hogar">
+                    <img src="imagenes/hogar8.jpg" alt="Reloj de Pared">
+                    <button class="btn-agregar" onclick="agregarAlCarrito(8)">
+                        <i class='bx bx-cart-add'></i>
+                        Agregar al carrito
+                    </button>
+                </div>
+                <div class="producto-info-hogar">
+                    <h3 class="producto-nombre-hogar">Reloj Pared Minimalista</h3>
+                    <div class="producto-precios-hogar">
+                        <span class="precio-descuento-hogar">$55.000</span>
+                        <span class="precio-original-hogar">$48.900</span>
+                    </div>
+                    <button class="btn-favorito">
+                        <i class='bx bx-heart'></i>
+                    </button>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+
+    <script>
+        // Array con la información de productos de decoración del hogar
+        const productosDisponibles = [
+            {
+                id: 1,
+                nombre: "Lámpara Mesa Moderna",
+                precio: 85900,
+                imagen: "imagenes/hogar1.jpg",
+                descripcion: "Elegante lámpara de mesa con diseño moderno, ideal para sala o dormitorio."
+            },
+            {
+                id: 2,
+                nombre: "Cojín Terciopelo Azul",
+                precio: 35900,
+                imagen: "imagenes/hogar2.jpg",
+                descripcion: "Suave cojín decorativo en terciopelo azul, perfecto para sofás y camas."
+            },
+            {
+                id: 3,
+                nombre: "Florero Cerámica Blanca",
+                precio: 62500,
+                imagen: "imagenes/hogar3.jpg",
+                descripcion: "Florero minimalista en cerámica blanca, ideal para flores frescas o secas."
+            },
+            {
+                id: 4,
+                nombre: "Espejo Marco Dorado",
+                precio: 95900,
+                imagen: "imagenes/hogar4.jpg",
+                descripcion: "Elegante espejo decorativo con marco dorado, perfecto para cualquier ambiente."
+            },
+            {
+                id: 5,
+                nombre: "Maceta Cemento Industrial",
+                precio: 42900,
+                imagen: "imagenes/hogar5.jpg",
+                descripcion: "Maceta de cemento con estilo industrial, ideal para plantas de interior."
+            },
+            {
+                id: 6,
+                nombre: "Cuadro Abstracto Colores",
+                precio: 65900,
+                imagen: "imagenes/hogar6.jpg",
+                descripcion: "Cuadro abstracto con colores vibrantes, perfecto para decorar paredes."
+            },
+            {
+                id: 7,
+                nombre: "Vela Aromática Lavanda",
+                precio: 28500,
+                imagen: "imagenes/hogar7.jpg",
+                descripcion: "Vela aromática con esencia de lavanda, crea un ambiente relajante."
+            },
+            {
+                id: 8,
+                nombre: "Reloj Pared Minimalista",
+                precio: 48900,
+                imagen: "imagenes/hogar8.jpg",
+                descripcion: "Reloj de pared con diseño minimalista, funcional y elegante."
+            }
+        ];
+
+        // Función para agregar producto al carrito
+        function agregarAlCarrito(productoId) {
+            // Encontrar el producto por ID
+            const producto = productosDisponibles.find(p => p.id === productoId);
+            
+            if (!producto) {
+                console.error('Producto no encontrado');
+                return;
+            }
+
+            // Obtener carrito actual del localStorage
+            let carrito = JSON.parse(localStorage.getItem('carritoCompra')) || [];
+            
+            // Verificar si el producto ya está en el carrito
+            const productoExistente = carrito.find(item => item.id === productoId);
+            
+            if (productoExistente) {
+                // Si ya existe, incrementar la cantidad
+                productoExistente.cantidad += 1;
+                mostrarNotificacion(`Se agregó otra unidad de ${producto.nombre} al carrito`);
+            } else {
+                // Si no existe, agregarlo como nuevo producto
+                const nuevoProducto = {
+                    id: producto.id,
+                    nombre: producto.nombre,
+                    precio: producto.precio,
+                    descripcion: producto.descripcion,
+                    imagen: producto.imagen,
+                    cantidad: 1
+                };
+                carrito.push(nuevoProducto);
+                mostrarNotificacion(`${producto.nombre} agregado al carrito`);
+            }
+            
+            // Guardar carrito actualizado en localStorage
+            localStorage.setItem('carritoCompra', JSON.stringify(carrito));
+            
+            // Actualizar contador del carrito
+            actualizarContadorCarrito();
+        }
+
+        // Función para mostrar notificación
+        function mostrarNotificacion(mensaje) {
+            // Crear elemento de notificación si no existe
+            let notificacion = document.getElementById('notificacion-carrito');
+            if (!notificacion) {
+                notificacion = document.createElement('div');
+                notificacion.id = 'notificacion-carrito';
+                notificacion.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: linear-gradient(45deg, #10b981, #059669);
+                    color: white;
+                    padding: 1rem 1.5rem;
+                    border-radius: 10px;
+                    box-shadow: 0 5px 25px rgba(16, 185, 129, 0.3);
+                    z-index: 1000;
+                    transform: translateX(400px);
+                    transition: all 0.3s ease;
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                    font-weight: 500;
+                    max-width: 300px;
+                    word-wrap: break-word;
+                `;
+                document.body.appendChild(notificacion);
+            }
+            
+            notificacion.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <i class='bx bx-check-circle' style="font-size: 1.2rem;"></i>
+                    <span>${mensaje}</span>
+                </div>
+            `;
+            
+            // Mostrar notificación
+            notificacion.style.transform = 'translateX(0)';
+            
+            // Ocultar después de 3 segundos
+            setTimeout(() => {
+                notificacion.style.transform = 'translateX(400px)';
+            }, 3000);
+        }
+
+        // Función para actualizar contador del carrito
+        function actualizarContadorCarrito() {
+            const carrito = JSON.parse(localStorage.getItem('carritoCompra')) || [];
+            const totalItems = carrito.reduce((total, item) => total + item.cantidad, 0);
+            
+            // Actualizar contador desktop
+            const contador = document.getElementById('contador-carrito');
+            if (contador) {
+                contador.textContent = totalItems;
+                contador.style.display = totalItems > 0 ? 'flex' : 'none';
+            }
+            
+            // Actualizar contador móvil
+            const contadorMovil = document.getElementById('contador-carrito-movil');
+            if (contadorMovil) {
+                contadorMovil.textContent = totalItems;
+                contadorMovil.style.display = totalItems > 0 ? 'flex' : 'none';
+            }
+        }
+
+        // Función para ir al carrito
+        function irAlCarrito() {
+            window.location.href = 'carrito_compra.html';
+        }
+
+        // Inicializar cuando carga la página
+        document.addEventListener('DOMContentLoaded', function() {
+            actualizarContadorCarrito();
+            
+            // Código del menú móvil
+            const menuIcon = document.querySelector('.menu-icon');
+            const menuLateral = document.querySelector('.menu-lateral');
+            
+            if (menuIcon && menuLateral) {
+                menuIcon.addEventListener('click', function() {
+                    menuLateral.classList.toggle('activo');
+                });
+            }
+
+            // Funcionalidad de favoritos
+            const botonesFavoritos = document.querySelectorAll('.btn-favorito');
+            botonesFavoritos.forEach(boton => {
+                boton.addEventListener('click', function() {
+                    this.classList.toggle('activo');
+                });
+            });
+        });
+    </script>
+</body>
+</html>
