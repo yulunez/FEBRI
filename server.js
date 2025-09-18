@@ -1,7 +1,7 @@
 const express = require("express");
 const mysql = require('mysql');
 const path = require('path');
-const registroRouter = require('./routes/registro'); // Importa el router
+const registroRouter = require('./routes/registro.js'); // Importa el router
 const cors = require('cors'); // npm install cors
 
 const app = express();
@@ -39,7 +39,9 @@ db.connect((err) => {
 
 
 const registro = require('./routes/registro');
-app.use('/registro', registro);
+app.use('/registro', registro); // Usa el router para la ruta /registro
+
+// Iniciar el servidor  en el puerto 3000
 
 app.listen(3000, () => {
     console.log("Servidor corriendo en http://localhost:3000");

@@ -100,7 +100,7 @@
             password: document.getElementById('password'),
             confirmarPassword: document.getElementById('confirmarPassword')
         };
-
+        console.log(campos);
         const botonRegistrar = document.getElementById('botonRegistrar');
         const mensajeConfirmacion = document.getElementById('mensajeConfirmacion');
         const togglePassword = document.getElementById('togglePassword');
@@ -341,7 +341,7 @@
         });
 
         // Envío del formulario
-        formulario.addEventListener('submit', function(e) {
+        formulario.addEventListener('submit', async function(e) {
             e.preventDefault();
 
             // Verificar que todos los campos estén llenos
@@ -361,40 +361,44 @@
 
             if (nombreValido && emailValido && telefonoValido && passwordValida && confirmacionValida) {
 
+                // Recopilar datos del formulario
+                const datos = {
+                    nombre: campos.nombre.value.trim(),
+                    apellidos: campos.apellidos.value.trim(),
+                    fecha_nacimiento: campos.fecha.value.trim(),
+                    direccion: campos.direccion.value.trim(),
+                    correo: campos.email.value.trim(),
+                    telefono: campos.telefono.value.trim(),
+                    password: campos.password.value.trim(),
+                    confirmarPassword: campos.confirmarPassword.value.trim()
+                };
+                console.log(datos);
 
-            const datos = {
-                nombre: campos.nombre.value,
-                correo: campos.email.value,
-                telefono: campos.telefono.value,
-                password: campos.password.value,
-                direccion: campos.direccion.value,
-                fecha_nacimiento: campos.fecha.value,
-                apellidos: campos.apellidos.value
-            };
-
-            fetch('/registro', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(datos)
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    mensajeConfirmacion.style.display = 'block';
-                    setTimeout(function() {
-                        window.location.href = 'iniciar_sesion.html';
-                    }, 1000);
-            } else {
-                // Scroll al primer error
-                const primerError = document.querySelector('.campo-error');
-                if (primerError) {
-                    primerError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                try {
+                    const response = await fetch("http://localhost:3000/registro", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(datos)
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        // Mostrar mensaje de confirmación
+                        mensajeConfirmacion.style.display = 'block';
+                        // Ocultar el formulario
+                        formulario.style.display = 'none';
+                        window.location.href='login.html'
+                    } else {
+                        // Scroll al primer error
+                        const primerError = document.querySelector('.campo-error');
+                        if (primerError) {
+                            primerError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                    }
+                } catch {
+                    alert('Error en el servidor');
                 }
             }
-            })
-                .catch(() => alert('Error en el servidor'));
-                }
-            });
+        });
     </script>
 
 </body>
