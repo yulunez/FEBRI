@@ -100,7 +100,7 @@
             password: document.getElementById('password'),
             confirmarPassword: document.getElementById('confirmarPassword')
         };
-        console.log(campos);
+        
         const botonRegistrar = document.getElementById('botonRegistrar');
         const mensajeConfirmacion = document.getElementById('mensajeConfirmacion');
         const togglePassword = document.getElementById('togglePassword');
@@ -268,7 +268,7 @@
                 campos.password.classList.add('campo-error');
                 mostrarError('error-password', 'La contraseña debe contener al menos un número');
                 return false;
-            } else if (!/[!@#$%^&*()-_*,.?":{}|<>]/.test(password)) {
+            } else if (!/[!@#$%^&*()_*,.?":{}|<>]/.test(password)) {
                 campos.password.classList.add('campo-error');
                 mostrarError('error-password', 'La contraseña debe contener al menos un carácter especial (!@#$%^&*)');
                 return false;
@@ -372,7 +372,7 @@
                     password: campos.password.value.trim(),
                     confirmarPassword: campos.confirmarPassword.value.trim()
                 };
-                console.log(datos);
+                
 
                 try {
                     const response = await fetch("http://localhost:3000/registro", {
@@ -386,7 +386,7 @@
                         mensajeConfirmacion.style.display = 'block';
                         // Ocultar el formulario
                         formulario.style.display = 'none';
-                        window.location.href='login.html'
+                        window.location.href='iniciar_sesion.html'
                     } else {
                         // Scroll al primer error
                         const primerError = document.querySelector('.campo-error');
