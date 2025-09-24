@@ -33,6 +33,85 @@
             color: #64748b;
         }
 
+        /* Encabezado */
+        .encabezado {
+            background: white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .contenido-encabezado {
+            max-width: 1024px;
+            margin: 0 auto;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between; /* Distribuye espacio entre elementos */
+        }
+
+        .lado-izquierdo {
+            display: flex;
+            align-items: center;
+        }
+
+        .boton-regresar {
+            margin-right: 0.75rem;
+            color: #64748b;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .boton-regresar:hover {
+            color: #334155;
+        }
+
+        .encabezado h1 {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        /* Botón cerrar sesión */
+        .boton-cerrar-sesion {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #ec4899;
+            color: white;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .boton-cerrar-sesion:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(239, 68, 68, 0.3);
+            background: #ec4899;
+        }
+
+        .boton-cerrar-sesion i {
+            font-size: 1rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .boton-cerrar-sesion {
+                padding: 0.5rem 0.8rem;
+                font-size: 0.8rem;
+            }
+
+         
+
+            .encabezado h1 {
+                font-size: 1.1rem;
+            }
+        }
         .encabezado h1 {
             font-size: 1.25rem;
             font-weight: 600;

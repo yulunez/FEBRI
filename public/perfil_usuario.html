@@ -7,15 +7,26 @@
     <title>Perfil de Usuario</title>
 </head>
 <body>
-    <!-- Encabezado -->
+ <!-- Encabezado con botón de cerrar sesión -->
     <div class="encabezado">
         <div class="contenido-encabezado">
-            <a href="index.html"><svg class="boton-regresar" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="15,18 9,12 15,6"></polyline>
-            </svg></a>
-            <h1>Perfil</h1>
+            <div class="lado-izquierdo">
+                <a href="index.html">
+                    <svg class="boton-regresar" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="15,18 9,12 15,6"></polyline>
+                    </svg>
+                </a>
+                <h1>Perfil</h1>
+            </div>
+            
+            <!-- Botón de cerrar sesión -->
+            <button class="boton-cerrar-sesion" onclick="cerrarSesion()">
+                <i class='bx bx-log-out'></i>
+                <span class="texto-cerrar">Cerrar Sesión</span>
+            </button>
         </div>
     </div>
+    
 
     <div class="contenedor">
         <!-- Tarjeta de Información del Usuario -->

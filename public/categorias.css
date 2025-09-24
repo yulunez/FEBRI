@@ -672,3 +672,122 @@
                 grid-template-columns: repeat(1, 1fr);
             }
         }
+
+        /* Estilos para categorias */
+.categorias {
+    padding: 50px 20px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.categorias-titulo {
+    text-align: center;
+    font-size: 2rem;
+    color:var(--rosa-claro);
+    margin-bottom: 40px;
+}
+
+.categorias-contenedor {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    padding: 0 15px;
+    width: 100%;
+}
+
+.categoria-tarjeta {
+    position: relative;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+    width: 100%;
+    text-decoration: none;
+    display: block; 
+}
+
+.categoria-tarjeta:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+}
+
+.categoria-imagen {
+    position: relative;
+    padding-bottom: 75%;
+    overflow: hidden;
+    width: 100%;
+}
+
+.categoria-imagen img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.categoria-tarjeta:hover .categoria-imagen img {
+    transform: scale(1.05);
+}
+
+.categoria-nombre {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 15px;
+    background: linear-gradient(transparent, rgba(0,0,0,0.7));
+    color: white;
+    font-size: 1.1rem;
+    text-align: center;
+    margin: 0;
+}
+
+/* Media queries */
+@media (max-width: 1024px) {
+    .categorias-contenedor {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+}
+
+@media (max-width: 768px) {
+    .categorias {
+        padding: 30px 15px;
+    }
+
+    .categorias-titulo {
+        font-size: 1.8rem;
+        margin-bottom: 30px;
+    }
+
+    .categorias-contenedor {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .categoria-imagen {
+        padding-bottom: 60%;
+    }
+}
+
+@media (max-width: 480px) {
+    .categorias {
+        padding: 20px 10px;
+    }
+
+    .categorias-titulo {
+        font-size: 1.5rem;
+        margin-bottom: 20px;
+    }
+
+    .categoria-nombre {
+        font-size: 1rem;
+        padding: 12px;
+    }
+}
+
+
