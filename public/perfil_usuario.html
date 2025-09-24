@@ -4,21 +4,36 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Perfil de Usuario</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+    <script>
+        // Mostrar datos del usuario logueado
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                const response = await fetch('/perfil', { credentials: 'include' });
+                const data = await response.json();
+                if (data.success && data.usuario) {
+                    // Ejemplo: mostrar nombre y correo
+                    document.querySelector('.detalles-usuario h2').textContent = data.usuario.nombre || '';
+                    document.querySelector('.info-usuario p').textContent = data.usuario.correo || '';
+                } else {
+                    // Si no está logueado, redirige al login
+                    window.location.href = 'login.html';
+                }
+            } catch {
+                window.location.href = 'login.html';
+            }
+        });
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background-color: #f8fafc;
-            color: #1e293b;
-            min-height: 100vh;
-        }
+        // Funcionalidad para los botones de corazón
+        document.querySelectorAll('.boton-corazon-producto').forEach(boton => {
+            boton.addEventListener('click', function() {
+            });
+        });
 
-        /* Encabezado */
+        // Funcionalidad para el botón de editar perfil
+        document.querySelector('.boton-editar').addEventListener('click', function() {
+            alert('Función de editar perfil');
+        });
+    </script>
         .encabezado {
             background: white;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
