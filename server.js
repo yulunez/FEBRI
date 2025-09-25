@@ -58,7 +58,10 @@ app.use('/registro', registro); // Usa el router para la ruta /registro
 const login = require('./routes/login.js');
 app.use('/login', login);
 
-app.get('/perfil', (req, res) => {
+const perfilUsuarioRouter = require('./routes/perfilUsuario.js');
+// ...existing code...
+app.use('/perfilUsuario', perfilUsuarioRouter);
+app.get('/perfilUsuario', (req, res) => {
     if (req.session.usuario) {
         res.json({
             success: true,
