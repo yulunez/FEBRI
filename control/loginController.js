@@ -27,6 +27,7 @@ exports.ingresarUsuario = (req, res) => {
                 req.session.usuario = {
                     id: usuario.ID,
                     nombre: usuario.Nombre,
+                    apellido: usuario.Apellido,
                     correo: usuario.Correo,
                     telefono: usuario.Telefono,
                     fechaNacimiento: usuario.Fecha_de_nacimiento,
