@@ -33,7 +33,6 @@ exports.ingresarUsuario = (req, res) => {
                     fechaNacimiento: usuario.Fecha_de_nacimiento,
                     direccion: usuario.Direccion
                 }
-                
                 return res.json({ success: true, usuario });
             } else {
                 // Usuario no encontrado
