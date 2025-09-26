@@ -111,6 +111,7 @@
                 });
                 const data = await response.json();
                 if (data.success) {
+                     localStorage.setItem('usuarioLogueado', 'true');
                     mostrarMensajeLogin('¡Ingreso exitoso!', '#f8a4d8');
                     setTimeout(() => {
                         if (data.usuario.ID_cliente) {

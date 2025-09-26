@@ -29,7 +29,7 @@
                 <i class='bx bx-cart'></i>
                 <span class="contador-carrito" id="contador-carrito" style="display: none;">0</span>
             </div>
-                <i class='bx bx-user perfil-icon'></i>
+               <a href="perfil_usuario.html"><i class='bx bx-user perfil-icon'></i></a> 
                 
         </div>
         </div>
@@ -47,20 +47,16 @@
             </div>
             
             <div class="menu-superior-derecha">
-<<<<<<< HEAD
+
                 
-=======
-                <div class="btn-registrar-movil">
-                    <a href="login.html">Iniciar</a>
-                </div>
->>>>>>> login
-                <!-- Carrito de compras móvil -->
-                <div class="carrito-nav" onclick="irAlCarrito()">
-                    <i class='bx bx-cart'></i>
-                    <span class="contador-carrito" id="contador-carrito-movil" style="display: none;">0</span>
-                </div>
-                <i class='bx bx-user perfil-icon'></i>
+                      <!-- Carrito de compras -->
+            <div class="carrito-nav" onclick="irAlCarrito()">
+                <i class='bx bx-cart'></i>
+                <span class="contador-carrito" id="contador-carrito" style="display: none;">0</span>
             </div>
+               <a href="perfil_usuario.html"><i class='bx bx-user perfil-icon'></i></a> 
+                
+        </div>
         </div>
         
         <!-- Menú lateral -->
@@ -313,6 +309,20 @@ document.addEventListener('DOMContentLoaded', function() {
     
     btnSiguiente.addEventListener('click', () => moverCarrusel('siguiente'));
     btnAnterior.addEventListener('click', () => moverCarrusel('anterior'));
+});
+
+//ocultar boton de inicio de sesion despues de haver iniciado sesion
+document.addEventListener('DOMContentLoaded', () => {
+  const btnLogin = document.querySelector('.btn-registrar');
+  const perfilIcon = document.querySelector('.perfil-icon');
+
+  if (localStorage.getItem('usuarioLogueado') === 'true') {
+    if (btnLogin) btnLogin.style.display = 'none';
+    if (perfilIcon) perfilIcon.style.display = 'inline-block';
+  } else {
+    if (btnLogin) btnLogin.style.display = 'block';
+    if (perfilIcon) perfilIcon.style.display = 'none';
+  }
 });
 
 

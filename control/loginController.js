@@ -11,7 +11,7 @@ exports.ingresarUsuario = (req, res) => {
 
     // Encriptar la contraseña para comparar
     const passwordHash = crypto.createHash('sha256').update(password).digest('hex');
-
+    console.log(passwordHash);
     db.query(
         'SELECT * FROM account WHERE Correo = ? AND Contraseña = ?',
         [correo, passwordHash],

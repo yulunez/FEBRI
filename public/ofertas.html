@@ -25,13 +25,14 @@
             <a href="contactos.html" class="nav-link">Contáctos</a>
             <div class="btn-registrar"><a href="login.html">Iniciar sesión</a></div>
 
-             <!-- Carrito de compras -->
+                   <!-- Carrito de compras -->
             <div class="carrito-nav" onclick="irAlCarrito()">
                 <i class='bx bx-cart'></i>
                 <span class="contador-carrito" id="contador-carrito" style="display: none;">0</span>
             </div>
-                <i class='bx bx-user perfil-icon'></i>
+               <a href="perfil_usuario.html"><i class='bx bx-user perfil-icon'></i></a> 
                 
+        </div>
         </div>
     </nav>
 
@@ -50,13 +51,16 @@
                 <div class="btn-registrar-movil">
                     <a href="iniciar_sesion.html">Iniciar</a>
                 </div>
-                <!-- Carrito de compras móvil -->
-                <div class="carrito-nav" onclick="irAlCarrito()">
-                    <i class='bx bx-cart'></i>
-                    <span class="contador-carrito" id="contador-carrito-movil" style="display: none;">0</span>
-                </div>
-                <i class='bx bx-user perfil-icon'></i>
+            
+
+                           <!-- Carrito de compras -->
+            <div class="carrito-nav" onclick="irAlCarrito()">
+                <i class='bx bx-cart'></i>
+                <span class="contador-carrito" id="contador-carrito" style="display: none;">0</span>
             </div>
+               <a href="perfil_usuario.html"><i class='bx bx-user perfil-icon'></i></a> 
+                
+        </div>
         </div>
         
         <!-- Menú lateral -->
@@ -360,6 +364,20 @@
             `;
             document.head.appendChild(style);
         });
+
+        //ocultar boton de inicio de sesion despues de haver iniciado sesion
+document.addEventListener('DOMContentLoaded', () => {
+  const btnLogin = document.querySelector('.btn-registrar');
+  const perfilIcon = document.querySelector('.perfil-icon');
+
+  if (localStorage.getItem('usuarioLogueado') === 'true') {
+    if (btnLogin) btnLogin.style.display = 'none';
+    if (perfilIcon) perfilIcon.style.display = 'inline-block';
+  } else {
+    if (btnLogin) btnLogin.style.display = 'block';
+    if (perfilIcon) perfilIcon.style.display = 'none';
+  }
+});
     </script>
 </body>
 </html>
