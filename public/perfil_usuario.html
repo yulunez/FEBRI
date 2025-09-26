@@ -6,23 +6,7 @@
     <link rel="stylesheet" href="perfil_usuario.css">
     <title>Perfil de Usuario</title>
     <script>
-        // Mostrar datos del usuario logueado
-        document.addEventListener('DOMContentLoaded', async function() {
-            try {
-                const response = await fetch('/perfil', { credentials: 'include' });
-                const data = await response.json();
-                if (data.success && data.usuario) {
-                    // Ejemplo: mostrar nombre y correo
-                    document.querySelector('.detalles-usuario h2').textContent = data.usuario.nombre || '';
-                    document.querySelector('.info-usuario p').textContent = data.usuario.correo || '';
-                } else {
-                    // Si no está logueado, redirige al login
-                    window.location.href = 'login.html';
-                }
-            } catch {
-                window.location.href = 'login.html';
-            }
-        });
+
 
         // Funcionalidad para los botones de corazón
         document.querySelectorAll('.boton-corazon-producto').forEach(boton => {
@@ -30,13 +14,7 @@
             });
         });
 
-        // Funcionalidad para el botón de editar perfil
-        document.querySelector('.boton-editar').addEventListener('click', function() {
-            alert('Función de editar perfil');
-        });
     </script>
-       
-
 </head>
 <body>
  <!-- Encabezado con botón de cerrar sesión -->
@@ -79,15 +57,11 @@
                 </div>
 
                 <!-- Detalles del Usuario -->
-                <div class="detalles-usuario">
-                    <h2>Juan Pérez</h2>
-                    <div class="info-usuario">
-                        <p><span>Correo:</span> juanperez@email.com</p>
-                        <p><span>Dirección:</span> Calle Falsa 123, Ciudad</p>
-                        <p><span>Teléfono:</span> 1345676567</p>
+                    <div class="detalles-usuario">
+                        <h2></h2>
+                        <div class="info-usuario"></div>
+                        <button class="boton-editar" id="btnEditar">Editar Perfil</button>
                     </div>
-                    <button class="boton-editar">Editar perfil</button>
-                </div>
             </div>
         </div>
 
@@ -129,6 +103,78 @@
                     Me gusta
                 </button>
             </div>
+
+            <!-- Formulario para editar informacion-->
+
+            <form class="formEdit" id="formEdit" style="display: none;" method="POST">
+            <div class="avatar">
+                <i class='bx bxs-user-circle'></i>
+            </div>
+            
+            <div class="fila-formulario">
+                <div style="flex: 1; margin-right: -10px;">
+                    <input type="text" placeholder="Nuevo Nombre" class="entrada-mitad" id="nombre">
+                    <div class="mensaje-error" id="error-nombre"></div>
+                </div>
+                <div style="flex: 1; margin-left: 10px;">
+                    <input type="text" placeholder="Nuevo Apellido" class="entrada-mitad" id="apellidos">
+                </div>
+            </div>
+
+            <div class="grupo-formulario">
+                <div class="contenedor-icono">
+                    <i class='bx bxs-calendar'></i>
+                    <input type="date" class="control-formulario" id="fecha" required>
+                </div>
+            </div>
+
+            <div class="grupo-formulario">
+                <div class="contenedor-icono">
+                    <i class='bx bxs-map' id="icono-mapa" title="Clic para seleccionar en el mapa"></i>
+                    <input type="text" placeholder="Ingrese su nueva dirección" class="control-formulario" id="direccion">
+                </div>
+            </div>
+
+            <div class="grupo-formulario">
+                <div class="contenedor-icono">
+                    <i class='bx bxs-envelope'></i>
+                    <input type="email" placeholder="Ingresar nuevo correo electrónico" class="control-formulario" id="email">
+                </div>
+                <div class="mensaje-error" id="error-email"></div>
+            </div>
+
+            <div class="grupo-formulario">
+                <div class="contenedor-icono">
+                    <i class='bx bxs-phone'></i>
+                    <input type="tel" placeholder="Ingresar nuevo teléfono" class="control-formulario" id="telefono">
+                </div>
+                <div class="mensaje-error" id="error-telefono"></div>
+            </div>
+
+            <div class="grupo-formulario">
+                <div class="contenedor-icono">
+                    <i class='bx bxs-lock-alt'></i>
+                    <input type="password" placeholder="Ingresar nueva contraseña" class="control-formulario" id="password" required autocomplete="new-password">
+                    <button type="button" class="toggle-password" id="togglePassword">
+                        <i class='bx bx-hide' id="toggleIcon"></i>
+                    </button>
+                </div>
+                <div class="mensaje-error" id="error-password"></div>
+            </div>
+
+            <div class="grupo-formulario">
+                <div class="contenedor-icono">
+                    <i class='bx bxs-lock-alt'></i>
+                    <input type="password" placeholder="Confirmar contraseña" class="control-formulario" id="confirmarPassword" required autocomplete="new-password">
+                    <button type="button" class="toggle-password" id="toggleConfirmPassword">
+                        <i class='bx bx-hide' id="toggleConfirmIcon"></i>
+                    </button>
+                </div>
+                <div class="mensaje-error" id="error-confirmar"></div>
+            </div>
+
+            <button type="submit">Registrar</button>
+        </form>
 
             <!-- Contenido -->
             <div class="seccion-contenido">
@@ -188,6 +234,28 @@
     </div>
 
     <script>
+
+
+    document.addEventListener('DOMContentLoaded', async function() {
+        try {
+            const res = await fetch('/perfilUsuario', { credentials: 'include' });
+            const data = await res.json();
+            if (data.success) {
+                const usuario = data.usuario;
+                document.querySelector('.detalles-usuario h2').textContent = `${usuario.nombre}  ${usuario.apellido}`.trim() || 'Sin nombre';
+                document.querySelector('.info-usuario').innerHTML = `
+                    <p><span>Correo:</span> ${usuario.correo || ''}</p>
+                    <p><span>Dirección:</span> ${usuario.direccion || ''}</p>
+                    <p><span>Teléfono:</span> ${usuario.telefono || ''}</p>
+                `;
+            } else {
+                window.location.href = 'login.html';
+            }
+        } catch (err) {
+            console.error('Error al cargar perfil:', err);
+        }
+    });
+
         // Funcionalidad para los botones de corazón
         document.querySelectorAll('.boton-corazon-producto').forEach(boton => {
             boton.addEventListener('click', function() {
@@ -201,15 +269,37 @@
                     iconoCorazon.style.color = '#9ca3af';
                 }
             });
-        });
-
+        });     
         // Funcionalidad para el botón de editar perfil
         document.querySelector('.boton-editar').addEventListener('click', function() {
             alert('Función de editar perfil');
         });
+        
+        function cerrarSesion() {
+            fetch('/logout', {
+                method: 'POST',
+                credentials: 'include'
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = 'login.html';
+                } else {
+                    alert('Error al cerrar sesión');
+                }
+            })
+            .catch(err => {
+                console.error('Error al cerrar sesión:', err);
+                alert('Error al cerrar sesión');
+            });
+        }
 
-        
-        
+        document.getElementById("btnEditar").addEventListener("click", () =>{
+            document.getElementById("formEdit").style.display = "block";
+        });
     </script>
+
+
+
 </body>
 </html>

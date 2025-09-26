@@ -58,7 +58,11 @@ app.use('/registro', registro); // Usa el router para la ruta /registro
 const login = require('./routes/login.js');
 app.use('/login', login);
 
-app.get('/perfil', (req, res) => {
+app.use(express.urlencoded({ extended:true }));
+const perfilUsuarioRouter = require('./routes/perfilUsuario.js');
+// ...existing code...
+app.use('/perfilUsuario', perfilUsuarioRouter);
+app.get('/perfilUsuario', (req, res) => {
     if (req.session.usuario) {
         res.json({
             success: true,
@@ -78,6 +82,8 @@ app.post('/logout', (req, res) => {
         res.json({ success: true, message: 'Sesión cerrada' });
     });
 });
+
+
 
 // Iniciar el servidor  en el puerto 3000
 
