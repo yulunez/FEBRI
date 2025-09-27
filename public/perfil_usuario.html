@@ -276,6 +276,10 @@
         });
         
         function cerrarSesion() {
+
+              // 🔹 Limpia el localStorage ANTES de hacer el fetch
+                localStorage.removeItem('usuarioLogueado');
+                localStorage.removeItem('nombreUsuario');
             fetch('/logout', {
                 method: 'POST',
                 credentials: 'include'

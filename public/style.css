@@ -785,6 +785,19 @@ body {
             }
         }
 
+        /* Para Opción 1 */
+.logo-container {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.logo-login {
+    width: 60px;
+    height: auto;
+    filter: drop-shadow(0 2px 8px rgba(248, 164, 216, 0.3));
+}
+
+
 
 
 
@@ -986,10 +999,31 @@ body {
             pointer-events: none;
         }
 
-        .boton-registrar:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
-        }
+            .boton-registrar:disabled {
+                background-color: #ccc;
+                cursor: not-allowed;
+            }
+
+            .titulo-registro {
+        color: var(--rosa-claro);
+        font-size: 2rem;
+        font-weight: 700;
+        text-align: center;
+        margin-bottom: 30px;
+        position: relative;
+    }
+
+    .titulo-registro::after {
+        content: '';
+        position: absolute;
+        bottom: -8px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60px;
+        height: 3px;
+        background: var(--gradiente-principal);
+        border-radius: 2px;
+    }
 
         .campo-requerido {
             border-color: #ffc107 !important;

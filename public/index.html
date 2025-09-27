@@ -52,11 +52,7 @@
             
             <div class="menu-superior-derecha">
 
-                
-
-                <div class="btn-registrar-movil">
-                    <a href="login.html">Iniciar</a>
-                </div>
+            
                 <!-- Carrito de compras móvil -->
                 <div class="carrito-nav" onclick="irAlCarrito()">
                     <i class='bx bx-cart'></i>
@@ -228,13 +224,72 @@
     <div class="circulo-decorativo circulo-2"></div>
 </section>
 
+<!-- Slider Horizontal Continuo -->
+<section class="slider-horizontal">
+    <div class="slider-container">
+        <div class="slider-track">
+        
+            <div class="slide-item">
+                <img src="imagenes/joyas5.jpg" alt="Joyas en resina">
+            
+            </div>
+            
+            
+            <div class="slide-item">
+                <img src="imagenes/decoracion-inicio.avif" alt="Decoración en resina">
+                
+            </div>
+            
+            <!-- Imagen 3 -->
+            <div class="slide-item">
+                <img src="imagenes/arte descri.jpg" alt="Arte en resina">
+                
+            </div>
+            
+        
+            <div class="slide-item">
+                <img src="imagenes/juegos 1.jpg" alt="Juegos en resina">
+                
+            </div>
+            
+            
+            <div class="slide-item">
+                <img src="imagenes/llavero-inicio.jpeg" alt="Accesorios en resina">
+                
+            </div>
+            
+            
+            <div class="slide-item">
+                <img src="imagenes/libreta-inicio.jpeg" alt="Libretas personalizadas">
+                
+            </div>
+            
+            
+            <div class="slide-item">
+                <img src="imagenes/joyas5.jpg" alt="Joyas en resina">
+                
+            </div>
+            
+            <div class="slide-item">
+                <img src="imagenes/decoracion-inicio.avif" alt="Decoración en resina">
+            </div>
+            
+            <div class="slide-item">
+                <img src="imagenes/arte descri.jpg" alt="Arte en resina">
+                
+            </div>
+        </div>
+    </div>
+</section>
+
+
 
 <section class="blog-posts">
     <div class="post-card">
         <div class="post-image-container">
-            <img src="imagenes/joyas descri.jpg" alt="" class="post-image hover-effect">
+           <a href="joyas_acesorios.html"> <img src="imagenes/joyas descri.jpg" alt="" class="post-image hover-effect"></a>
         </div>
-        <h3 class="post-titulo">Joyas Únicas en Resina: Arte que Puedes Llevar</h3>
+       <a href="joyas_acesorios.html"> <h3 class="post-titulo">Joyas Únicas en Resina: Arte que Puedes Llevar</h3></a>
         <p class="post-descripcion">Descubre nuestra colección exclusiva de joyas artesanales en resina. Cada pieza es única y cuenta una historia especial, perfecta para quienes buscan accesorios originales y llenos de personalidad.</p>
     </div>
 
@@ -262,6 +317,82 @@
         <p class="post-descripcion">Juegos y elementos de entretenimiento únicos elaborados en resina. Desde dados personalizados hasta piezas de ajedrez artísticas, la diversión nunca había sido tan elegante.</p>
     </div>
 </section>
+
+
+<footer class="footer">
+  <div class="footer-container">
+    <!-- Columna 1: Logo y descripción -->
+    <div class="footer-col">
+      <img src="imagenes/logo.png" alt="Logo Febri" class="footer-logo">
+      <p class="footer-desc">
+        Artesanías y productos en resina hechos con amor y detalle.
+      </p>
+      <!-- Redes sociales -->
+      <div class="social-media">
+        <a href="#" class="social-link" aria-label="Facebook">
+          <i class='bx bxl-facebook'></i>
+        </a>
+        <a href="#" class="social-link" aria-label="Instagram">
+          <i class='bx bxl-instagram'></i>
+        </a>
+        <a href="#" class="social-link" aria-label="WhatsApp">
+          <i class='bx bxl-whatsapp'></i>
+        </a>
+        <a href="#" class="social-link" aria-label="Twitter">
+          <i class='bx bxl-twitter'></i>
+        </a>
+      </div>
+    </div>
+
+    <!-- Columna 2: Enlaces rápidos -->
+    <div class="footer-col">
+      <h3 class="footer-title">Enlaces rápidos</h3>
+      <ul class="footer-links">
+        <li><a href="index.html">Inicio</a></li>
+        <li><a href="categorias.html">Categorías</a></li>
+        <li><a href="ofertas.html">Ofertas</a></li>
+        <li><a href="contactos.html">Contáctanos</a></li>
+      </ul>
+    </div>
+
+    <!-- Columna 3: Contacto -->
+    <div class="footer-col">
+      <h3 class="footer-title">Contacto</h3>
+      <div class="contact-info">
+        <div class="contact-item">
+          <i class='bx bx-phone'></i>
+          <div>
+            <strong>Tel/WhatsApp:</strong>
+            <a href="https://wa.me/573108951700" target="_blank">+57 310 8951700</a>
+          </div>
+        </div>
+        <div class="contact-item">
+          <i class='bx bx-envelope'></i>
+          <div>
+            <strong>Email:</strong>
+            <a href="mailto:contacto@febri.com">contacto@febri.com</a>
+          </div>
+        </div>
+        <div class="contact-item">
+          <i class='bx bx-map'></i>
+          <div>
+            <strong>Ubicación:</strong>
+            <a href="https://maps.google.com/?q=Calle+10+N°+15-20+Medellín+Colombia" target="_blank">
+              Calle 10 #15-20, Medellín, Colombia
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Derechos de autor -->
+  <div class="footer-bottom">
+    <p>© 2025 Febri – Todos los derechos reservados</p>
+  </div>
+</footer>
+
+
 
     <script>
     
@@ -335,6 +466,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (perfilIcon) perfilIcon.style.display = 'none';
   }
 });
+
+
 
 
     </script>
