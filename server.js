@@ -15,7 +15,7 @@ const db = mysql.createConnection({
     user: 'root',
     password: '',
     database: 'febri', 
-    port: 3306
+    port: 3307
 });
 
 // Configurar sesión
@@ -60,8 +60,10 @@ app.use('/login', login);
 
 app.use(express.urlencoded({ extended:true }));
 const perfilUsuarioRouter = require('./routes/perfilUsuario.js');
+const perfilRouter = require('./routes/perfil.js');
 // ...existing code...
 app.use('/perfilUsuario', perfilUsuarioRouter);
+app.use('/perfil', perfilRouter);
 app.get('/perfilUsuario', (req, res) => {
     if (req.session.usuario) {
         res.json({

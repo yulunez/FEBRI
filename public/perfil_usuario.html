@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="perfil_usuario.css">
+    <link rel="stylesheet" href="editarperfil.css">
     <title>Perfil de Usuario</title>
     <script>
 
@@ -104,77 +105,52 @@
                 </button>
             </div>
 
-            <!-- Formulario para editar informacion-->
 
-            <form class="formEdit" id="formEdit" style="display: none;" method="POST">
-            <div class="avatar">
-                <i class='bx bxs-user-circle'></i>
+            <!-- Modal flotante para editar informacion -->
+            <div id="modalEdit" class="modal-edit" style="display:none;">
+                <form class="formEdit" id="formEdit" method="POST">
+                    <button type="button" class="close-modal-edit" id="closeModalEdit" title="Cerrar">&times;</button>
+                    <div class="avatar">
+                        <i class='bx bxs-user-circle'></i>
+                    </div>
+                    <div class="fila-formulario">
+                        <div style="flex: 1; margin-right: -10px;">
+                            <input type="text" placeholder="Nuevo Nombre" class="entrada-mitad" id="nombre">
+                            <div class="mensaje-error" id="error-nombre"></div>
+                        </div>
+                        <div style="flex: 1; margin-left: 10px;">
+                            <input type="text" placeholder="Nuevo Apellido" class="entrada-mitad" id="apellidos">
+                        </div>
+                    </div>
+                    <div class="grupo-formulario">
+                        <div class="contenedor-icono">
+                            <i class='bx bxs-calendar'></i>
+                            <input type="date" class="control-formulario" id="fecha" required>
+                        </div>
+                    </div>
+                    <div class="grupo-formulario">
+                        <div class="contenedor-icono">
+                            <i class='bx bxs-map' id="icono-mapa" title="Clic para seleccionar en el mapa"></i>
+                            <input type="text" placeholder="Ingrese su nueva dirección" class="control-formulario" id="direccion">
+                        </div>
+                    </div>
+                    <div class="grupo-formulario">
+                        <div class="contenedor-icono">
+                            <i class='bx bxs-envelope'></i>
+                            <input type="email" placeholder="Ingresar nuevo correo electrónico" class="control-formulario" id="email">
+                        </div>
+                        <div class="mensaje-error" id="error-email"></div>
+                    </div>
+                    <div class="grupo-formulario">
+                        <div class="contenedor-icono">
+                            <i class='bx bxs-phone'></i>
+                            <input type="tel" placeholder="Ingresar nuevo teléfono" class="control-formulario" id="telefono">
+                        </div>
+                        <div class="mensaje-error" id="error-telefono"></div>
+                    </div>
+                    <button type="submit">Registrar</button>
+                </form>
             </div>
-            
-            <div class="fila-formulario">
-                <div style="flex: 1; margin-right: -10px;">
-                    <input type="text" placeholder="Nuevo Nombre" class="entrada-mitad" id="nombre">
-                    <div class="mensaje-error" id="error-nombre"></div>
-                </div>
-                <div style="flex: 1; margin-left: 10px;">
-                    <input type="text" placeholder="Nuevo Apellido" class="entrada-mitad" id="apellidos">
-                </div>
-            </div>
-
-            <div class="grupo-formulario">
-                <div class="contenedor-icono">
-                    <i class='bx bxs-calendar'></i>
-                    <input type="date" class="control-formulario" id="fecha" required>
-                </div>
-            </div>
-
-            <div class="grupo-formulario">
-                <div class="contenedor-icono">
-                    <i class='bx bxs-map' id="icono-mapa" title="Clic para seleccionar en el mapa"></i>
-                    <input type="text" placeholder="Ingrese su nueva dirección" class="control-formulario" id="direccion">
-                </div>
-            </div>
-
-            <div class="grupo-formulario">
-                <div class="contenedor-icono">
-                    <i class='bx bxs-envelope'></i>
-                    <input type="email" placeholder="Ingresar nuevo correo electrónico" class="control-formulario" id="email">
-                </div>
-                <div class="mensaje-error" id="error-email"></div>
-            </div>
-
-            <div class="grupo-formulario">
-                <div class="contenedor-icono">
-                    <i class='bx bxs-phone'></i>
-                    <input type="tel" placeholder="Ingresar nuevo teléfono" class="control-formulario" id="telefono">
-                </div>
-                <div class="mensaje-error" id="error-telefono"></div>
-            </div>
-
-            <div class="grupo-formulario">
-                <div class="contenedor-icono">
-                    <i class='bx bxs-lock-alt'></i>
-                    <input type="password" placeholder="Ingresar nueva contraseña" class="control-formulario" id="password" required autocomplete="new-password">
-                    <button type="button" class="toggle-password" id="togglePassword">
-                        <i class='bx bx-hide' id="toggleIcon"></i>
-                    </button>
-                </div>
-                <div class="mensaje-error" id="error-password"></div>
-            </div>
-
-            <div class="grupo-formulario">
-                <div class="contenedor-icono">
-                    <i class='bx bxs-lock-alt'></i>
-                    <input type="password" placeholder="Confirmar contraseña" class="control-formulario" id="confirmarPassword" required autocomplete="new-password">
-                    <button type="button" class="toggle-password" id="toggleConfirmPassword">
-                        <i class='bx bx-hide' id="toggleConfirmIcon"></i>
-                    </button>
-                </div>
-                <div class="mensaje-error" id="error-confirmar"></div>
-            </div>
-
-            <button type="submit">Registrar</button>
-        </form>
 
             <!-- Contenido -->
             <div class="seccion-contenido">
@@ -236,12 +212,14 @@
     <script>
 
 
+    let usuarioActual = {};
     document.addEventListener('DOMContentLoaded', async function() {
         try {
             const res = await fetch('/perfilUsuario', { credentials: 'include' });
             const data = await res.json();
             if (data.success) {
                 const usuario = data.usuario;
+                usuarioActual = usuario;
                 document.querySelector('.detalles-usuario h2').textContent = `${usuario.nombre}  ${usuario.apellido}`.trim() || 'Sin nombre';
                 document.querySelector('.info-usuario').innerHTML = `
                     <p><span>Correo:</span> ${usuario.correo || ''}</p>
@@ -298,8 +276,64 @@
             });
         }
 
+        // Mostrar el modal flotante al hacer click en editar
         document.getElementById("btnEditar").addEventListener("click", () =>{
-            document.getElementById("formEdit").style.display = "block";
+            // Rellenar el formulario con los valores actuales
+            document.getElementById("nombre").value = usuarioActual.nombre || "";
+            document.getElementById("apellidos").value = usuarioActual.apellido || "";
+            document.getElementById("email").value = usuarioActual.correo || "";
+            document.getElementById("telefono").value = usuarioActual.telefono || "";
+            document.getElementById("direccion").value = usuarioActual.direccion || "";
+            document.getElementById("fecha").value = usuarioActual.fecha_nacimiento || "";
+            document.getElementById("modalEdit").style.display = "flex";
+        });
+
+        // Cerrar el modal flotante al hacer click en el botón de cerrar
+        document.getElementById("closeModalEdit").addEventListener("click", () =>{
+            document.getElementById("modalEdit").style.display = "none";
+        });
+
+        // Cerrar el modal al enviar el formulario
+        document.getElementById("formEdit").addEventListener("submit", function(e){
+            e.preventDefault();
+            // Tomar los valores del formulario, si están vacíos usar los originales
+            const nombre = document.getElementById("nombre").value.trim() || usuarioActual.nombre;
+            const apellidos = document.getElementById("apellidos").value.trim() || usuarioActual.apellido;
+            const correo = document.getElementById("email").value.trim() || usuarioActual.correo;
+            const telefono = document.getElementById("telefono").value.trim() || usuarioActual.telefono;
+            const direccion = document.getElementById("direccion").value.trim() || usuarioActual.direccion;
+            const fecha = document.getElementById("fecha").value.trim() || usuarioActual.fecha_nacimiento;
+
+            // Enviar los datos al backend
+            fetch(`/perfil/editar/${usuarioActual.id}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include',
+                body: JSON.stringify({ nombre, apellidos, correo, telefono, direccion, fecha })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    // Actualizar los datos en pantalla
+                    document.querySelector('.detalles-usuario h2').textContent = `${nombre}  ${apellidos}`.trim() || 'Sin nombre';
+                    document.querySelector('.info-usuario').innerHTML = `
+                        <p><span>Correo:</span> ${correo || ''}</p>
+                        <p><span>Dirección:</span> ${direccion || ''}</p>
+                        <p><span>Teléfono:</span> ${telefono || ''}</p>
+                    `;
+                    // Actualizar usuarioActual
+                    usuarioActual = { ...usuarioActual, nombre, apellido: apellidos, correo, telefono, direccion, fecha_nacimiento: fecha };
+                } else {
+                    alert('Error al actualizar el usuario');
+                }
+                document.getElementById("modalEdit").style.display = "none";
+            })
+            .catch(err => {
+                alert('Error al actualizar el usuario');
+                document.getElementById("modalEdit").style.display = "none";
+            });
         });
     </script>
 
