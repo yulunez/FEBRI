@@ -224,66 +224,6 @@
     <div class="circulo-decorativo circulo-2"></div>
 </section>
 
-<!-- Slider Horizontal Continuo -->
-<section class="slider-horizontal">
-    <div class="slider-container">
-        <div class="slider-track">
-        
-            <div class="slide-item">
-                <img src="imagenes/joyas5.jpg" alt="Joyas en resina">
-            
-            </div>
-            
-            
-            <div class="slide-item">
-                <img src="imagenes/decoracion-inicio.avif" alt="Decoración en resina">
-                
-            </div>
-            
-            <!-- Imagen 3 -->
-            <div class="slide-item">
-                <img src="imagenes/arte descri.jpg" alt="Arte en resina">
-                
-            </div>
-            
-        
-            <div class="slide-item">
-                <img src="imagenes/juegos 1.jpg" alt="Juegos en resina">
-                
-            </div>
-            
-            
-            <div class="slide-item">
-                <img src="imagenes/llavero-inicio.jpeg" alt="Accesorios en resina">
-                
-            </div>
-            
-            
-            <div class="slide-item">
-                <img src="imagenes/libreta-inicio.jpeg" alt="Libretas personalizadas">
-                
-            </div>
-            
-            
-            <div class="slide-item">
-                <img src="imagenes/joyas5.jpg" alt="Joyas en resina">
-                
-            </div>
-            
-            <div class="slide-item">
-                <img src="imagenes/decoracion-inicio.avif" alt="Decoración en resina">
-            </div>
-            
-            <div class="slide-item">
-                <img src="imagenes/arte descri.jpg" alt="Arte en resina">
-                
-            </div>
-        </div>
-    </div>
-</section>
-
-
-
 <section class="blog-posts">
     <div class="post-card">
         <div class="post-image-container">
@@ -373,15 +313,7 @@
             <a href="mailto:contacto@febri.com">contacto@febri.com</a>
           </div>
         </div>
-        <div class="contact-item">
-          <i class='bx bx-map'></i>
-          <div>
-            <strong>Ubicación:</strong>
-            <a href="https://maps.google.com/?q=Calle+10+N°+15-20+Medellín+Colombia" target="_blank">
-              Calle 10 #15-20, Medellín, Colombia
-            </a>
-          </div>
-        </div>
+       
       </div>
     </div>
   </div>
@@ -432,7 +364,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const totalTarjetas = tarjetas.length;
     
     function moverCarrusel(direccion) {
-        const anchoTarjeta = tarjetas[0].offsetWidth + 20; // ancho + gap
+        const anchoTarjeta = tarjetas[0].offsetWidth + 20; 
         
         if (direccion === 'siguiente' && posicionActual < totalTarjetas - tarjetasPorVista) {
             posicionActual++;
