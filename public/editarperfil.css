@@ -1,34 +1,247 @@
-/* Modal flotante para editar perfil */
+/* Estilos para el modal flotante de edición de perfil */
 .modal-edit {
-	position: fixed;
-	top: 0;
-	left: 0;
-	width: 100vw;
-	height: 100vh;
-	background: rgba(0,0,0,0.4);
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	z-index: 1000;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: 20px;
 }
 
 .formEdit {
-	background: #fff;
-	padding: 2rem 1.5rem;
-	border-radius: 16px;
-	box-shadow: 0 8px 32px rgba(0,0,0,0.2);
-	max-width: 400px;
-	width: 100%;
-	position: relative;
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
+    width: 100%;
+    max-width: 450px;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    animation: slideInDown 0.4s ease-out;
 }
 
+@keyframes slideInDown {
+    from {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Botón de cerrar modal */
 .close-modal-edit {
-	position: absolute;
-	top: 12px;
-	right: 12px;
-	background: transparent;
-	border: none;
-	font-size: 1.5rem;
-	cursor: pointer;
-	color: #888;
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 30px;
+    color: #999;
+    cursor: pointer;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.3s;
+    z-index: 10;
+}
+
+.close-modal-edit:hover {
+    background-color: #f0f0f0;
+    color: #333;
+}
+
+/* Logo y título */
+.formEdit .logo-container {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.formEdit .logo-registro {
+    width: 60px;
+    height: auto;
+    filter: drop-shadow(0 2px 8px rgba(248, 164, 216, 0.3));
+    margin-bottom: 10px;
+}
+
+.formEdit .titulo-registro {
+    font-size: 24px;
+    color: #ff69b4;
+    font-weight: 600;
+    margin: 0;
+}
+
+/* Fila de formulario para nombre y apellidos */
+.formEdit .fila-formulario {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 15px;
+}
+
+.formEdit .fila-formulario > div {
+    flex: 1;
+}
+
+.formEdit .entrada-mitad {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+    transition: border-color 0.3s;
+}
+
+.formEdit .entrada-mitad:focus {
+    outline: none;
+    border-color: #ff69b4;
+}
+
+/* Grupos de formulario */
+.formEdit .grupo-formulario {
+    margin-bottom: 18px;
+}
+
+.formEdit .contenedor-icono {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.formEdit .contenedor-icono i {
+    position: absolute;
+    left: 12px;
+    color: #ff69b4;
+    font-size: 2rem;
+    z-index: 1;
+}
+
+.formEdit .control-formulario {
+    width: 100%;
+    padding: 16px 16px 16px 50px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+    transition: border-color 0.3s;
+}
+
+.formEdit .control-formulario:focus {
+    outline: none;
+    border-color: #ff69b4;
+}
+
+/* Mensajes de error */
+.formEdit .mensaje-error {
+    color: #dc3545;
+    font-size: 12px;
+    margin-top: 5px;
+    display: none;
+}
+
+/* Botón de registrar/guardar */
+.formEdit button[type="submit"] {
+    width: 100%;
+    padding: 12px;
+    background-color: #ff69b4;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-top: 10px;
+}
+
+.formEdit button[type="submit"]:hover {
+    background-color: #fd7ad6;
+}
+
+/* Estilos para campos con error */
+.formEdit .campo-error {
+    border-color: #dc3545 !important;
+}
+
+/* Scrollbar personalizada para el modal */
+.formEdit::-webkit-scrollbar {
+    width: 8px;
+}
+
+.formEdit::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.formEdit::-webkit-scrollbar-thumb {
+    background: #ff69b4;
+    border-radius: 10px;
+}
+
+.formEdit::-webkit-scrollbar-thumb:hover {
+    background: #fd7ad6;
+}
+
+/* Estilos responsivos para el modal */
+@media (max-width: 768px) {
+    .modal-edit {
+        padding: 15px;
+    }
+    
+    .formEdit {
+        max-width: 90%;
+        max-height: 85vh;
+    }
+}
+
+@media (max-width: 480px) {
+    .modal-edit {
+        padding: 10px;
+    }
+    
+    .formEdit {
+        padding: 25px 20px;
+        max-width: 95%;
+        max-height: 90vh;
+    }
+    
+    .formEdit .fila-formulario {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .formEdit .fila-formulario > div {
+        margin-right: 0 !important;
+        margin-left: 0 !important;
+    }
+    
+    .formEdit .contenedor-icono i {
+        font-size: 1.5rem;
+        left: 10px;
+    }
+    
+    .formEdit .control-formulario {
+        padding: 12px 12px 12px 45px;
+    }
+    
+    .formEdit .entrada-mitad {
+        padding: 12px;
+    }
+    
+    .formEdit .logo-registro {
+        width: 50px;
+    }
+    
+    .formEdit .titulo-registro {
+        font-size: 22px;
+    }
 }

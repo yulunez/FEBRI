@@ -689,6 +689,62 @@ body {
     }
 }
 
+
+
+        /* Separador */
+        .separador {
+            text-align: center;
+            margin: 25px 0;
+            position: relative;
+        }
+
+        .separador::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #e0e0e0;
+            z-index: 1;
+        }
+
+        .texto-separador {
+            background: white;
+            padding: 0 15px;
+            position: relative;
+            z-index: 2;
+            color: #999;
+            font-size: 14px;
+        }
+
+   
+
+        
+.logo-container {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.logo-login {
+    width: 60px;
+    height: auto;
+    filter: drop-shadow(0 2px 8px rgba(248, 164, 216, 0.3));
+}
+
+
+
+
+
+/* Estilos de login */
+
+:root {
+    --rosa-claro: #f8a4d8;
+
+    --gris-claro: #f0f0f0;
+    --color-icono: #f8a4d8;
+    --gris-texto: #666666;
+}
 /* Estilos para botones de redes sociales */
         .botones-sociales {
             margin-bottom: 25px;
@@ -746,34 +802,7 @@ body {
             color: white;
         }
 
-        /* Separador */
-        .separador {
-            text-align: center;
-            margin: 25px 0;
-            position: relative;
-        }
-
-        .separador::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: #e0e0e0;
-            z-index: 1;
-        }
-
-        .texto-separador {
-            background: white;
-            padding: 0 15px;
-            position: relative;
-            z-index: 2;
-            color: #999;
-            font-size: 14px;
-        }
-
-        /* Responsive para dispositivos móviles */
+             /* Responsive para dispositivos móviles */
         @media (max-width: 480px) {
             .boton-social {
                 padding: 14px 16px;
@@ -784,33 +813,6 @@ body {
                 font-size: 16px;
             }
         }
-
-        /* Para Opción 1 */
-.logo-container {
-    text-align: center;
-    margin-bottom: 20px;
-}
-
-.logo-login {
-    width: 60px;
-    height: auto;
-    filter: drop-shadow(0 2px 8px rgba(248, 164, 216, 0.3));
-}
-
-
-
-
-
-/* Estilos de login */
-
-:root {
-    --rosa-claro: #f8a4d8;
-
-    --gris-claro: #f0f0f0;
-    --color-icono: #f8a4d8;
-    --gris-texto: #666666;
-}
-
 .body-inicio {
     margin: 0;
     padding: 0;

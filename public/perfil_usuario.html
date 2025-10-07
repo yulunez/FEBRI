@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="perfil_usuario.css">
     <link rel="stylesheet" href="editarperfil.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <title>Perfil de Usuario</title>
     <script>
 
@@ -106,52 +107,59 @@
             </div>
 
 
-            <!-- Modal flotante para editar informacion -->
-            <div id="modalEdit" class="modal-edit" style="display:none;">
-                <form class="formEdit" id="formEdit" method="POST">
-                    <button type="button" class="close-modal-edit" id="closeModalEdit" title="Cerrar">&times;</button>
-                    <div class="avatar">
-                        <i class='bx bxs-user-circle'></i>
-                    </div>
-                    <div class="fila-formulario">
-                        <div style="flex: 1; margin-right: -10px;">
-                            <input type="text" placeholder="Nuevo Nombre" class="entrada-mitad" id="nombre">
-                            <div class="mensaje-error" id="error-nombre"></div>
-                        </div>
-                        <div style="flex: 1; margin-left: 10px;">
-                            <input type="text" placeholder="Nuevo Apellido" class="entrada-mitad" id="apellidos">
-                        </div>
-                    </div>
-                    <div class="grupo-formulario">
-                        <div class="contenedor-icono">
-                            <i class='bx bxs-calendar'></i>
-                            <input type="date" class="control-formulario" id="fecha" required>
-                        </div>
-                    </div>
-                    <div class="grupo-formulario">
-                        <div class="contenedor-icono">
-                            <i class='bx bxs-map' id="icono-mapa" title="Clic para seleccionar en el mapa"></i>
-                            <input type="text" placeholder="Ingrese su nueva dirección" class="control-formulario" id="direccion">
-                        </div>
-                    </div>
-                    <div class="grupo-formulario">
-                        <div class="contenedor-icono">
-                            <i class='bx bxs-envelope'></i>
-                            <input type="email" placeholder="Ingresar nuevo correo electrónico" class="control-formulario" id="email">
-                        </div>
-                        <div class="mensaje-error" id="error-email"></div>
-                    </div>
-                    <div class="grupo-formulario">
-                        <div class="contenedor-icono">
-                            <i class='bx bxs-phone'></i>
-                            <input type="tel" placeholder="Ingresar nuevo teléfono" class="control-formulario" id="telefono">
-                        </div>
-                        <div class="mensaje-error" id="error-telefono"></div>
-                    </div>
-                    <button type="submit">Registrar</button>
-                </form>
-            </div>
+            <!-- Modal flotante para editar información -->
+<div id="modalEdit" class="modal-edit" style="display:none;">
+    <form class="formEdit" id="formEdit" method="POST">
+        <button type="button" class="close-modal-edit" id="closeModalEdit" title="Cerrar">&times;</button>
+        
+        <div class="logo-container">
+            <img src="imagenes/logo.png" alt="Logo Febri" class="logo-registro">
+            <h1 class="titulo-registro">Editar Perfil</h1>
+        </div>
 
+        <div class="fila-formulario">
+            <div style="flex: 1; margin-right: -10px;">
+                <input type="text" placeholder="Nuevo Nombre" class="entrada-mitad" id="nombre">
+                <div class="mensaje-error" id="error-nombre"></div>
+            </div>
+            <div style="flex: 1; margin-left: 10px;">
+                <input type="text" placeholder="Nuevo Apellido" class="entrada-mitad" id="apellidos">
+            </div>
+        </div>
+
+        <div class="grupo-formulario">
+            <div class="contenedor-icono">
+                <i class='bx bxs-calendar'></i>
+                <input type="date" class="control-formulario" id="fecha" required>
+            </div>
+        </div>
+
+        <div class="grupo-formulario">
+            <div class="contenedor-icono">
+                <i class='bx bxs-map' id="icono-mapa" title="Clic para seleccionar en el mapa"></i>
+                <input type="text" placeholder="Ingrese su nueva dirección" class="control-formulario" id="direccion">
+            </div>
+        </div>
+
+        <div class="grupo-formulario">
+            <div class="contenedor-icono">
+                <i class='bx bxs-envelope'></i>
+                <input type="email" placeholder="Ingresar nuevo correo electrónico" class="control-formulario" id="email">
+            </div>
+            <div class="mensaje-error" id="error-email"></div>
+        </div>
+
+        <div class="grupo-formulario">
+            <div class="contenedor-icono">
+                <i class='bx bxs-phone'></i>
+                <input type="tel" placeholder="Ingresar nuevo teléfono" class="control-formulario" id="telefono">
+            </div>
+            <div class="mensaje-error" id="error-telefono"></div>
+        </div>
+
+        <button type="submit">Guardar Cambios</button>
+    </form>
+</div>
             <!-- Contenido -->
             <div class="seccion-contenido">
                 <div class="encabezado-seccion">
@@ -248,10 +256,7 @@
                 }
             });
         });     
-        // Funcionalidad para el botón de editar perfil
-        document.querySelector('.boton-editar').addEventListener('click', function() {
-            alert('Función de editar perfil');
-        });
+      
         
         function cerrarSesion() {
 
