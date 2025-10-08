@@ -113,56 +113,8 @@
         <button class="boton-carrusel anterior ">
             <i class='bx bx-chevron-left'></i>
         </button>
-        <div class="productos-carrusel">
-            <div class="tarjeta-producto"><a href="detalle.html?producto=llavero">
-                <img src="imagenes/llavero-inicio.jpeg" alt="Llavero de K"></a>
-                <div class="producto-info">
-                    <h3>Llavero de K</h3>
-                    <p class="precio">$ 25.000</p>
-                     <i class='bx bx-heart corazon-vacio'></i>
-                  </div>
-            </div>
-            <div class="tarjeta-producto"><a href="detalle.html?producto=agenda">
-                <img src="imagenes/libreta-inicio.jpeg" alt="Agenda"></a>
-                <div class="producto-info">
-                    <h3>Agenda</h3>
-                    <p class="precio-descuento">$ 30.000</p>
-                    <p class="precio">$ 35.000</p>
-                    <i class='bx bx-heart corazon-vacio'></i>
-                </div>
-            </div>
-           <div class="tarjeta-producto"><a href="detalle.html?producto=decoracion">
-                <img src="imagenes/decoracion-inicio.avif" alt="Pulsera"></a>
-                <div class="producto-info">
-                    <h3>Decoración </h3>
-                    <p class="precio">$ 20.000</p>
-                    <i class='bx bx-heart corazon-vacio'></i>
-                </div>
-                
-            </div>
-             <div class="tarjeta-producto"> <a href="detalle.html?producto=boligrafo">
-                <img src="imagenes/boligrafo-inicio.jpg" alt="Lapicero"></a>
-                <div class="producto-info">
-                    <h3>Boligrafo <br> personalizado</h3>
-                    <p class="precio-descuento">$ 20.000</p>
-                    <p class="precio">$ 17.500</p>
-                <i class='bx bx-heart corazon-vacio'></i> </div>
-            </div>
-            <div class="tarjeta-producto"><a href="detalle.html?producto=aretes">
-                <img src="imagenes/joyas5.jpg" alt=""></a>
-                <div class="producto-info">
-                    <h3>Aretes Flor Coral </h3>
-                    <p class="precio">$ 20.000</p>
-                    <i class='bx bx-heart corazon-vacio'></i>
-                </div>
-            </div>
-            <div class="tarjeta-producto"><a href="detalle.html?producto=ajedrez">
-                <img src="imagenes/juegos 1.jpg" alt=""></a>
-                <div class="producto-info">
-                    <h3>ajedrez</h3>
-                    <p class="precio">$ 45.500</p>
-                <i class='bx bx-heart corazon-vacio'></i> </div>
-            </div>
+        <div class="productos-carrusel" id="productos-carrusel">
+            <!-- Las tarjetas se cargarán dinámicamente desde /producto/top10 -->
         </div>
         
         
@@ -399,9 +351,72 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
+    // Cargar los primeros 10 productos desde el backend y renderizar en el carrusel
+    document.addEventListener('DOMContentLoaded', async function() {
+        const contenedor = document.getElementById('productos-carrusel');
+        if (!contenedor) return;
 
+        try {
+            const res = await fetch('/producto/top10');
+            const data = await res.json();
+            if (!data.success || !Array.isArray(data.productos)) {
+                console.error('Respuesta inválida de /producto/top10', data);
+                return;
+            }
 
+            // Limpiar contenedor
+            contenedor.innerHTML = '';
 
-    </script>
+            data.productos.forEach(p => {
+                const tarjeta = document.createElement('div');
+                tarjeta.className = 'tarjeta-producto';
+
+                // Crear enlace al detalle usando el id
+                const link = document.createElement('a');
+                link.href = `detalle.html?producto=${encodeURIComponent(p.id)}`;
+
+                const img = document.createElement('img');
+                img.src = p.Imagen || 'imagenes/inicio.webp';
+                img.alt = p.Nombre || 'Producto';
+                link.appendChild(img);
+
+                const info = document.createElement('div');
+                info.className = 'producto-info';
+
+                const titulo = document.createElement('h3');
+                titulo.textContent = p.Nombre || 'Sin nombre';
+
+                const precio = document.createElement('p');
+                precio.className = 'precio';
+                precio.textContent = p.Precio ? `$ ${p.Precio}` : '';
+
+                const corazon = document.createElement('i');
+                corazon.className = 'bx bx-heart corazon-vacio';
+
+                info.appendChild(titulo);
+                info.appendChild(precio);
+                info.appendChild(corazon);
+
+                tarjeta.appendChild(link);
+                tarjeta.appendChild(info);
+
+                contenedor.appendChild(tarjeta);
+            });
+
+            // Re-bind favorite buttons and carousel variables (simple approach: reload page scripts)
+            // If the carousel logic depends on counting tarjetas, we should re-run that logic or refresh the page.
+            // For now, ensure heart toggles work:
+            const botonesFavoritos = document.querySelectorAll('.corazon-vacio');
+            botonesFavoritos.forEach(boton => {
+                boton.addEventListener('click', function() {
+                    this.classList.toggle('corazon-activo');
+                });
+            });
+
+        } catch (err) {
+            console.error('Error cargando productos:', err);
+        }
+    });
+</script>
 </body>
 </html>

@@ -1,7 +1,8 @@
 exports.obtenerProductoPorId = (req, res) => {
     const db = req.db;
-    const { id } = req.params;
-    db.query("SELECT * FROM productos WHERE id = ?", [id], (err, results) => {
+    //const { id } = req.params;
+    id = 1
+    db.query("SELECT * FROM producto WHERE id = ?", [id], (err, results) => {
         if (err) {
             return res.status(500).json({ success: false, message: "Error en la base de datos" });
         }
@@ -11,3 +12,4 @@ exports.obtenerProductoPorId = (req, res) => {
         res.json({ success: true, producto: results[0] });
     });
 };
+
