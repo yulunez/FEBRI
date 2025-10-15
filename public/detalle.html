@@ -212,23 +212,44 @@
             document.getElementById('lista-comentarios').appendChild(div);
         }
 
-        // envío de comentarios
+        // envío de comentarios (usa el nombre del usuario logueado cuando exista)
+        let usuarioNombre = localStorage.getItem('usuarioNombre') || 'Anónimo';
+
+        async function cargarUsuarioActual(){
+            try{
+                const res = await fetch('/perfilUsuario', { credentials: 'include' });
+                if (!res.ok) return; // no logueado o error
+                const data = await res.json();
+                if (data && data.success && data.usuario) {
+                    const nombre = (data.usuario.nombre || '').trim();
+                    const apellido = (data.usuario.apellido || '').trim();
+                    const fullname = `${nombre} ${apellido}`.trim();
+                    if (fullname) {
+                        usuarioNombre = fullname;
+                        try{ localStorage.setItem('usuarioNombre', usuarioNombre); }catch(e){}
+                    }
+                }
+            }catch(e){
+                // ignore, keep Anónimo
+            }
+        }
+
         document.getElementById('form-comentario').addEventListener('submit', function(e){
             e.preventDefault();
             const productoId = obtenerProductoId();
             const texto = document.getElementById('comentario').value.trim();
             if (!texto || !productoId) return;
-            const nombreCompleto = localStorage.getItem('usuarioNombre') || 'Anónimo';
             const existentes = JSON.parse(localStorage.getItem(`comentarios_${productoId}`)) || [];
-            const newComment = { usuario: nombreCompleto, texto, corazones: 0 };
+            const newComment = { usuario: usuarioNombre || 'Anónimo', texto, corazones: 0 };
             existentes.push(newComment);
             localStorage.setItem(`comentarios_${productoId}`, JSON.stringify(existentes));
             agregarComentario(newComment.usuario, newComment.texto, newComment.corazones);
             document.getElementById('comentario').value = '';
         });
 
-        // Load product on DOM ready
-        document.addEventListener('DOMContentLoaded', function(){
+        // Load product on DOM ready — primero intentamos cargar el usuario
+        document.addEventListener('DOMContentLoaded', async function(){
+            await cargarUsuarioActual();
             const productoId = obtenerProductoId();
             if (!productoId) return mostrarError();
 
