@@ -145,222 +145,103 @@
     </main>
 
     <script>
-        // Función para obtener el ID del producto desde la URL
-        function obtenerProductoId() {
-            const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get('producto');
+    (function(){
+        const loadingDiv = document.getElementById('loading-message');
+        const errorDiv = document.getElementById('error-message');
+        const mainDiv = document.getElementById('producto-main');
+
+        function obtenerProductoId(){
+            return new URLSearchParams(window.location.search).get('producto');
         }
 
-        // Función para cargar el producto desde el backend
-        function cargarProducto() {
-            const productoId = obtenerProductoId();
-            const loadingDiv = document.getElementById('loading-message');
-            const errorDiv = document.getElementById('error-message');
-            const mainDiv = document.getElementById('producto-main');
-
-            // Ocultar loading
+        function mostrarError(){
             loadingDiv.style.display = 'none';
+            errorDiv.style.display = 'block';
+            mainDiv.style.display = 'none';
+        }
 
-            if (!productoId) {
-                errorDiv.style.display = 'block';
-                mainDiv.style.display = 'none';
-                return;
+        function mostrarProducto(producto){
+            loadingDiv.style.display = 'none';
+            errorDiv.style.display = 'none';
+            mainDiv.style.display = 'block';
+
+            document.getElementById('producto-imagen').src = producto.Imagen || 'imagenes/inicio.webp';
+            document.getElementById('producto-imagen').alt = producto.Nombre || producto.nombre || '';
+            document.getElementById('producto-titulo').textContent = producto.Nombre || producto.nombre || 'Sin nombre';
+            document.getElementById('producto-precio').textContent = (typeof producto.Precio !== 'undefined' && producto.Precio !== null) ? `$ ${producto.Precio}` : '';
+            document.getElementById('producto-descripcion').textContent = producto.Descripcion || producto.descripcion || '';
+
+            const precioAnteriorElement = document.getElementById('precio-anterior');
+            if (producto.precio_anterior) {
+                precioAnteriorElement.textContent = producto.precio_anterior;
+                precioAnteriorElement.style.display = 'inline';
+            } else {
+                precioAnteriorElement.style.display = 'none';
             }
+
+            // inicializar controles
+            document.getElementById('restar').onclick = function(){
+                const cantidad = document.getElementById('cantidad');
+                if (parseInt(cantidad.value) > 1) cantidad.value = parseInt(cantidad.value) - 1;
+            };
+            document.getElementById('sumar').onclick = function(){
+                const cantidad = document.getElementById('cantidad');
+                cantidad.value = parseInt(cantidad.value) + 1;
+            };
+            document.querySelector('.btn-favorito').onclick = function(){ this.classList.toggle('activo'); };
+
+            // cargar comentarios desde localStorage
+            cargarComentarios(obtenerProductoId());
+        }
+
+        function cargarComentarios(productoId){
+            const lista = document.getElementById('lista-comentarios');
+            lista.innerHTML = '';
+            if (!productoId) return;
+            const comentarios = JSON.parse(localStorage.getItem(`comentarios_${productoId}`)) || [];
+            comentarios.forEach(c => agregarComentario(c.usuario, c.texto, c.corazones));
+        }
+
+        function agregarComentario(usuario, texto, corazonesDado){
+            const div = document.createElement('div');
+            div.className = 'comentario';
+            let corazonesHTML = '';
+            for(let i=0;i<corazonesDado;i++) corazonesHTML += '<span class="heart filled">&#10084;</span>';
+            for(let i=corazonesDado;i<5;i++) corazonesHTML += '<span class="heart">&#10084;</span>';
+            div.innerHTML = `<strong>${usuario}</strong>: ${texto} <br> ${corazonesHTML}`;
+            document.getElementById('lista-comentarios').appendChild(div);
+        }
+
+        // envío de comentarios
+        document.getElementById('form-comentario').addEventListener('submit', function(e){
+            e.preventDefault();
+            const productoId = obtenerProductoId();
+            const texto = document.getElementById('comentario').value.trim();
+            if (!texto || !productoId) return;
+            const nombreCompleto = localStorage.getItem('usuarioNombre') || 'Anónimo';
+            const existentes = JSON.parse(localStorage.getItem(`comentarios_${productoId}`)) || [];
+            const newComment = { usuario: nombreCompleto, texto, corazones: 0 };
+            existentes.push(newComment);
+            localStorage.setItem(`comentarios_${productoId}`, JSON.stringify(existentes));
+            agregarComentario(newComment.usuario, newComment.texto, newComment.corazones);
+            document.getElementById('comentario').value = '';
+        });
+
+        // Load product on DOM ready
+        document.addEventListener('DOMContentLoaded', function(){
+            const productoId = obtenerProductoId();
+            if (!productoId) return mostrarError();
 
             fetch(`/producto/${productoId}`)
                 .then(res => res.json())
                 .then(data => {
-                    if (!data.success || !data.producto) {
-                        errorDiv.style.display = 'block';
-                        mainDiv.style.display = 'none';
-                        return;
-                    }
-                    const producto = data.producto;
-                    document.getElementById('producto-imagen').src = producto.Imagen;
-                    document.getElementById('producto-imagen').alt = producto.Nombre;
-                    document.getElementById('producto-titulo').textContent = producto.Nombre;
-                    document.getElementById('producto-precio').textContent = producto.Precio;
-                    document.getElementById('producto-descripcion').textContent = producto.Descripcion;
-                    // Mostrar precio anterior si existe
-                    // --- INICIO SCRIPT LIMPIO Y UNIFICADO ---
-                    // Información del usuario actual
-                    let usuarioActual = { nombre: '', apellido: '' };
-
-                    // Obtener datos del usuario logueado desde el backend
-                    function cargarUsuarioActual(callback) {
-                        fetch('/perfilUsuario', { credentials: 'include' })
-                            .then(res => res.json())
-                            .then(data => {
-                                if (data.success && data.usuario) {
-                                    usuarioActual = {
-                                        nombre: data.usuario.nombre || '',
-                                        apellido: data.usuario.apellido || ''
-                                    };
-                                } else {
-                                    usuarioActual = { nombre: 'Anónimo', apellido: '' };
-                                }
-                                if (callback) callback();
-                            })
-                            .catch(() => {
-                                usuarioActual = { nombre: 'Anónimo', apellido: '' };
-                                if (callback) callback();
-                            });
-                    }
-
-                    // Función para obtener el ID del producto desde la URL
-                    function obtenerProductoId() {
-                        const urlParams = new URLSearchParams(window.location.search);
-                        return urlParams.get('producto');
-                    }
-
-                    // Función para cargar el producto desde el backend
-                    function cargarProducto() {
-                        const productoId = obtenerProductoId();
-                        const loadingDiv = document.getElementById('loading-message');
-                        const errorDiv = document.getElementById('error-message');
-                        const mainDiv = document.getElementById('producto-main');
-                        loadingDiv.style.display = 'none';
-                        if (!productoId) {
-                            errorDiv.style.display = 'block';
-                            mainDiv.style.display = 'none';
-                            return;
-                        }
-                        fetch(`/producto/${productoId}`)
-                            .then(res => res.json())
-                            .then(data => {
-                                if (!data.success || !data.producto) {
-                                    errorDiv.style.display = 'block';
-                                    mainDiv.style.display = 'none';
-                                    return;
-                                }
-                                const producto = data.producto;
-                                document.getElementById('producto-imagen').src = producto.Imagen;
-                                document.getElementById('producto-imagen').alt = producto.Nombre;
-                                document.getElementById('producto-titulo').textContent = producto.Nombre;
-                                document.getElementById('producto-precio').textContent = producto.Precio;
-                                document.getElementById('producto-descripcion').textContent = producto.Descripcion;
-                                const precioAnteriorElement = document.getElementById('precio-anterior');
-                                if (producto.precio_anterior) {
-                                    precioAnteriorElement.textContent = producto.precio_anterior;
-                                    precioAnteriorElement.style.display = 'inline';
-                                } else {
-                                    precioAnteriorElement.style.display = 'none';
-                                }
-                                document.title = `${producto.nombre} - Tu Tienda`;
-                                errorDiv.style.display = 'none';
-                                mainDiv.style.display = 'block';
-                                cargarComentarios(productoId);
-                            })
-                            .catch(() => {
-                                errorDiv.style.display = 'block';
-                            });
-                    }
-
-                    // Menú móvil y cargar usuario
-                    document.addEventListener('DOMContentLoaded', function() {
-                        const menuIcon = document.querySelector('.menu-icon');
-                        const menuLateral = document.querySelector('.menu-lateral');
-                        menuIcon.addEventListener('click', function() {
-                            menuLateral.classList.toggle('activo');
-                        });
-                        cargarUsuarioActual(cargarProducto);
-                    });
-
-                    // Control de cantidad
-                    document.getElementById('restar').onclick = function() {
-                        let cantidad = document.getElementById('cantidad');
-                        if (parseInt(cantidad.value) > 1) cantidad.value--;
-                    };
-                    document.getElementById('sumar').onclick = function() {
-                        let cantidad = document.getElementById('cantidad');
-                        cantidad.value++;
-                    };
-
-                    // Favoritos
-                    document.querySelector('.btn-favorito').onclick = function() {
-                        this.classList.toggle('activo');
-                    };
-
-                    let calificacionActual = 0;
-                    const corazones = document.querySelectorAll('.heart');
-                    corazones.forEach(heart => {
-                        heart.addEventListener('click', () => {
-                            const index = parseInt(heart.getAttribute('data-index'));
-                            calificacionActual = index;
-                            actualizarCorazones(index);
-                        });
-                    });
-
-                    function actualizarCorazones(rating) {
-                        corazones.forEach(heart => {
-                            const index = parseInt(heart.getAttribute('data-index'));
-                            if (index <= rating) {
-                                heart.classList.add('filled');
-                            } else {
-                                heart.classList.remove('filled');
-                            }
-                        });
-                    }
-
-                    // Función para cargar los comentarios almacenados específicos del producto
-                    function cargarComentarios(productoId) {
-                        const comentariosGuardados = JSON.parse(localStorage.getItem(`comentarios_${productoId}`)) || [];
-                        document.getElementById('lista-comentarios').innerHTML = '';
-                        comentariosGuardados.forEach(c => {
-                            agregarComentario(c.usuario, c.texto, c.corazones);
-                        });
-                    }
-
-                    function agregarComentario(usuario, texto, corazonesDado) {
-                        const div = document.createElement('div');
-                        div.className = 'comentario';
-                        let corazonesHTML = '';
-                        for (let i = 0; i < corazonesDado; i++) {
-                            corazonesHTML += '<span class="heart filled">&#10084;</span>';
-                        }
-                        for (let i = corazonesDado; i < 5; i++) {
-                            corazonesHTML += '<span class="heart">&#10084;</span>';
-                        }
-                        div.innerHTML = `
-                            <strong>${usuario}</strong>: ${texto} <br>
-                            ${corazonesHTML}
-                        `;
-                        document.getElementById('lista-comentarios').appendChild(div);
-                    }
-
-                    // Evento para enviar comentario
-                    document.getElementById('form-comentario').onsubmit = function(e) {
-                        e.preventDefault();
-                        const texto = document.getElementById('comentario').value.trim();
-                        const productoId = obtenerProductoId();
-                        const nombreCompleto = `${usuarioActual.nombre} ${usuarioActual.apellido}`.trim() || 'Anónimo';
-                        if (texto && productoId) {
-                            const comentariosGuardados = JSON.parse(localStorage.getItem(`comentarios_${productoId}`)) || [];
-                            comentariosGuardados.push({
-                                usuario: nombreCompleto,
-                                texto: texto,
-                                corazones: calificacionActual
-                            });
-                            localStorage.setItem(`comentarios_${productoId}`, JSON.stringify(comentariosGuardados));
-                            agregarComentario(nombreCompleto, texto, calificacionActual);
-                            document.getElementById('comentario').value = '';
-                            actualizarCorazones(0);
-                            calificacionActual = 0;
-                        }
-                    };
-
-                    // Ocultar botón de inicio de sesión después de haber iniciado sesión
-                    document.addEventListener('DOMContentLoaded', () => {
-                        const btnLogin = document.querySelector('.btn-registrar');
-                        const perfilIcon = document.querySelector('.perfil-icon');
-                        if (localStorage.getItem('usuarioLogueado') === 'true') {
-                            if (btnLogin) btnLogin.style.display = 'none';
-                            if (perfilIcon) perfilIcon.style.display = 'inline-block';
-                        } else {
-                            if (btnLogin) btnLogin.style.display = 'block';
-                            if (perfilIcon) perfilIcon.style.display = 'none';
-                        }
-                    });
-                     // --- FIN SCRIPT LIMPIO Y UNIFICADO ---
-                })}
-    </script> 
+                    if (!data || !data.success || !data.producto) return mostrarError();
+                    mostrarProducto(data.producto);
+                })
+                .catch(err => {
+                    console.error('Error al cargar producto:', err);
+                    mostrarError();
+                });
+        });
+    })();
+    </script>

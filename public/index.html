@@ -303,39 +303,39 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
-//estilo para pasar imagen
-
-document.addEventListener('DOMContentLoaded', function() {
+// Carrusel: encapsular lógica para inicializar después de renderizar tarjetas
+function inicializarCarrusel() {
     const carrusel = document.querySelector('.productos-carrusel');
     const btnAnterior = document.querySelector('.anterior');
     const btnSiguiente = document.querySelector('.siguiente');
     const tarjetas = document.querySelectorAll('.tarjeta-producto');
-    
+
+    if (!carrusel || tarjetas.length === 0) return;
+
     let posicionActual = 0;
     const tarjetasPorVista = 4;
     const totalTarjetas = tarjetas.length;
-    
+
     function moverCarrusel(direccion) {
-        const anchoTarjeta = tarjetas[0].offsetWidth + 20; 
-        
+        const anchoTarjeta = tarjetas[0].offsetWidth + 20; // margen aproximado
+
         if (direccion === 'siguiente' && posicionActual < totalTarjetas - tarjetasPorVista) {
             posicionActual++;
         } else if (direccion === 'anterior' && posicionActual > 0) {
             posicionActual--;
         }
-        
+
         const desplazamiento = -posicionActual * anchoTarjeta;
         carrusel.style.transform = `translateX(${desplazamiento}px)`;
-        
+
         // Actualizar estado de botones
-        btnAnterior.style.opacity = posicionActual === 0 ? '0.5' : '1';
-        btnSiguiente.style.opacity = 
-            posicionActual >= totalTarjetas - tarjetasPorVista ? '0.5' : '1';
+        if (btnAnterior) btnAnterior.style.opacity = posicionActual === 0 ? '0.5' : '1';
+        if (btnSiguiente) btnSiguiente.style.opacity = posicionActual >= totalTarjetas - tarjetasPorVista ? '0.5' : '1';
     }
-    
-    btnSiguiente.addEventListener('click', () => moverCarrusel('siguiente'));
-    btnAnterior.addEventListener('click', () => moverCarrusel('anterior'));
-});
+
+    if (btnSiguiente) btnSiguiente.addEventListener('click', () => moverCarrusel('siguiente'));
+    if (btnAnterior) btnAnterior.addEventListener('click', () => moverCarrusel('anterior'));
+}
 
 //ocultar boton de inicio de sesion despues de haver iniciado sesion
 document.addEventListener('DOMContentLoaded', () => {
@@ -376,7 +376,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 link.href = `detalle.html?producto=${encodeURIComponent(p.id)}`;
 
                 const img = document.createElement('img');
-                img.src = p.Imagen || 'imagenes/inicio.webp';
+                // Algunos registros pueden venir con rutas relativas o nulas
+                img.src = p.Imagen && p.Imagen.trim() !== '' ? p.Imagen : 'imagenes/inicio.webp';
                 img.alt = p.Nombre || 'Producto';
                 link.appendChild(img);
 
@@ -388,7 +389,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const precio = document.createElement('p');
                 precio.className = 'precio';
-                precio.textContent = p.Precio ? `$ ${p.Precio}` : '';
+                // Formato seguro del precio
+                precio.textContent = typeof p.Precio !== 'undefined' && p.Precio !== null ? `$ ${p.Precio}` : '';
 
                 const corazon = document.createElement('i');
                 corazon.className = 'bx bx-heart corazon-vacio';
@@ -403,15 +405,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 contenedor.appendChild(tarjeta);
             });
 
-            // Re-bind favorite buttons and carousel variables (simple approach: reload page scripts)
-            // If the carousel logic depends on counting tarjetas, we should re-run that logic or refresh the page.
-            // For now, ensure heart toggles work:
+            // Re-bind favorite buttons
             const botonesFavoritos = document.querySelectorAll('.corazon-vacio');
             botonesFavoritos.forEach(boton => {
                 boton.addEventListener('click', function() {
                     this.classList.toggle('corazon-activo');
                 });
             });
+
+            // Inicializar carrusel ahora que las tarjetas están en el DOM
+            inicializarCarrusel();
 
         } catch (err) {
             console.error('Error cargando productos:', err);
