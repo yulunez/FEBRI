@@ -319,8 +319,8 @@
                 return;
             }
 
-            // Obtener carrito actual del localStorage
-            let carrito = JSON.parse(localStorage.getItem('carritoCompra')) || [];
+            // Obtener carrito actual de sessionStorage (sesión por pestaña)
+            let carrito = JSON.parse(sessionStorage.getItem('carritoCompra')) || [];
             
             // Verificar si el producto ya está en el carrito
             const productoExistente = carrito.find(item => item.id === productoId);
@@ -343,8 +343,8 @@
                 mostrarNotificacion(`${producto.nombre} agregado al carrito`);
             }
             
-            // Guardar carrito actualizado en localStorage
-            localStorage.setItem('carritoCompra', JSON.stringify(carrito));
+            // Guardar carrito actualizado en sessionStorage
+            sessionStorage.setItem('carritoCompra', JSON.stringify(carrito));
             
             // Actualizar contador del carrito
             actualizarContadorCarrito();
@@ -395,7 +395,7 @@
 
         // Función para actualizar contador del carrito
         function actualizarContadorCarrito() {
-            const carrito = JSON.parse(localStorage.getItem('carritoCompra')) || [];
+            const carrito = JSON.parse(sessionStorage.getItem('carritoCompra')) || [];
             const totalItems = carrito.reduce((total, item) => total + item.cantidad, 0);
             
             // Actualizar contador desktop

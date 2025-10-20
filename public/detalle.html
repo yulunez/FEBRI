@@ -22,7 +22,7 @@
             <a href="categorias.html" class="nav-link">Categorías</a>
             <a href="ofertas.html" class="nav-link">Ofertas</a>
             <a href="contactos.html" class="nav-link">Contáctos</a>
-            <div class="btn-registrar"><a href="login.html">Iniciar sesión</a></div>
+            <div class="btn-registrar" id="btn-registrar"><a href="login.html">Iniciar sesión</a></div>
 
                      <!-- Carrito de compras -->
             <div class="carrito-nav" onclick="irAlCarrito()">
@@ -116,7 +116,7 @@
                         
                     </div>
                     
-                    <button class="btn-agregar-carrito">
+                    <button class="btn-agregar-carrito" onclick="agregarProductoAlCarritoDesdeDetalle()">
                         <span>Comprar ahora</span>
                         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24"><path fill="#fff" d="M7 18c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zM7.16 14.26l.03.01L7.2 14.3c.27.14.57.2.88.2h7.72c.7 0 1.31-.37 1.62-.93l3.24-5.88A1 1 0 0 0 20 6H6.21l-.94-2H2v2h2l3.6 7.59-1.35 2.44zM17.16 16H7.83l1.1-2h7.45l-1.22 2z"/></svg>
                     </button>
@@ -145,226 +145,239 @@
     </main>
 
     <script>
-        // Base de datos de productos
-        const productos = {
-            'llavero': {
-                nombre: "Llavero de K",
-                precio: "$ 25.000",
-                imagen: "imagenes/llavero-inicio.jpeg",
-                descripcion: "Llavero personalizado con la letra K. Fabricado en material resistente y duradero. Perfecto para regalar o uso personal. Incluye argolla de metal de alta calidad que no se oxida."
-            },
-            'agenda': {
-                nombre: "Agenda",
-                precio: "$ 30.000",
-                precioAnterior: "$ 35.000",
-                imagen: "imagenes/libreta-inicio.jpeg",
-                descripcion: "Agenda elegante con páginas de alta calidad. Ideal para organizar tu día a día con estilo. Incluye separadores y marcapáginas. Cubierta resistente al agua y páginas con papel de 80gr."
-            },
-            'decoracion': {
-                nombre: "Decoración",
-                precio: "$ 20.000",
-                imagen: "imagenes/decoracion-inicio.avif",
-                descripcion: "Este objeto decorativo en resina está formado por dos piezas de aspecto metálico con detalles en dorado y azul. Una de ellas presenta una forma circular con una hendidura central que contiene un pequeño punto rojo, mientras que la otra tiene un diseño tipo abanico con textura."
-            },
-            'boligrafo': {
-                nombre: "Bolígrafo Personalizado",
-                precio: "$ 17.500",
-                precioAnterior: "$ 20.000",
-                imagen: "imagenes/boligrafo-inicio.jpg",
-                descripcion: "Este bolígrafo decorativo en tono rosa lleva grabado el mensaje “Sé fuerte y sé valiente” en letras doradas, transmitiendo motivación con estilo. Está acompañado por un llavero con clip en forma de corazón y dos dijes de flechas con brillo y detalles coloridos que aportan encanto artesanal."
-            },
-            'aretes': {
-                nombre: "Aretes Flor Coral",
-                precio: "$20.000",
-                imagen: "imagenes/joyas5.jpg",
-                descripcion: "Estos aretes en forma de flor combinan un centro rosado vibrante con un contorno metálico que resalta su delicado diseño. Están montados sobre broches tipo palanca, lo que ofrece mayor seguridad y comodidad al usarlos."
-            },
-            'ajedrez': {
-                nombre: "Ajedrez",
-                precio: "$ 45.500",
-                imagen: "imagenes/juegos 1.jpg",
-                descripcion: "Este ajedrez es una versión moderna y llamativa del clásico tablero. Las piezas están hechas de material acrílico o vidrio, con acabados brillantes y translúcidos en tonos intensos de azul y rojo."
-            }
-        };
+    (function(){
+        const loadingDiv = document.getElementById('loading-message');
+        const errorDiv = document.getElementById('error-message');
+        const mainDiv = document.getElementById('producto-main');
+        // rating actual (se mantiene para el submit de comentarios)
+        let calificacionActual = 0;
 
-        // Función para obtener el ID del producto desde la URL
-        function obtenerProductoId() {
-            const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get('producto');
+        function obtenerProductoId(){
+            return new URLSearchParams(window.location.search).get('producto');
         }
 
-        // Función para cargar el producto
-        function cargarProducto() {
-            const productoId = obtenerProductoId();
-            const loadingDiv = document.getElementById('loading-message');
-            const errorDiv = document.getElementById('error-message');
-            const mainDiv = document.getElementById('producto-main');
-
-            // Ocultar loading
+        function mostrarError(){
             loadingDiv.style.display = 'none';
+            errorDiv.style.display = 'block';
+            mainDiv.style.display = 'none';
+        }
 
-            if (!productoId || !productos[productoId]) {
-                // Mostrar error
-                errorDiv.style.display = 'block';
-                mainDiv.style.display = 'none';
-                return;
-            }
+        // variable para mantener el producto actual en el scope del script
+        let productoActual = null;
 
-            const producto = productos[productoId];
-            
-            // Actualizar contenido dinámicamente
-            document.getElementById('producto-imagen').src = producto.imagen;
-            document.getElementById('producto-imagen').alt = producto.nombre;
-            document.getElementById('producto-titulo').textContent = producto.nombre;
-            document.getElementById('producto-precio').textContent = producto.precio;
-            document.getElementById('producto-descripcion').textContent = producto.descripcion;
-            
-            // Mostrar precio anterior si existe
+        function mostrarProducto(producto){
+            // guardar referencia al producto mostrado para usar al agregar al carrito
+            productoActual = producto;
+            loadingDiv.style.display = 'none';
+            errorDiv.style.display = 'none';
+            mainDiv.style.display = 'block';
+
+            document.getElementById('producto-imagen').src = producto.Imagen || 'imagenes/inicio.webp';
+            document.getElementById('producto-imagen').alt = producto.Nombre || producto.nombre || '';
+            document.getElementById('producto-titulo').textContent = producto.Nombre || producto.nombre || 'Sin nombre';
+            document.getElementById('producto-precio').textContent = (typeof producto.Precio !== 'undefined' && producto.Precio !== null) ? `$ ${producto.Precio}` : '';
+            document.getElementById('producto-descripcion').textContent = producto.Descripcion || producto.descripcion || '';
+
             const precioAnteriorElement = document.getElementById('precio-anterior');
-            if (producto.precioAnterior) {
-                precioAnteriorElement.textContent = producto.precioAnterior;
+            if (producto.precio_anterior) {
+                precioAnteriorElement.textContent = producto.precio_anterior;
                 precioAnteriorElement.style.display = 'inline';
             } else {
                 precioAnteriorElement.style.display = 'none';
             }
 
-            // Actualizar title de la página
-            document.title = `${producto.nombre} - Tu Tienda`;
-            
-            // Mostrar contenido principal
-            errorDiv.style.display = 'none';
-            mainDiv.style.display = 'block';
+            // inicializar controles
+            document.getElementById('restar').onclick = function(){
+                const cantidad = document.getElementById('cantidad');
+                if (parseInt(cantidad.value) > 1) cantidad.value = parseInt(cantidad.value) - 1;
+            };
+            document.getElementById('sumar').onclick = function(){
+                const cantidad = document.getElementById('cantidad');
+                cantidad.value = parseInt(cantidad.value) + 1;
+            };
+            document.querySelector('.btn-favorito').onclick = function(){ this.classList.toggle('activo'); };
 
-            // Cargar comentarios específicos del producto
-            cargarComentarios(productoId);
+            // inicializar calificación (corazones) — reset para este producto
+            calificacionActual = 0;
+            function actualizarCorazones(rating){
+                const hearts = document.querySelectorAll('.corazones .heart');
+                hearts.forEach(h => {
+                    const idx = parseInt(h.getAttribute('data-index')) || 0;
+                    if (idx <= rating) h.classList.add('filled'); else h.classList.remove('filled');
+                });
+            }
+            // attach listeners
+            const heartsEls = document.querySelectorAll('.corazones .heart');
+            heartsEls.forEach(h => {
+                h.onclick = () => {
+                    const idx = parseInt(h.getAttribute('data-index')) || 0;
+                    calificacionActual = idx;
+                    actualizarCorazones(idx);
+                };
+            });
+
+            // cargar comentarios desde localStorage
+            cargarComentarios(obtenerProductoId());
         }
 
-        // Menú móvil
-        document.addEventListener('DOMContentLoaded', function() {
-            const menuIcon = document.querySelector('.menu-icon');
-            const menuLateral = document.querySelector('.menu-lateral');
-            
-            menuIcon.addEventListener('click', function() {
-                menuLateral.classList.toggle('activo');
-            });
-
-            // Cargar producto al cargar la página
-            cargarProducto();
-        });
-        
-        // Control de cantidad
-        document.getElementById('restar').onclick = function() {
-            let cantidad = document.getElementById('cantidad');
-            if (parseInt(cantidad.value) > 1) cantidad.value--;
-        };
-        document.getElementById('sumar').onclick = function() {
-            let cantidad = document.getElementById('cantidad');
-            cantidad.value++;
-        };
-
-        // Favoritos
-        document.querySelector('.btn-favorito').onclick = function() {
-            this.classList.toggle('activo');
-        };
-
-        // Variables para la calificación
-        let calificacionActual = 0;
-        const corazones = document.querySelectorAll('.heart');
-
-        // Evento para los corazones
-        corazones.forEach(heart => {
-            heart.addEventListener('click', () => {
-                const index = parseInt(heart.getAttribute('data-index'));
-                calificacionActual = index;
-                actualizarCorazones(index);
-            });
-        });
-
-        function actualizarCorazones(rating) {
-            corazones.forEach(heart => {
-                const index = parseInt(heart.getAttribute('data-index'));
-                if (index <= rating) {
-                    heart.classList.add('filled');
-                } else {
-                    heart.classList.remove('filled');
-                }
-            });
+        // Mostrar notificación pequeña cuando se agrega al carrito
+        function mostrarNotificacion(mensaje) {
+            let notificacion = document.getElementById('notificacion-carrito');
+            if (!notificacion) {
+                notificacion = document.createElement('div');
+                notificacion.id = 'notificacion-carrito';
+                notificacion.style.cssText = `position: fixed; top: 20px; right: 20px; background: rgba(16,185,129,0.95); color: white; padding: 0.8rem 1.2rem; border-radius: 8px; z-index: 10000; transform: translateX(120%); transition: transform 0.25s ease; font-weight:600;`;
+                document.body.appendChild(notificacion);
+            }
+            notificacion.textContent = mensaje;
+            // mostrar
+            requestAnimationFrame(() => { notificacion.style.transform = 'translateX(0)'; });
+            // ocultar
+            setTimeout(() => { notificacion.style.transform = 'translateX(120%)'; }, 2000);
         }
 
-        // Información del usuario actual
-        const usuarioActual = 'Usuario';
+        // Añadir el producto actual al carrito (sessionStorage)
+        function agregarProductoAlCarritoDesdeDetalle() {
+            if (!productoActual) return mostrarNotificacion('Producto no cargado');
+            const cantidadInput = document.getElementById('cantidad');
+            let cantidad = parseInt(cantidadInput && cantidadInput.value, 10) || 1;
+            if (cantidad < 1) cantidad = 1;
 
-        // Función para cargar los comentarios almacenados específicos del producto
-        function cargarComentarios(productoId) {
-            const comentariosGuardados = JSON.parse(localStorage.getItem(`comentarios_${productoId}`)) || [];
-            // Limpiar comentarios anteriores
-            document.getElementById('lista-comentarios').innerHTML = '';
-            comentariosGuardados.forEach(c => {
-                agregarComentario(c.usuario, c.texto, c.corazones);
-            });
+            // Construir objeto básico que compartimos con el resto de la app
+            const item = {
+                id: productoActual.ID_producto || productoActual.id || productoActual.ID || null,
+                nombre: productoActual.Nombre || productoActual.nombre || '',
+                precio: (typeof productoActual.Precio !== 'undefined' && productoActual.Precio !== null) ? Number(productoActual.Precio) : (productoActual.precio || 0),
+                descripcion: productoActual.Descripcion || productoActual.descripcion || '',
+                imagen: productoActual.Imagen || productoActual.imagen || 'imagenes/inicio.webp',
+                cantidad: cantidad
+            };
+
+            if (!item.id) {
+                return mostrarNotificacion('ID de producto no disponible');
+            }
+
+            const carrito = JSON.parse(sessionStorage.getItem('carritoCompra')) || [];
+            const existente = carrito.find(p => Number(p.id) === Number(item.id));
+            if (existente) {
+                existente.cantidad = (parseInt(existente.cantidad, 10) || 0) + item.cantidad;
+            } else {
+                carrito.push(item);
+            }
+            sessionStorage.setItem('carritoCompra', JSON.stringify(carrito));
+            mostrarNotificacion(`${item.nombre} agregado al carrito`);
+            actualizarContadorCarrito();
         }
 
-        function agregarComentario(usuario, texto, corazonesDado) {
+        // Actualizar contador del carrito en la barra (lee sessionStorage)
+        function actualizarContadorCarrito() {
+            const carrito = JSON.parse(sessionStorage.getItem('carritoCompra')) || [];
+            const totalItems = carrito.reduce((t, it) => t + (parseInt(it.cantidad, 10) || 0), 0);
+            const contador = document.getElementById('contador-carrito');
+            if (contador) {
+                contador.textContent = totalItems;
+                contador.style.display = totalItems > 0 ? 'flex' : 'none';
+            }
+            const contadorMovil = document.getElementById('contador-carrito-movil');
+            if (contadorMovil) {
+                contadorMovil.textContent = totalItems;
+                contadorMovil.style.display = totalItems > 0 ? 'flex' : 'none';
+            }
+        }
+
+        function cargarComentarios(productoId){
+            const lista = document.getElementById('lista-comentarios');
+            lista.innerHTML = '';
+            if (!productoId) return;
+            const comentarios = JSON.parse(localStorage.getItem(`comentarios_${productoId}`)) || [];
+            comentarios.forEach(c => agregarComentario(c.usuario, c.texto, c.corazones));
+        }
+
+        function agregarComentario(usuario, texto, corazonesDado){
             const div = document.createElement('div');
             div.className = 'comentario';
-
-            // Crear la cadena de corazones rosados
             let corazonesHTML = '';
-            for (let i = 0; i < corazonesDado; i++) {
-                corazonesHTML += '<span class="heart filled">&#10084;</span>';
-            }
-
-            // Agregar corazones no llenos para completar los 5
-            for (let i = corazonesDado; i < 5; i++) {
-                corazonesHTML += '<span class="heart">&#10084;</span>';
-            }
-
-            div.innerHTML = `
-                <strong>${usuario}</strong>: ${texto} <br>
-                ${corazonesHTML}
-            `;
+            for(let i=0;i<corazonesDado;i++) corazonesHTML += '<span class="heart filled">&#10084;</span>';
+            for(let i=corazonesDado;i<5;i++) corazonesHTML += '<span class="heart">&#10084;</span>';
+            div.innerHTML = `<strong>${usuario}</strong>: ${texto} <br> ${corazonesHTML}`;
             document.getElementById('lista-comentarios').appendChild(div);
         }
 
-        // Evento para enviar comentario
-        document.getElementById('form-comentario').onsubmit = function(e) {
-            e.preventDefault();
-            const texto = document.getElementById('comentario').value.trim();
-            const productoId = obtenerProductoId();
-            
-            if (texto && productoId) {
-                // Guardar en localStorage específico del producto
-                const comentariosGuardados = JSON.parse(localStorage.getItem(`comentarios_${productoId}`)) || [];
-                comentariosGuardados.push({
-                    usuario: usuarioActual,
-                    texto: texto,
-                    corazones: calificacionActual
-                });
-                localStorage.setItem(`comentarios_${productoId}`, JSON.stringify(comentariosGuardados));
-                
-                // Mostrar en la vista
-                agregarComentario(usuarioActual, texto, calificacionActual);
-                
-                // Limpiar textarea y resetear calificación
-                document.getElementById('comentario').value = '';
-                actualizarCorazones(0);
-                calificacionActual = 0;
+        // envío de comentarios (usa el nombre del usuario logueado cuando exista)
+        let usuarioNombre = localStorage.getItem('usuarioNombre') || 'Anónimo';
+
+        async function cargarUsuarioActual(){
+            try{
+                const res = await fetch('/perfilUsuario', { credentials: 'include' });
+                if (!res.ok) return; // no logueado o error
+                const data = await res.json();
+                if (data && data.success && data.usuario) {
+                    const nombre = (data.usuario.nombre || '').trim();
+                    const apellido = (data.usuario.apellido || '').trim();
+                    const fullname = `${nombre} ${apellido}`.trim();
+                    if (fullname) {
+                        usuarioNombre = fullname;
+                        try{ localStorage.setItem('usuarioNombre', usuarioNombre); }catch(e){}
+                        // Si hay sesión, ocultar el botón de iniciar sesión
+                        try{
+                            const btnRegistrar = document.getElementById('btn-registrar');
+                            if (btnRegistrar) {
+                                btnRegistrar.style.display = 'none';
+                            }
+                        }catch(e){}
+                    }
+                }
+            }catch(e){
+                // ignore, keep Anónimo
             }
-        };
+        }
 
-        //ocultar boton de inicio de sesion despues de haver iniciado sesion
-document.addEventListener('DOMContentLoaded', () => {
-  const btnLogin = document.querySelector('.btn-registrar');
-  const perfilIcon = document.querySelector('.perfil-icon');
+        document.getElementById('form-comentario').addEventListener('submit', function(e){
+            e.preventDefault();
+            const productoId = obtenerProductoId();
+            const texto = document.getElementById('comentario').value.trim();
+            if (!texto || !productoId) return;
+            const existentes = JSON.parse(localStorage.getItem(`comentarios_${productoId}`)) || [];
+            // Guardar la calificación seleccionada (calificacionActual)
+            const newComment = { usuario: usuarioNombre || 'Anónimo', texto, corazones: calificacionActual || 0 };
+            existentes.push(newComment);
+            localStorage.setItem(`comentarios_${productoId}`, JSON.stringify(existentes));
+            agregarComentario(newComment.usuario, newComment.texto, newComment.corazones);
+            document.getElementById('comentario').value = '';
+            // Reset visual de la calificación para el siguiente comentario
+            calificacionActual = 0;
+            document.querySelectorAll('.corazones .heart').forEach(h => h.classList.remove('filled'));
+        });
 
-  if (localStorage.getItem('usuarioLogueado') === 'true') {
-    if (btnLogin) btnLogin.style.display = 'none';
-    if (perfilIcon) perfilIcon.style.display = 'inline-block';
-  } else {
-    if (btnLogin) btnLogin.style.display = 'block';
-    if (perfilIcon) perfilIcon.style.display = 'none';
-  }
-});
+        // Load product on DOM ready — primero intentamos cargar el usuario
+        document.addEventListener('DOMContentLoaded', async function(){
+            await cargarUsuarioActual();
+            const productoId = obtenerProductoId();
+            if (!productoId) return mostrarError();
+
+            fetch(`/producto/${productoId}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (!data || !data.success || !data.producto) return mostrarError();
+                    mostrarProducto(data.producto);
+                })
+                .catch(err => {
+                    console.error('Error al cargar producto:', err);
+                    mostrarError();
+                });
+            // actualizar contador al cargar la página
+            actualizarContadorCarrito();
+        });
+        // Exponer funciones al scope global para que los handlers inline (onclick="...") las puedan invocar
+        // (Las funciones están definidas dentro del IIFE, por eso las hacemos accesibles en window)
+        try{
+            window.agregarProductoAlCarritoDesdeDetalle = agregarProductoAlCarritoDesdeDetalle;
+            window.actualizarContadorCarrito = actualizarContadorCarrito;
+        }catch(e){
+            // noop
+        }
+    })();
+        function irAlCarrito() {
+        window.location.href = 'carrito_compra.html';
+    }
     </script>
-</body>
-</html>

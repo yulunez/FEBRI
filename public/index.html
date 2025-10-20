@@ -113,56 +113,8 @@
         <button class="boton-carrusel anterior ">
             <i class='bx bx-chevron-left'></i>
         </button>
-        <div class="productos-carrusel">
-            <div class="tarjeta-producto"><a href="detalle.html?producto=llavero">
-                <img src="imagenes/llavero-inicio.jpeg" alt="Llavero de K"></a>
-                <div class="producto-info">
-                    <h3>Llavero de K</h3>
-                    <p class="precio">$ 25.000</p>
-                     <i class='bx bx-heart corazon-vacio'></i>
-                  </div>
-            </div>
-            <div class="tarjeta-producto"><a href="detalle.html?producto=agenda">
-                <img src="imagenes/libreta-inicio.jpeg" alt="Agenda"></a>
-                <div class="producto-info">
-                    <h3>Agenda</h3>
-                    <p class="precio-descuento">$ 30.000</p>
-                    <p class="precio">$ 35.000</p>
-                    <i class='bx bx-heart corazon-vacio'></i>
-                </div>
-            </div>
-           <div class="tarjeta-producto"><a href="detalle.html?producto=decoracion">
-                <img src="imagenes/decoracion-inicio.avif" alt="Pulsera"></a>
-                <div class="producto-info">
-                    <h3>Decoración </h3>
-                    <p class="precio">$ 20.000</p>
-                    <i class='bx bx-heart corazon-vacio'></i>
-                </div>
-                
-            </div>
-             <div class="tarjeta-producto"> <a href="detalle.html?producto=boligrafo">
-                <img src="imagenes/boligrafo-inicio.jpg" alt="Lapicero"></a>
-                <div class="producto-info">
-                    <h3>Boligrafo <br> personalizado</h3>
-                    <p class="precio-descuento">$ 20.000</p>
-                    <p class="precio">$ 17.500</p>
-                <i class='bx bx-heart corazon-vacio'></i> </div>
-            </div>
-            <div class="tarjeta-producto"><a href="detalle.html?producto=aretes">
-                <img src="imagenes/joyas5.jpg" alt=""></a>
-                <div class="producto-info">
-                    <h3>Aretes Flor Coral </h3>
-                    <p class="precio">$ 20.000</p>
-                    <i class='bx bx-heart corazon-vacio'></i>
-                </div>
-            </div>
-            <div class="tarjeta-producto"><a href="detalle.html?producto=ajedrez">
-                <img src="imagenes/juegos 1.jpg" alt=""></a>
-                <div class="producto-info">
-                    <h3>ajedrez</h3>
-                    <p class="precio">$ 45.500</p>
-                <i class='bx bx-heart corazon-vacio'></i> </div>
-            </div>
+        <div class="productos-carrusel" id="productos-carrusel">
+            <!-- Las tarjetas se cargarán dinámicamente desde /producto/top10 -->
         </div>
         
         
@@ -227,9 +179,9 @@
 <section class="blog-posts">
     <div class="post-card">
         <div class="post-image-container">
-           <a href="joyas_acesorios.html"> <img src="imagenes/joyas descri.jpg" alt="" class="post-image hover-effect"></a>
+           <a href="categoria_ind.html"> <img src="imagenes/joyas descri.jpg" alt="" class="post-image hover-effect"></a>
         </div>
-       <a href="joyas_acesorios.html"> <h3 class="post-titulo">Joyas Únicas en Resina: Arte que Puedes Llevar</h3></a>
+       <a href="categoria_ind.html"> <h3 class="post-titulo">Joyas Únicas en Resina: Arte que Puedes Llevar</h3></a>
         <p class="post-descripcion">Descubre nuestra colección exclusiva de joyas artesanales en resina. Cada pieza es única y cuenta una historia especial, perfecta para quienes buscan accesorios originales y llenos de personalidad.</p>
     </div>
 
@@ -351,39 +303,39 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
-//estilo para pasar imagen
-
-document.addEventListener('DOMContentLoaded', function() {
+// Carrusel: encapsular lógica para inicializar después de renderizar tarjetas
+function inicializarCarrusel() {
     const carrusel = document.querySelector('.productos-carrusel');
     const btnAnterior = document.querySelector('.anterior');
     const btnSiguiente = document.querySelector('.siguiente');
     const tarjetas = document.querySelectorAll('.tarjeta-producto');
-    
+
+    if (!carrusel || tarjetas.length === 0) return;
+
     let posicionActual = 0;
     const tarjetasPorVista = 4;
     const totalTarjetas = tarjetas.length;
-    
+
     function moverCarrusel(direccion) {
-        const anchoTarjeta = tarjetas[0].offsetWidth + 20; 
-        
+        const anchoTarjeta = tarjetas[0].offsetWidth + 20; // margen aproximado
+
         if (direccion === 'siguiente' && posicionActual < totalTarjetas - tarjetasPorVista) {
             posicionActual++;
         } else if (direccion === 'anterior' && posicionActual > 0) {
             posicionActual--;
         }
-        
+
         const desplazamiento = -posicionActual * anchoTarjeta;
         carrusel.style.transform = `translateX(${desplazamiento}px)`;
-        
+
         // Actualizar estado de botones
-        btnAnterior.style.opacity = posicionActual === 0 ? '0.5' : '1';
-        btnSiguiente.style.opacity = 
-            posicionActual >= totalTarjetas - tarjetasPorVista ? '0.5' : '1';
+        if (btnAnterior) btnAnterior.style.opacity = posicionActual === 0 ? '0.5' : '1';
+        if (btnSiguiente) btnSiguiente.style.opacity = posicionActual >= totalTarjetas - tarjetasPorVista ? '0.5' : '1';
     }
-    
-    btnSiguiente.addEventListener('click', () => moverCarrusel('siguiente'));
-    btnAnterior.addEventListener('click', () => moverCarrusel('anterior'));
-});
+
+    if (btnSiguiente) btnSiguiente.addEventListener('click', () => moverCarrusel('siguiente'));
+    if (btnAnterior) btnAnterior.addEventListener('click', () => moverCarrusel('anterior'));
+}
 
 //ocultar boton de inicio de sesion despues de haver iniciado sesion
 document.addEventListener('DOMContentLoaded', () => {
@@ -399,9 +351,80 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
+    // Cargar los primeros 10 productos desde el backend y renderizar en el carrusel
+    document.addEventListener('DOMContentLoaded', async function() {
+        const contenedor = document.getElementById('productos-carrusel');
+        if (!contenedor) return;
 
+        try {
+            const res = await fetch('/producto/top10');
+            const data = await res.json();
+            if (!data.success || !Array.isArray(data.productos)) {
+                console.error('Respuesta inválida de /producto/top10', data);
+                return;
+            }
 
+            // Limpiar contenedor
+            contenedor.innerHTML = '';
 
-    </script>
+            data.productos.forEach(p => {
+                const tarjeta = document.createElement('div');
+                tarjeta.className = 'tarjeta-producto';
+
+                // Crear enlace al detalle usando el id
+                const link = document.createElement('a');
+                link.href = `detalle.html?producto=${encodeURIComponent(p.id)}`;
+
+                const img = document.createElement('img');
+                // Algunos registros pueden venir con rutas relativas o nulas
+                img.src = p.Imagen && p.Imagen.trim() !== '' ? p.Imagen : 'imagenes/inicio.webp';
+                img.alt = p.Nombre || 'Producto';
+                link.appendChild(img);
+
+                const info = document.createElement('div');
+                info.className = 'producto-info';
+
+                const titulo = document.createElement('h3');
+                titulo.textContent = p.Nombre || 'Sin nombre';
+
+                const precio = document.createElement('p');
+                precio.className = 'precio';
+                // Formato seguro del precio
+                precio.textContent = typeof p.Precio !== 'undefined' && p.Precio !== null ? `$ ${p.Precio}` : '';
+
+                const corazon = document.createElement('i');
+                corazon.className = 'bx bx-heart corazon-vacio';
+
+                info.appendChild(titulo);
+                info.appendChild(precio);
+                info.appendChild(corazon);
+
+                tarjeta.appendChild(link);
+                tarjeta.appendChild(info);
+
+                contenedor.appendChild(tarjeta);
+            });
+
+            // Re-bind favorite buttons
+            const botonesFavoritos = document.querySelectorAll('.corazon-vacio');
+            botonesFavoritos.forEach(boton => {
+                boton.addEventListener('click', function() {
+                    this.classList.toggle('corazon-activo');
+                });
+            });
+
+            // Inicializar carrusel ahora que las tarjetas están en el DOM
+            inicializarCarrusel();
+
+        } catch (err) {
+            console.error('Error cargando productos:', err);
+        }
+    });
+    
+    // Función global para navegar al carrito desde los botones del header
+    function irAlCarrito() {
+        window.location.href = 'carrito_compra.html';
+    }
+</script>
 </body>
 </html>

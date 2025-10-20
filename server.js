@@ -58,6 +58,13 @@ app.use('/registro', registro); // Usa el router para la ruta /registro
 const login = require('./routes/login.js');
 app.use('/login', login);
 
+// Router para productos (servirá /producto y /producto/top10)
+const productoRouter = require('./routes/producto');
+app.use('/producto', productoRouter);
+
+const categoriasRouter = require('./routes/categorias.js');
+app.use('/categorias', categoriasRouter);
+
 app.use(express.urlencoded({ extended:true }));
 const perfilUsuarioRouter = require('./routes/perfilUsuario.js');
 const perfilRouter = require('./routes/perfil.js');

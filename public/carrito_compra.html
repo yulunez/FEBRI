@@ -19,13 +19,13 @@
             <input type="text" placeholder="Buscar productos en Febri...">
             <i class='bx bx-search'></i>
         </div>
-        <div class="menu-items">
+            <div class="menu-items">
             <a href="index.html" class="nav-link">Inicio</a>
             <a href="categorias.html" class="nav-link">Categorías</a>
             <a href="ofertas.html" class="nav-link">Ofertas</a>
             <a href="contactos.html" class="nav-link">Contáctos</a>
             <div class="btn-registrar"><a href="login.html">Iniciar sesión</a></div>
-                <i class='bx bx-user perfil-icon'></i>
+                <a href="perfil_usuario.html"><i class='bx bx-user perfil-icon'></i></a>
                 
         </div>
     </nav>
@@ -116,9 +116,9 @@
         // Variable para almacenar los productos del carrito (ahora se carga desde localStorage)
         let productosCarrito = [];
 
-        // Cargar productos del carrito desde localStorage
+        // Cargar productos del carrito desde sessionStorage (sesión por pestaña)
         function cargarCarritoDesdeStorage() {
-            const carritoStorage = localStorage.getItem('carritoCompra');
+            const carritoStorage = sessionStorage.getItem('carritoCompra');
             if (carritoStorage) {
                 try {
                     productosCarrito = JSON.parse(carritoStorage);
@@ -131,9 +131,9 @@
             }
         }
 
-        // Guardar productos del carrito en localStorage
+        // Guardar productos del carrito en sessionStorage (sesión por pestaña)
         function guardarCarritoEnStorage() {
-            localStorage.setItem('carritoCompra', JSON.stringify(productosCarrito));
+            sessionStorage.setItem('carritoCompra', JSON.stringify(productosCarrito));
         }
 
         // Formatear precio en pesos colombianos
@@ -249,9 +249,9 @@
             // Calcular total
             const totalCompra = productosCarrito.reduce((sum, producto) => sum + (producto.precio * producto.cantidad), 0);
 
-            // Guardar información para la página de pago
-            localStorage.setItem('carritoCompra', JSON.stringify(productosCarrito));
-            localStorage.setItem('totalCompra', totalCompra);
+            // Guardar información para la página de pago en sessionStorage
+            sessionStorage.setItem('carritoCompra', JSON.stringify(productosCarrito));
+            sessionStorage.setItem('totalCompra', totalCompra);
 
             // Redirigir a la página de pago
             window.location.href = 'pago.html';
@@ -267,14 +267,11 @@
             });
         }
 
-        // Función para escuchar cambios en localStorage (si se actualiza desde otra pestaña)
+        // Nota: sessionStorage es por pestaña/ventana y no se sincroniza entre pestañas.
+        // Por eso no hay listener de 'storage' aquí. Si necesitas sincronizar entre
+        // pestañas se debe usar localStorage o una solución basada en servidor.
         function escucharCambiosStorage() {
-            window.addEventListener('storage', function(e) {
-                if (e.key === 'carritoCompra') {
-                    cargarCarritoDesdeStorage();
-                    renderizarCarrito();
-                }
-            });
+            // No-op para sesión por pestaña
         }
 
         // Inicialización cuando se carga la página
@@ -292,7 +289,7 @@
             // Cargar y mostrar productos del carrito
             cargarCarritoDesdeStorage();
             renderizarCarrito();
-            escucharCambiosStorage();
+            // escucharCambiosStorage() es no-op para sessionStorage
 
             console.log('Carrito cargado:', productosCarrito); // Para debugging
         });
