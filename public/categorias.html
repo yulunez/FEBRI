@@ -86,36 +86,49 @@
     <section class="categorias">
         <h2 class="categorias-titulo">Nuestras Categorías</h2>
         <div class="categorias-contenedor">
-            <a href="joyas_acesorios.html" class="categoria-tarjeta">
+            <a href="categoria_ind.html" class="categoria-tarjeta">
                 <div class="categoria-imagen">
-                    <img src="imagenes/opcion1.jpeg" alt="Joyas y accesorios">
+                    <img src="" alt="">
                 </div>
-                <h3 class="categoria-nombre">Joyas y accesorios</h3>
+                <h3 class="categoria-nombre"></h3>
             </a>
-    
-            <a href="decoración_hogar.html" class="categoria-tarjeta">
-                <div class="categoria-imagen">
-                    <img src="imagenes/opcion2.jpg" alt="Decoración para el hogar">
-                </div>
-                <h3 class="categoria-nombre">Decoración para el hogar</h3>
-            </a>
-    
-            <a href="#" class="categoria-tarjeta">
-                <div class="categoria-imagen">
-                    <img src="imagenes/opcion3.jpeg" alt="Arte y diseño">
-                </div>
-                <h3 class="categoria-nombre">Arte y diseño</h3>
-            </a>
-    
-            <a href="#" class="categoria-tarjeta">
-                <div class="categoria-imagen">
-                    <img src="imagenes/opcion4.jpg" alt="Juegos y entretenimiento">
-                </div>
-                <h3 class="categoria-nombre">Juegos y entretenimiento</h3>
-            </a>
+
         </div>
     </section>
     <script src="script.js"></script>
+    <script>
+    (async function(){
+        const contenedor = document.querySelector('.categorias-contenedor');
+        contenedor.innerHTML = '';
+        try{
+            const res = await fetch('/categorias');
+            const data = await res.json();
+            if (!data || !data.success || !Array.isArray(data.categorias) || data.categorias.length === 0) {
+                contenedor.innerHTML = '<p>No hay categorías disponibles.</p>';
+                return;
+            }
+
+            data.categorias.forEach(categoria => {
+                const categoriaTarjeta = document.createElement('a');
+                // Enlace con query param que contiene el ID de la categoría
+                const catId = categoria.id || categoria.ID_categoria || categoria.ID || '';
+                categoriaTarjeta.href = `categoria_ind.html?id=${encodeURIComponent(catId)}`;
+                categoriaTarjeta.className = 'categoria-tarjeta';
+                categoriaTarjeta.innerHTML = `
+                    <div class="categoria-imagen">
+                        <img src="${categoria.Imagen || categoria.imagen || ''}" alt="${categoria.nombre || categoria.Nombre || ''}">
+                    </div>
+                    <h3 class="categoria-nombre">${categoria.nombre || categoria.Nombre || ''}</h3>
+                `;
+                contenedor.appendChild(categoriaTarjeta);
+            });
+
+        }catch(err){
+            console.error('Error cargando categorias:', err);
+            contenedor.innerHTML = '<p>Error cargando categorías.</p>';
+        }
+    })();
+    </script>
     
 </body>
 </html>

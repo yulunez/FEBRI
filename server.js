@@ -62,6 +62,9 @@ app.use('/login', login);
 const productoRouter = require('./routes/producto');
 app.use('/producto', productoRouter);
 
+const categoriasRouter = require('./routes/categorias.js');
+app.use('/categorias', categoriasRouter);
+
 app.use(express.urlencoded({ extended:true }));
 const perfilUsuarioRouter = require('./routes/perfilUsuario.js');
 const perfilRouter = require('./routes/perfil.js');

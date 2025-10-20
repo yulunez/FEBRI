@@ -1,4 +1,4 @@
-  document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function() {
         const menuIcon = document.querySelector('.menu-icon');
         const menuLateral = document.querySelector('.menu-lateral');
         
@@ -6,6 +6,11 @@
             menuLateral.classList.toggle('activo');
         });
     });
+
+// Helper global para navegar al carrito desde cabeceras que usan este script
+function irAlCarrito() {
+  window.location.href = 'carrito_compra.html';
+}
 
     //ocultar boton de inicio de sesion despues de haver iniciado sesion
 document.addEventListener('DOMContentLoaded', () => {

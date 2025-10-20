@@ -57,3 +57,22 @@ exports.obtenerPrimerosDiez = (req, res) => {
     });
 };
 
+exports.obtenerProductosPorCategoria = (req, res) => {
+    const db = req.db;
+    const { categoriaId } = req.params;
+    const sql = 'SELECT ID_producto, Nombre, Precio, imagen FROM producto WHERE ID_categoria = ?';
+    db.query(sql, [categoriaId], (err, results) => {
+        if (err) {
+            console.error('Error en consulta obtenerProductosPorCategoria:', err);
+            return res.status(500).json({ success: false, message: 'Error en la base de datos' });
+        }
+        const productos = Array.isArray(results) ? results.map(r => ({
+            id: r.ID_producto,
+            Nombre: r.Nombre,
+            Precio: r.Precio,
+            Imagen: r.imagen // frontend usa 'Imagen'
+        })) : [];
+        res.json({ success: true, productos });
+    });
+};
+

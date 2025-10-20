@@ -93,92 +93,27 @@
 <script>
 // Variable global para almacenar todos los productos
 let productosDisponibles = [];
-
-// Función para obtener productos de la base de datos
-async function cargarProductosDeBaseDatos() {
+// Función para obtener productos de la base de datos por categoría
+async function cargarProductosDeBaseDatos(categoriaId) {
     try {
-        // AQUÍ DEBES REEMPLAZAR CON TU ENDPOINT REAL
-        // const response = await fetch('/api/productos/categoria/joyas');
-        // const productos = await response.json();
-        
-        // Por ahora, simulo la respuesta de la base de datos:
-        const productos = [
-              {
-                id: 1,
-                nombre: "Collar Pétalo Rosa",
-                precio: 25900,
-                imagen: "imagenes/joyas2.jpg",
-                descripcion: "Elegante collar con diseño de pétalo rosa, perfecto para ocasiones especiales.",
-                categoria: "joyas"
-            },
-            {
-                id: 2,
-                nombre: "Aretes Hoja Plata",
-                precio: 10000,
-                precioOriginal: 11000,
-                imagen: "imagenes/joyas3.jpg",
-                descripcion: "Delicados aretes en forma de hoja con acabado en plata.",
-                categoria: "joyas"
-            },
-            {
-                id: 3,
-                nombre: "Dije Gota Fucsia",
-                precio: 24900,
-                precioOriginal: 26900,
-                imagen: "imagenes/joyas4.webp",
-                descripcion: "Hermoso dije en forma de gota con tonos fucsia brillantes.",
-                categoria: "joyas"
-            },
-            {
-                id: 4,
-                nombre: "Aretes Flor Coral",
-                precio: 21900,
-                imagen: "imagenes/joyas5.jpg",
-                descripcion: "Aretes con diseño floral en tono coral, ideales para el día a día.",
-                categoria: "joyas"
-            },
-            {
-                id: 5,
-                nombre: "Anillo Floral Madera",
-                precio: 38900,
-                imagen: "imagenes/joya1.jpg",
-                descripcion: "Anillo único con diseño floral tallado en madera natural.",
-                categoria: "joyas"
-            },
-            {
-                id: 6,
-                nombre: "Llavero Inicial Dorado",
-                precio: 12900,
-                precioOriginal: 16800,
-                imagen: "imagenes/joya6.jpg",
-                descripcion: "Llavero personalizado con inicial en acabado dorado.",
-                categoria: "joyas"
-            },
-            {
-                id: 7,
-                nombre: "Bolígrafo Glitter Rosa",
-                precio: 19000,
-                imagen: "imagenes/joya7.jpeg",
-                descripcion: "Bolígrafo decorativo con brillos rosa y detalles elegantes.",
-                categoria: "joyas"
-            },
-            {
-                id: 8,
-                nombre: "Dije Cachorro Azul",
-                precio: 19900,
-                precioOriginal: 21900,
-                imagen: "imagenes/joya8.webp",
-                descripcion: "Tierno dije en forma de cachorro con detalles en azul.",
-                categoria: "joyas"
-            }
-         
-        ];
-        
-        return productos;
-        
+        // Llamada al backend que devuelve productos por categoria
+        const res = await fetch(`/producto/categoria/${encodeURIComponent(categoriaId)}`);
+        if (!res.ok) throw new Error('Error en la respuesta del servidor');
+        const data = await res.json();
+        if (!data || !data.success || !Array.isArray(data.productos)) return [];
+        // Mapear al formato que usa la UI
+        return data.productos.map(p => ({
+            id: p.id,
+            nombre: p.Nombre || p.nombre || '',
+            precio: p.Precio || p.precio || 0,
+            precioOriginal: p.precioOriginal || p.PrecioAnterior || null,
+            imagen: p.Imagen || p.imagen || 'imagenes/inicio.webp',
+            descripcion: p.Descripcion || p.descripcion || ''
+        }));
     } catch (error) {
-        console.error('Error al cargar productos:', error);
-        return []; // Retorna array vacío si hay error
+        console.error('Error al cargar productos por categoria:', error);
+        // Fallback: retornar array vacío para que la UI muestre el mensaje
+        return [];
     }
 }
 
@@ -198,14 +133,18 @@ function crearTarjetaProducto(producto) {
     return `
         <div class="producto-card-hogar">
             <div class="producto-imagen-hogar">
-                <img src="${producto.imagen}" alt="${producto.nombre}">
+                <a href="detalle.html?producto=${encodeURIComponent(producto.id)}">
+                    <img src="${producto.imagen}" alt="${producto.nombre}">
+                </a>
                 <button class="btn-agregar" onclick="agregarAlCarrito(${producto.id})">
                     <i class='bx bx-cart-add'></i>
                     Agregar al carrito
                 </button>
             </div>
             <div class="producto-info-hogar">
-                <h3 class="producto-nombre-hogar">${producto.nombre}</h3>
+                <h3 class="producto-nombre-hogar">
+                    <a href="detalle.html?producto=${encodeURIComponent(producto.id)}" style="color:inherit; text-decoration:none;">${producto.nombre}</a>
+                </h3>
                 <div class="producto-precios-hogar">
                     ${preciosHTML}
                 </div>
@@ -217,13 +156,29 @@ function crearTarjetaProducto(producto) {
     `;
 }
 
-// Función principal para mostrar todos los productos
-async function mostrarProductos() {
+// Función principal para mostrar todos los productos (usa el id de categoría en el query string 'id')
+async function mostrarProductos(categoriaIdParam) {
     const contenedor = document.getElementById('contenedor-productos');
     
     try {
-        // Cargar productos desde la base de datos
-        productosDisponibles = await cargarProductosDeBaseDatos();
+        // Determinar el id de la categoría: parámetro explícito > querystring
+        const params = new URLSearchParams(window.location.search);
+        const categoriaId = categoriaIdParam || params.get('id');
+
+        if (!categoriaId) {
+            contenedor.innerHTML = `
+                <div style="display:flex; justify-content:center; align-items:center; width:100%; min-height:60vh;">
+                    <div style="text-align:center;">
+                        <h3>No se especificó la categoría</h3>
+                        <p>Vuelve a la página de categorías y selecciona una.</p>
+                    </div>
+                </div>
+            `;
+            return;
+        }
+
+        // Cargar productos desde la base de datos para la categoría indicada
+        productosDisponibles = await cargarProductosDeBaseDatos(categoriaId);
         
         // Limpiar el contenedor
         contenedor.innerHTML = '';
@@ -344,8 +299,8 @@ function agregarAlCarrito(productoId) {
         return;
     }
 
-    // Obtener carrito actual del localStorage
-    let carrito = JSON.parse(localStorage.getItem('carritoCompra')) || [];
+    // Obtener carrito actual de sessionStorage (sesión por pestaña)
+    let carrito = JSON.parse(sessionStorage.getItem('carritoCompra')) || [];
     
     // Verificar si el producto ya está en el carrito
     const productoExistente = carrito.find(item => item.id === productoId);
@@ -368,8 +323,8 @@ function agregarAlCarrito(productoId) {
         mostrarNotificacion(`${producto.nombre} agregado al carrito`);
     }
     
-    // Guardar carrito actualizado en localStorage
-    localStorage.setItem('carritoCompra', JSON.stringify(carrito));
+    // Guardar carrito actualizado en sessionStorage
+    sessionStorage.setItem('carritoCompra', JSON.stringify(carrito));
     
     // Actualizar contador del carrito
     actualizarContadorCarrito();
@@ -420,7 +375,7 @@ function mostrarNotificacion(mensaje) {
 
 // Función para actualizar contador del carrito (tu código original)
 function actualizarContadorCarrito() {
-    const carrito = JSON.parse(localStorage.getItem('carritoCompra')) || [];
+    const carrito = JSON.parse(sessionStorage.getItem('carritoCompra')) || [];
     const totalItems = carrito.reduce((total, item) => total + item.cantidad, 0);
     
     // Actualizar contador desktop

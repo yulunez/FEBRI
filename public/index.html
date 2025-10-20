@@ -179,9 +179,9 @@
 <section class="blog-posts">
     <div class="post-card">
         <div class="post-image-container">
-           <a href="joyas_acesorios.html"> <img src="imagenes/joyas descri.jpg" alt="" class="post-image hover-effect"></a>
+           <a href="categoria_ind.html"> <img src="imagenes/joyas descri.jpg" alt="" class="post-image hover-effect"></a>
         </div>
-       <a href="joyas_acesorios.html"> <h3 class="post-titulo">Joyas Únicas en Resina: Arte que Puedes Llevar</h3></a>
+       <a href="categoria_ind.html"> <h3 class="post-titulo">Joyas Únicas en Resina: Arte que Puedes Llevar</h3></a>
         <p class="post-descripcion">Descubre nuestra colección exclusiva de joyas artesanales en resina. Cada pieza es única y cuenta una historia especial, perfecta para quienes buscan accesorios originales y llenos de personalidad.</p>
     </div>
 
@@ -420,6 +420,11 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Error cargando productos:', err);
         }
     });
+    
+    // Función global para navegar al carrito desde los botones del header
+    function irAlCarrito() {
+        window.location.href = 'carrito_compra.html';
+    }
 </script>
 </body>
 </html>
