@@ -9,7 +9,7 @@
 </head>
 <body class="body-inicio" >
     <div class="contenedor-recuperar">
-        <form class="caja-recuperar">
+        <form class="caja-recuperar" id="formRecuperar">
                     <div class="logo-container">
         <img src="imagenes/logo.png" alt="Logo Febri" class="logo-login">
     </div>
@@ -25,12 +25,66 @@
                 <label class="etiqueta">Correo electrónico</label>
                 <div class="campo-entrada">
                     <i class='bx bxs-envelope'></i>
-                    <input type="email" placeholder="ingrese el correo electrónico" class="entrada-texto">
+                    <input type="email" id="emailRecuperacion" name="email" autocomplete="email" placeholder="ingrese el correo electrónico" class="entrada-texto">
                 </div>
             </div>
 
-            <button type="submit" class="boton-enviar">Enviar</button>
+            <button type="submit" class="boton-enviar" id="btnEnviarRecuperacion">Enviar</button>
+            <div id="mensajeRecuperacion" style="display:none; margin-top:12px;"></div>
         </form>
     </div>
+    <script>
+    (function() {
+        const form = document.getElementById('formRecuperar');
+        const emailInput = document.getElementById('emailRecuperacion');
+        const btn = document.getElementById('btnEnviarRecuperacion');
+        const msg = document.getElementById('mensajeRecuperacion');
+
+        function mostrarMensaje(texto, color) {
+            msg.textContent = texto;
+            msg.style.display = 'block';
+            msg.style.color = color || '#333';
+        }
+
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const email = (emailInput.value || '').trim();
+            msg.style.display = 'none';
+
+            if (!email) {
+                mostrarMensaje('Ingresa tu correo electrónico', '#c0392b');
+                return;
+            }
+            btn.disabled = true;
+            btn.textContent = 'Enviando...';
+
+            try {
+                const res = await fetch('/recuperar/solicitar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    if (data.resetUrl) {
+                        mostrarMensaje('Enlace generado. Ábrelo para cambiar tu contraseña: ' + data.resetUrl, '#2ecc71');
+                    } else {
+                        mostrarMensaje('Te enviamos un correo con el enlace para cambiar tu contraseña.', '#2ecc71');
+                    }
+                    emailInput.value = '';
+                } else {
+                    mostrarMensaje(data.message || 'No pudimos procesar la solicitud', '#c0392b');
+                }
+            } catch (err) {
+                mostrarMensaje('Error del servidor. Inténtalo nuevamente.', '#c0392b');
+                console.error('Error recuperacion:', err);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Enviar';
+            }
+        });
+    })();
+    </script>
 </body>
 </html>

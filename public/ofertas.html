@@ -306,18 +306,32 @@
         }
 
         // Función para actualizar contador del carrito
+        // Reemplazo leve para actualizar todos los contadores
         function actualizarContadorCarrito() {
             const carrito = JSON.parse(sessionStorage.getItem('carritoCompra')) || [];
-            const totalItems = carrito.reduce((total, item) => total + item.cantidad, 0);
-            
-            // Actualizar contador desktop
-            const contador = document.getElementById('contador-carrito');
-            if (contador) {
-                contador.textContent = totalItems;
-                contador.style.display = totalItems > 0 ? 'flex' : 'none';
-            }
+            const totalItems = carrito.reduce((total, item) => total + (Number(item.cantidad) || 1), 0);
+            document.querySelectorAll('.contador-carrito').forEach(el => {
+                el.textContent = totalItems;
+                el.style.display = totalItems > 0 ? 'flex' : 'none';
+            });
         }
-
+        
+        // Ajuste para incluir botón móvil
+        document.addEventListener('DOMContentLoaded', () => {
+            const btnLogin = document.querySelector('.btn-registrar');
+            const btnLoginMovil = document.querySelector('.btn-registrar-movil');
+            const perfilIcon = document.querySelector('.perfil-icon');
+        
+            if (localStorage.getItem('usuarioLogueado') === 'true') {
+                if (btnLogin) btnLogin.style.display = 'none';
+                if (btnLoginMovil) btnLoginMovil.style.display = 'none';
+                if (perfilIcon) perfilIcon.style.display = 'inline-block';
+            } else {
+                if (btnLogin) btnLogin.style.display = 'block';
+                if (btnLoginMovil) btnLoginMovil.style.display = 'block';
+                if (perfilIcon) perfilIcon.style.display = 'none';
+            }
+        });
         // Función para ir al carrito
         function irAlCarrito() {
             window.location.href = 'carrito_compra.html';
@@ -364,20 +378,6 @@
             `;
             document.head.appendChild(style);
         });
-
-        //ocultar boton de inicio de sesion despues de haver iniciado sesion
-document.addEventListener('DOMContentLoaded', () => {
-  const btnLogin = document.querySelector('.btn-registrar');
-  const perfilIcon = document.querySelector('.perfil-icon');
-
-  if (localStorage.getItem('usuarioLogueado') === 'true') {
-    if (btnLogin) btnLogin.style.display = 'none';
-    if (perfilIcon) perfilIcon.style.display = 'inline-block';
-  } else {
-    if (btnLogin) btnLogin.style.display = 'block';
-    if (perfilIcon) perfilIcon.style.display = 'none';
-  }
-});
-    </script>
+</script>
 </body>
 </html>

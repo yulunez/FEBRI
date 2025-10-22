@@ -8,7 +8,20 @@
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <title>Perfil de Usuario</title>
     <script>
-
+        // Cargar información del usuario al iniciar la página
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Obtener información del usuario desde la sesión
+            const res = await fetch('/perfilUsuario', { credentials: 'include' });
+            const data = await res.json();
+            // Mostrar información del usuario en el perfil
+            const usuario = data.usuario;
+            document.querySelector('.detalles-usuario h2').textContent = usuario.nombre + ' ' + usuario.apellido;
+            document.querySelector('.info-usuario').textContent = usuario.correo;
+            // Redirigir a login si no está autenticado
+            if (data.autenticado) {
+                window.location.href = '/login.html';
+            }
+        });
 
         // Funcionalidad para los botones de corazón
         document.querySelectorAll('.boton-corazon-producto').forEach(boton => {
@@ -221,125 +234,148 @@
 
 
     let usuarioActual = {};
-    document.addEventListener('DOMContentLoaded', async function() {
-        try {
-            const res = await fetch('/perfilUsuario', { credentials: 'include' });
-            const data = await res.json();
-            if (data.success) {
-                const usuario = data.usuario;
-                usuarioActual = usuario;
-                document.querySelector('.detalles-usuario h2').textContent = `${usuario.nombre}  ${usuario.apellido}`.trim() || 'Sin nombre';
-                document.querySelector('.info-usuario').innerHTML = `
-                    <p><span>Correo:</span> ${usuario.correo || ''}</p>
-                    <p><span>Dirección:</span> ${usuario.direccion || ''}</p>
-                    <p><span>Teléfono:</span> ${usuario.telefono || ''}</p>
-                `;
-            } else {
-                window.location.href = 'login.html';
-            }
-        } catch (err) {
-            console.error('Error al cargar perfil:', err);
+
+document.addEventListener('DOMContentLoaded', async function() {
+    console.log('=== CARGANDO PERFIL ===');
+    
+    try {
+        const res = await fetch('/perfil-usuario', { 
+            method: 'GET',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        
+        console.log('Estado:', res.status);
+        const data = await res.json();
+        console.log('Respuesta completa:', data);
+        
+        if (data.success && data.usuario) {
+            const usuario = data.usuario;
+            usuarioActual = usuario;
+            
+            console.log('Usuario cargado:', usuarioActual);
+            
+            // Actualizar nombre
+            const nombreCompleto = `${usuario.nombre || ''} ${usuario.apellido || ''}`.trim();
+            document.querySelector('.detalles-usuario h2').textContent = nombreCompleto || 'Sin nombre';
+            
+            // Actualizar información
+            document.querySelector('.info-usuario').innerHTML = `
+                <p><span>Correo:</span> ${usuario.correo || 'No especificado'}</p>
+                <p><span>Dirección:</span> ${usuario.direccion || 'No especificada'}</p>
+                <p><span>Teléfono:</span> ${usuario.telefono || 'No especificado'}</p>
+            `;
+            
+            console.log('✓ Perfil mostrado correctamente');
+        } else {
+            console.log('❌ No hay sesión activa');
+            alert('Por favor, inicie sesión');
+            window.location.href = 'login.html';
+        }
+    } catch (err) {
+        console.error('❌ Error:', err);
+        alert('Error al cargar el perfil');
+        window.location.href = 'login.html';
+    }
+    
+    console.log('=== FIN CARGA PERFIL ===');
+});
+
+// Botones de corazón
+document.querySelectorAll('.boton-corazon-producto').forEach(boton => {
+    boton.addEventListener('click', function() {
+        const iconoCorazon = this.querySelector('.icono-corazon-producto');
+        if (iconoCorazon.style.opacity === '0.5') {
+            iconoCorazon.style.opacity = '1';
+            iconoCorazon.style.color = '#ec4899';
+        } else {
+            iconoCorazon.style.opacity = '0.5';
+            iconoCorazon.style.color = '#9ca3af';
         }
     });
+});     
 
-        // Funcionalidad para los botones de corazón
-        document.querySelectorAll('.boton-corazon-producto').forEach(boton => {
-            boton.addEventListener('click', function() {
-                const iconoCorazon = this.querySelector('.icono-corazon-producto');
-                // Toggle del estado de favorito
-                if (iconoCorazon.style.opacity === '0.5') {
-                    iconoCorazon.style.opacity = '1';
-                    iconoCorazon.style.color = '#ec4899';
-                } else {
-                    iconoCorazon.style.opacity = '0.5';
-                    iconoCorazon.style.color = '#9ca3af';
-                }
-            });
-        });     
-      
-        
-        function cerrarSesion() {
-
-              // 🔹 Limpia el localStorage ANTES de hacer el fetch
-                localStorage.removeItem('usuarioLogueado');
-                localStorage.removeItem('nombreUsuario');
-            fetch('/logout', {
-                method: 'POST',
-                credentials: 'include'
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    window.location.href = 'login.html';
-                } else {
-                    alert('Error al cerrar sesión');
-                }
-            })
-            .catch(err => {
-                console.error('Error al cerrar sesión:', err);
-                alert('Error al cerrar sesión');
-            });
+function cerrarSesion() {
+    localStorage.removeItem('usuarioLogueado');
+    localStorage.removeItem('nombreUsuario');
+    
+    fetch('/logout', {
+        method: 'POST',
+        credentials: 'include'
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            window.location.href = 'login.html';
+        } else {
+            alert('Error al cerrar sesión');
         }
+    })
+    .catch(err => {
+        console.error('Error:', err);
+        alert('Error al cerrar sesión');
+    });
+}
 
-        // Mostrar el modal flotante al hacer click en editar
-        document.getElementById("btnEditar").addEventListener("click", () =>{
-            // Rellenar el formulario con los valores actuales
-            document.getElementById("nombre").value = usuarioActual.nombre || "";
-            document.getElementById("apellidos").value = usuarioActual.apellido || "";
-            document.getElementById("email").value = usuarioActual.correo || "";
-            document.getElementById("telefono").value = usuarioActual.telefono || "";
-            document.getElementById("direccion").value = usuarioActual.direccion || "";
-            document.getElementById("fecha").value = usuarioActual.fecha_nacimiento || "";
-            document.getElementById("modalEdit").style.display = "flex";
-        });
+// Modal de edición
+document.getElementById("btnEditar").addEventListener("click", () => {
+    document.getElementById("nombre").value = usuarioActual.nombre || "";
+    document.getElementById("apellidos").value = usuarioActual.apellido || "";
+    document.getElementById("email").value = usuarioActual.correo || "";
+    document.getElementById("telefono").value = usuarioActual.telefono || "";
+    document.getElementById("direccion").value = usuarioActual.direccion || "";
+    
+    if (usuarioActual.fecha_nacimiento) {
+        const fecha = new Date(usuarioActual.fecha_nacimiento);
+        document.getElementById("fecha").value = fecha.toISOString().split('T')[0];
+    }
+    
+    document.getElementById("modalEdit").style.display = "flex";
+});
 
-        // Cerrar el modal flotante al hacer click en el botón de cerrar
-        document.getElementById("closeModalEdit").addEventListener("click", () =>{
-            document.getElementById("modalEdit").style.display = "none";
-        });
+document.getElementById("closeModalEdit").addEventListener("click", () => {
+    document.getElementById("modalEdit").style.display = "none";
+});
 
-        // Cerrar el modal al enviar el formulario
-        document.getElementById("formEdit").addEventListener("submit", function(e){
-            e.preventDefault();
-            // Tomar los valores del formulario, si están vacíos usar los originales
-            const nombre = document.getElementById("nombre").value.trim() || usuarioActual.nombre;
-            const apellidos = document.getElementById("apellidos").value.trim() || usuarioActual.apellido;
-            const correo = document.getElementById("email").value.trim() || usuarioActual.correo;
-            const telefono = document.getElementById("telefono").value.trim() || usuarioActual.telefono;
-            const direccion = document.getElementById("direccion").value.trim() || usuarioActual.direccion;
-            const fecha = document.getElementById("fecha").value.trim() || usuarioActual.fecha_nacimiento;
+// Enviar formulario de edición
+document.getElementById("formEdit")?.addEventListener("submit", function(e){
+    e.preventDefault();
+    
+    const nombre = document.getElementById("nombre").value.trim() || usuarioActual.nombre;
+    const apellidos = document.getElementById("apellidos").value.trim() || usuarioActual.apellido;
+    const correo = document.getElementById("email").value.trim() || usuarioActual.correo;
+    const telefono = document.getElementById("telefono").value.trim() || usuarioActual.telefono;
+    const direccion = document.getElementById("direccion").value.trim() || usuarioActual.direccion;
+    const fecha = document.getElementById("fecha").value.trim() || usuarioActual.fecha_nacimiento;
 
-            // Enviar los datos al backend
-            fetch(`/perfil/editar/${usuarioActual.id}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                credentials: 'include',
-                body: JSON.stringify({ nombre, apellidos, correo, telefono, direccion, fecha })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    // Actualizar los datos en pantalla
-                    document.querySelector('.detalles-usuario h2').textContent = `${nombre}  ${apellidos}`.trim() || 'Sin nombre';
-                    document.querySelector('.info-usuario').innerHTML = `
-                        <p><span>Correo:</span> ${correo || ''}</p>
-                        <p><span>Dirección:</span> ${direccion || ''}</p>
-                        <p><span>Teléfono:</span> ${telefono || ''}</p>
-                    `;
-                    // Actualizar usuarioActual
-                    usuarioActual = { ...usuarioActual, nombre, apellido: apellidos, correo, telefono, direccion, fecha_nacimiento: fecha };
-                } else {
-                    alert('Error al actualizar el usuario');
-                }
-                document.getElementById("modalEdit").style.display = "none";
-            })
-            .catch(err => {
-                alert('Error al actualizar el usuario');
-                document.getElementById("modalEdit").style.display = "none";
-            });
-        });
+    fetch(`/perfil/editar/${usuarioActual.id}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ nombre, apellidos, correo, telefono, direccion, fecha })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            document.querySelector('.detalles-usuario h2').textContent = `${nombre} ${apellidos}`.trim();
+            document.querySelector('.info-usuario').innerHTML = `
+                <p><span>Correo:</span> ${correo}</p>
+                <p><span>Dirección:</span> ${direccion}</p>
+                <p><span>Teléfono:</span> ${telefono}</p>
+            `;
+            usuarioActual = { ...usuarioActual, nombre, apellido: apellidos, correo, telefono, direccion, fecha_nacimiento: fecha };
+            alert('Perfil actualizado');
+        } else {
+            alert('Error al actualizar');
+        }
+        document.getElementById("modalEdit").style.display = "none";
+    })
+    .catch(err => {
+        console.error('Error:', err);
+        alert('Error al actualizar');
+        document.getElementById("modalEdit").style.display = "none";
+    });
+});
     </script>
 
 

@@ -6,11 +6,14 @@
     <title>Iniciar Sesión</title>
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link rel="stylesheet" href="style.css">
-   
+    <!-- Evitar caché para que no se guarden los datos del formulario -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
 </head>
 <body class="body-inicio">
     <div class="envoltorio-sesion">
-        <form class="caja-sesion" id="formularioLogin">
+        <form class="caja-sesion" id="formularioLogin" autocomplete="off">
              <div class="logo-container">
         <img src="imagenes/logo.png" alt="Logo Febri" class="logo-login">
     </div>
@@ -35,23 +38,37 @@
             </div>
             
             <div class="caja-entrada">
-                <label class="etiqueta-entrada">Correo electrónico</label>
-                <div class="campo-entrada">
-                    <i class='bx bxs-envelope'></i>
-                    <input type="email" placeholder="Ingrese el correo electrónico" class="entrada-texto" id="email" required>
-                </div>
+    <label class="etiqueta-entrada">Correo electrónico</label>
+    <div class="campo-entrada">
+        <i class='bx bxs-envelope'></i>
+        <input 
+            type="email" 
+            placeholder="Ingrese el correo electrónico" 
+            class="entrada-texto" 
+            id="email" 
+            name="email"
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="off"
+            spellcheck="false"
+            required>
+    </div>
+</div>
 
-            </div>
-
-            <div class="caja-entrada">
-                <label class="etiqueta-entrada">Contraseña</label>
-                <div class="campo-entrada">
-                    <i class='bx bxs-lock-alt'></i>
-                    <input type="password" placeholder="Ingrese la contraseña" class="entrada-texto" id="password" required>
-                </div>
-    
-            </div>
-
+<div class="caja-entrada">
+    <label class="etiqueta-entrada">Contraseña</label>
+    <div class="campo-entrada">
+        <i class='bx bxs-lock-alt'></i>
+        <input 
+            type="password" 
+            placeholder="Ingrese la contraseña" 
+            class="entrada-texto" 
+            id="password"
+            name="password"
+            autocomplete="new-password"
+            required>
+    </div>
+</div>
             <div class="botones-accion">
                 <button type="submit" class="boton-principal" id="botonLogin">Iniciar Sesión</button>
             </div>
@@ -65,84 +82,146 @@
     </div>
 
     <script>
-        const formularioLogin = document.getElementById('formularioLogin');
+       // Forzar limpieza inmediata
+(function() {
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    
+    if (emailInput) emailInput.value = '';
+    if (passwordInput) passwordInput.value = '';
+})();
 
-        const campos = {
-            correo: document.getElementById('email'), 
-            password: document.getElementById('password')
+// Limpiar cuando la página se carga completamente
+window.addEventListener('load', function() {
+    document.getElementById('email').value = '';
+    document.getElementById('password').value = '';
+});
+
+// Limpiar cuando viene del historial/caché
+window.addEventListener('pageshow', function(event) {
+    document.getElementById('email').value = '';
+    document.getElementById('password').value = '';
+});
+
+// Limpiar cuando el DOM está listo
+document.addEventListener('DOMContentLoaded', function() {
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    
+    // Limpieza múltiple con timeout
+    emailInput.value = '';
+    passwordInput.value = '';
+    
+    setTimeout(() => {
+        emailInput.value = '';
+        passwordInput.value = '';
+    }, 50);
+    
+    setTimeout(() => {
+        emailInput.value = '';
+        passwordInput.value = '';
+    }, 200);
+});
+
+// Funciones para inicio de sesión con redes sociales
+function loginWithGoogle() {
+    window.location.href = '/auth/google';
+}
+
+function loginWithFacebook() {
+    window.location.href = '/auth/facebook';
+}
+
+const formularioLogin = document.getElementById('formularioLogin');
+
+const campos = {
+    correo: document.getElementById('email'), 
+    password: document.getElementById('password')
+}
+
+function todosLosCamposLlenos() {
+    let todosLlenos = true;
+    
+    Object.keys(campos).forEach(key => {
+        const campo = campos[key];
+        if (campo.value.trim() === '') {
+            campo.classList.add('campo-requerido');
+            todosLlenos = false;
+        } else {
+            campo.classList.remove('campo-requerido');
         }
+    });
+    
+    return todosLlenos;
+}
 
-        function todosLosCamposLlenos() {
-            let todosLlenos = true;
-            
-            Object.keys(campos).forEach(key => {
-                const campo = campos[key];
-                if (campo.value.trim() === '') {
-                    campo.classList.add('campo-requerido');
-                    todosLlenos = false;
-                } else {
-                    campo.classList.remove('campo-requerido');
-                }
-            });
-            
-            return todosLlenos;
-        }
+formularioLogin.addEventListener('submit', async function(e) {
+    e.preventDefault();
 
-        formularioLogin.addEventListener('submit', async function(e) {
-            e.preventDefault();
+    const camposLlenos = todosLosCamposLlenos();
+    const mensajeLogin = document.getElementById('mensajeLogin');
 
-            // Verificar que todos los campos estén llenos
-            const camposLlenos = todosLosCamposLlenos();
-            const mensajeLogin = document.getElementById('mensajeLogin');
+    if (!camposLlenos) {
+        mostrarMensajeLogin('Por favor, complete todos los campos', 'red');
+        return;
+    }
 
-            if (!camposLlenos) {
-                mostrarMensajeLogin('Por favor, complete todos los campos', 'red');
-                return;
-            }
+    const datos = {
+        correo: campos.correo.value.trim(),
+        password: campos.password.value.trim()
+    }
 
-            const datos = {
-                correo: campos.correo.value.trim(),
-                password: campos.password.value.trim()
-            }
+    console.log('Enviando datos de login:', { correo: datos.correo });
 
-            try {
-                const response = await fetch("http://localhost:3000/login", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    credentials: 'include',
-                    body: JSON.stringify(datos)
-                });
-                const data = await response.json();
-                if (data.success) {
-                     localStorage.setItem('usuarioLogueado', 'true');
-                    mostrarMensajeLogin('¡Ingreso exitoso!', '#f8a4d8');
-                    setTimeout(() => {
-                        if (data.usuario.ID_cliente) {
-                            window.location.href = 'index.html';
-                        } else if (data.usuario.ID_empleado) {
-                            window.location.href = 'administrador.html';
-                        } else {
-                            window.location.href = 'index.html'; // Fallback
-                        }
-                    }, 1200);
-                } else {
-                    mostrarMensajeLogin(data.message || 'Correo o contraseña incorrectos', '#666666');
-                }
-            } catch {
-                mostrarMensajeLogin('Error en el servidor', '#666666');
-            }
+    try {
+        const response = await fetch("http://localhost:3000/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: 'include',
+            body: JSON.stringify(datos)
         });
-
-        function mostrarMensajeLogin(mensaje, color) {
-            const mensajeLogin = document.getElementById('mensajeLogin');
-            mensajeLogin.textContent = mensaje;
-            mensajeLogin.style.color = color;
-            mensajeLogin.style.display = 'block';
-            clearTimeout(mensajeLogin._timeout);
-            mensajeLogin._timeout = setTimeout(() => {
-                mensajeLogin.style.display = 'none';
-            }, 4500);
+        const data = await response.json();
+        console.log('Respuesta del servidor:', data);
+        
+        if (data.success) {
+            localStorage.setItem('usuarioLogueado', 'true');
+            mostrarMensajeLogin('¡Ingreso exitoso!', '#f8a4d8');
+            
+            // Limpiar formulario
+            formularioLogin.reset();
+            document.getElementById('email').value = '';
+            document.getElementById('password').value = '';
+            
+         setTimeout(() => {
+    if (data.usuario && data.usuario.ID_cliente) {
+        window.location.href = 'index.html?refresh=' + Date.now();
+    } else if (data.usuario && data.usuario.ID_empleado) {
+        window.location.href = 'administrador.html?refresh=' + Date.now();
+    } else {
+        window.location.href = 'index.html?refresh=' + Date.now();
+    }
+}, 1200);
+        } else {
+            mostrarMensajeLogin(data.message || 'Correo o contraseña incorrectos', '#666666');
+            document.getElementById('password').value = '';
         }
+    } catch (error) {
+        console.error('Error en login:', error);
+        mostrarMensajeLogin('Error en el servidor', '#666666');
+        document.getElementById('password').value = '';
+    }
+});
+
+function mostrarMensajeLogin(mensaje, color) {
+    const mensajeLogin = document.getElementById('mensajeLogin');
+    mensajeLogin.textContent = mensaje;
+    mensajeLogin.style.color = color;
+    mensajeLogin.style.display = 'block';
+    clearTimeout(mensajeLogin._timeout);
+    mensajeLogin._timeout = setTimeout(() => {
+        mensajeLogin.style.display = 'none';
+    }, 4500);
+}
     </script>
    
 </body>

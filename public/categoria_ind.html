@@ -97,7 +97,7 @@ let productosDisponibles = [];
 async function cargarProductosDeBaseDatos(categoriaId) {
     try {
         // Llamada al backend que devuelve productos por categoria
-        const res = await fetch(`/producto/categoria/${encodeURIComponent(categoriaId)}`);
+        const res = await fetch(`/productos/categoria/${encodeURIComponent(categoriaId)}`);
         if (!res.ok) throw new Error('Error en la respuesta del servidor');
         const data = await res.json();
         if (!data || !data.success || !Array.isArray(data.productos)) return [];
@@ -394,28 +394,35 @@ function actualizarContadorCarrito() {
 }
 
 // Función para ir al carrito (tu código original)
-function irAlCarrito() {
-    window.location.href = 'carrito_compra.html';
+function isLoggedIn() { try { return localStorage.getItem('usuarioLogueado') === 'true'; } catch { return false; } }
+function toggleLoginVsProfile() {
+  const logged = isLoggedIn();
+  const btnLogin = document.querySelector('.btn-registrar');
+  const btnLoginMovil = document.querySelector('.btn-registrar-movil');
+  const perfilIcon = document.querySelector('.perfil-icon');
+  if (btnLogin) btnLogin.style.display = logged ? 'none' : 'block';
+  if (btnLoginMovil) btnLoginMovil.style.display = logged ? 'none' : 'block';
+  if (perfilIcon) perfilIcon.style.display = logged ? 'inline-block' : 'none';
 }
+function getCartItems() {
+  try { const s = JSON.parse(sessionStorage.getItem('carritoCompra')) || [];
+            const l = JSON.parse(localStorage.getItem('carritoCompra')) || [];
+            return (s && s.length ? s : l) || []; } catch { return []; }
+}
+function updateCartCounters() {
+  const total = getCartItems().reduce((sum, item) => sum + (Number(item.cantidad) || 1), 0);
+  document.querySelectorAll('.contador-carrito').forEach(el => {
+    el.textContent = String(total);
+    el.style.display = total > 0 ? 'flex' : 'none';
+  });
+}
+function irAlCarrito() { window.location.href = 'carrito_compra.html'; }
 
-// Inicializar cuando carga la página
-document.addEventListener('DOMContentLoaded', function() {
-    // Cargar y mostrar productos
-    mostrarProductos();
-    
-    // Actualizar contador del carrito
-    actualizarContadorCarrito();
-    
-    // Tu código existente del menú móvil
-    const menuIcon = document.querySelector('.menu-icon');
-    const menuLateral = document.querySelector('.menu-lateral');
-    
-    if (menuIcon && menuLateral) {
-        menuIcon.addEventListener('click', function() {
-            menuLateral.classList.toggle('activo');
-        });
-    }
+document.addEventListener('DOMContentLoaded', () => {
+  toggleLoginVsProfile();
+  updateCartCounters();
 });
+
 
 // CSS adicional para el loading spinner
 const style = document.createElement('style');

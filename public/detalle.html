@@ -306,10 +306,18 @@
         // envío de comentarios (usa el nombre del usuario logueado cuando exista)
         let usuarioNombre = localStorage.getItem('usuarioNombre') || 'Anónimo';
 
+        // Al inicio del script, ocultar “Registrar” si ya hay login en localStorage
+        document.addEventListener('DOMContentLoaded', function() {
+            const btnRegistrar = document.getElementById('btn-registrar');
+            if (btnRegistrar && localStorage.getItem('usuarioLogueado') === 'true') {
+                btnRegistrar.style.display = 'none';
+            }
+        });
+
         async function cargarUsuarioActual(){
             try{
-                const res = await fetch('/perfilUsuario', { credentials: 'include' });
-                if (!res.ok) return; // no logueado o error
+                const res = await fetch('/perfil-usuario', { credentials: 'include' });
+                if (!res.ok) return;
                 const data = await res.json();
                 if (data && data.success && data.usuario) {
                     const nombre = (data.usuario.nombre || '').trim();
@@ -317,17 +325,12 @@
                     const fullname = `${nombre} ${apellido}`.trim();
                     if (fullname) {
                         usuarioNombre = fullname;
-                        try{ localStorage.setItem('usuarioNombre', usuarioNombre); }catch(e){}
-                        // Si hay sesión, ocultar el botón de iniciar sesión
-                        try{
-                            const btnRegistrar = document.getElementById('btn-registrar');
-                            if (btnRegistrar) {
-                                btnRegistrar.style.display = 'none';
-                            }
-                        }catch(e){}
+                        try { localStorage.setItem('usuarioNombre', usuarioNombre); } catch(e) {}
+                        const btnRegistrar = document.getElementById('btn-registrar');
+                        if (btnRegistrar) btnRegistrar.style.display = 'none';
                     }
                 }
-            }catch(e){
+            } catch(err){
                 // ignore, keep Anónimo
             }
         }
@@ -355,7 +358,7 @@
             const productoId = obtenerProductoId();
             if (!productoId) return mostrarError();
 
-            fetch(`/producto/${productoId}`)
+            fetch(`/productos/${productoId}`)
                 .then(res => res.json())
                 .then(data => {
                     if (!data || !data.success || !data.producto) return mostrarError();

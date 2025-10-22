@@ -303,19 +303,34 @@
             }
         }
 
-        //ocultar boton de inicio de sesion despues de haver iniciado sesion
-document.addEventListener('DOMContentLoaded', () => {
-  const btnLogin = document.querySelector('.btn-registrar');
-  const perfilIcon = document.querySelector('.perfil-icon');
-
-  if (localStorage.getItem('usuarioLogueado') === 'true') {
-    if (btnLogin) btnLogin.style.display = 'none';
-    if (perfilIcon) perfilIcon.style.display = 'inline-block';
-  } else {
-    if (btnLogin) btnLogin.style.display = 'block';
-    if (perfilIcon) perfilIcon.style.display = 'none';
-  }
-});
+        function isLoggedIn() { try { return localStorage.getItem('usuarioLogueado') === 'true'; } catch { return false; } }
+        function toggleLoginVsProfile() {
+          const logged = isLoggedIn();
+          const btnLogin = document.querySelector('.btn-registrar');
+          const btnLoginMovil = document.querySelector('.btn-registrar-movil');
+          const perfilIcon = document.querySelector('.perfil-icon');
+          if (btnLogin) btnLogin.style.display = logged ? 'none' : 'block';
+          if (btnLoginMovil) btnLoginMovil.style.display = logged ? 'none' : 'block';
+          if (perfilIcon) perfilIcon.style.display = logged ? 'inline-block' : 'none';
+        }
+        function getCartItems() {
+          try { const s = JSON.parse(sessionStorage.getItem('carritoCompra')) || [];
+                const l = JSON.parse(localStorage.getItem('carritoCompra')) || [];
+                return (s && s.length ? s : l) || []; } catch { return []; }
+        }
+        function updateCartCounters() {
+          const total = getCartItems().reduce((sum, item) => sum + (Number(item.cantidad) || 1), 0);
+          document.querySelectorAll('.contador-carrito').forEach(el => {
+            el.textContent = String(total);
+            el.style.display = total > 0 ? 'flex' : 'none';
+          });
+        }
+        function irAlCarrito() { window.location.href = 'carrito_compra.html'; }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+          toggleLoginVsProfile();
+          updateCartCounters();
+        });
     </script>
 </body>
 </html>

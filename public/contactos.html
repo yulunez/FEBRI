@@ -112,25 +112,115 @@
                 </div>
             </div>
             
+            <!-- Dentro del bloque del formulario -->
             <div class="contacto-formulario">
                 <h2>Contáctenos</h2>
-                <form>
+                <form id="contactForm">
                     <div class="form-grupo">
-                        <input type="text" placeholder="Nombre completo" required>
+                        <input type="text" id="contact_nombre" placeholder="Nombre completo" required>
                     </div>
                     <div class="form-grupo">
-                        <input type="email" placeholder="Correo electrónico" required>
+                        <input type="email" id="contact_email" placeholder="Correo electrónico" required>
                     </div>
                     <div class="form-grupo">
-                        <textarea placeholder="Tu mensaje" required></textarea>
+                        <textarea id="contact_mensaje" placeholder="Tu mensaje" required></textarea>
                     </div>
-                    <button type="submit" class="btn-enviar">Enviar</button>
+                    <button type="submit" class="btn-enviar" id="contact_submit">Enviar</button>
                 </form>
             </div>
         </div>
     </div>
+
+    <!-- Mensaje de contacto estilizado igual al login -->
+    <div id="mensajeContacto" style="display:none; position:fixed; top:30px; left:50%; transform:translateX(-50%); min-width:250px; max-width:350px; background:#fff; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,0.18); padding:18px 24px; z-index:9999; text-align:center; font-weight:bold; font-size:14px;">
+    </div>
 </section>
-<script src="script.js"></script>
+
+<script>
+const form = document.getElementById('contactForm');
+const btn = document.getElementById('contact_submit');
+
+form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    btn.disabled = true;
+    btn.textContent = 'Enviando...';
+
+    const nombre = document.getElementById('contact_nombre').value.trim();
+    const email = document.getElementById('contact_email').value.trim();
+    const mensaje = document.getElementById('contact_mensaje').value.trim();
+
+    try {
+        const resp = await fetch('/contacto/enviar', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nombre, email, mensaje })
+        });
+        const data = await resp.json();
+
+        if (data && data.success) {
+            mostrarMensajeContacto('¡Mensaje enviado correctamente! Te responderemos pronto.', '#f8a4d8');
+            form.reset();
+        } else {
+            mostrarMensajeContacto(data && data.message ? data.message : 'Ocurrió un error al enviar el mensaje.', '#666666');
+        }
+    } catch (err) {
+        console.error('Error enviando contacto:', err);
+        mostrarMensajeContacto('Error de conexión. Intenta de nuevo.', '#666666');
+    } finally {
+        btn.disabled = false;
+        btn.textContent = 'Enviar';
+    }
+});
+
+function mostrarMensajeContacto(mensaje, color) {
+    const mensajeContacto = document.getElementById('mensajeContacto');
+    mensajeContacto.textContent = mensaje;
+    mensajeContacto.style.color = color;
+    mensajeContacto.style.display = 'block';
+    clearTimeout(mensajeContacto._timeout);
+    mensajeContacto._timeout = setTimeout(() => {
+        mensajeContacto.style.display = 'none';
+    }, 4500);
+}
+
+    // Estado de login y contador carrito
+    function isLoggedIn() {
+        try { return localStorage.getItem('usuarioLogueado') === 'true'; } catch { return false; }
+    }
+
+    function toggleLoginVsProfile() {
+        const logged = isLoggedIn();
+        const btnLogin = document.querySelector('.btn-registrar');
+        const btnLoginMovil = document.querySelector('.btn-registrar-movil');
+        const perfilIcon = document.querySelector('.perfil-icon');
+        if (btnLogin) btnLogin.style.display = logged ? 'none' : 'block';
+        if (btnLoginMovil) btnLoginMovil.style.display = logged ? 'none' : 'block';
+        if (perfilIcon) perfilIcon.style.display = logged ? 'inline-block' : 'none';
+    }
+
+    function getCartItems() {
+        try {
+            const s = JSON.parse(sessionStorage.getItem('carritoCompra')) || [];
+            const l = JSON.parse(localStorage.getItem('carritoCompra')) || [];
+            return (s && s.length ? s : l) || [];
+        } catch { return []; }
+    }
+
+    function updateCartCounters() {
+        const total = getCartItems().reduce((sum, item) => sum + (Number(item.cantidad) || 1), 0);
+        document.querySelectorAll('.contador-carrito').forEach(el => {
+            el.textContent = String(total);
+            el.style.display = total > 0 ? 'flex' : 'none';
+        });
+    }
+
+    function irAlCarrito() { window.location.href = 'carrito_compra.html'; }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        toggleLoginVsProfile();
+        updateCartCounters();
+    });
+</script>
     
 </body>
 </html>
