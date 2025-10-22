@@ -279,6 +279,10 @@ async function mostrarProductos(categoriaIdParam) {
     }
 }
 
+// Llamar mostrarProductos al cargar la página usando el id de la URL ?id=...
+document.addEventListener('DOMContentLoaded', function() {
+    mostrarProductos(); // usa params.get('id') internamente
+});
 // Función para agregar funcionalidad a los botones de favoritos
 function agregarFuncionalidadFavoritos() {
     const botonesFavoritos = document.querySelectorAll('.btn-favorito');
@@ -450,3 +454,4 @@ document.addEventListener('DOMContentLoaded', () => {
     
 </body>
 </html>
+

@@ -145,6 +145,7 @@
     </main>
 
     <script>
+    // Dentro del IIFE del script de detalle
     (function(){
         const loadingDiv = document.getElementById('loading-message');
         const errorDiv = document.getElementById('error-message');
@@ -238,6 +239,13 @@
 
         // Añadir el producto actual al carrito (sessionStorage)
         function agregarProductoAlCarritoDesdeDetalle() {
+            // Bloqueo si no hay sesión
+            const usuarioLogueado = localStorage.getItem('usuarioLogueado') === 'true';
+            if (!usuarioLogueado) {
+                window.location.href = 'login.html';
+                return;
+            }
+
             if (!productoActual) return mostrarNotificacion('Producto no cargado');
             const cantidadInput = document.getElementById('cantidad');
             let cantidad = parseInt(cantidadInput && cantidadInput.value, 10) || 1;
@@ -304,7 +312,15 @@
         }
 
         // envío de comentarios (usa el nombre del usuario logueado cuando exista)
-        let usuarioNombre = localStorage.getItem('usuarioNombre') || 'Anónimo';
+        // Antes: let usuarioNombre = localStorage.getItem('usuarioNombre') || 'Anónimo';
+        let usuarioNombre = 'Anónimo';
+        const usuarioLogueado = localStorage.getItem('usuarioLogueado') === 'true';
+        if (usuarioLogueado) {
+            const nombreGuardado = localStorage.getItem('usuarioNombre');
+            if (nombreGuardado) usuarioNombre = nombreGuardado;
+        } else {
+            try { localStorage.removeItem('usuarioNombre'); } catch(e) {}
+        }
 
         // Al inicio del script, ocultar “Registrar” si ya hay login en localStorage
         document.addEventListener('DOMContentLoaded', function() {
@@ -337,6 +353,14 @@
 
         document.getElementById('form-comentario').addEventListener('submit', function(e){
             e.preventDefault();
+
+            // Bloqueo si no hay sesión
+            const usuarioLogueado = localStorage.getItem('usuarioLogueado') === 'true';
+            if (!usuarioLogueado) {
+                window.location.href = 'login.html';
+                return;
+            }
+
             const productoId = obtenerProductoId();
             const texto = document.getElementById('comentario').value.trim();
             if (!texto || !productoId) return;
@@ -383,4 +407,28 @@
         function irAlCarrito() {
         window.location.href = 'carrito_compra.html';
     }
+    </script>
+    <script>
+    (function(){
+        // Alterna login vs perfil según sesión (afecta nav grande y móvil)
+        function toggleLoginVsProfile() {
+            const loggedIn = localStorage.getItem('usuarioLogueado') === 'true';
+            // Mostrar/ocultar todos los iconos de perfil
+            document.querySelectorAll('.perfil-icon').forEach(el => {
+                el.style.display = loggedIn ? 'inline' : 'none';
+            });
+            // Mostrar/ocultar el botón "Iniciar sesión"
+            const btnRegistrar = document.getElementById('btn-registrar');
+            if (btnRegistrar) btnRegistrar.style.display = loggedIn ? 'none' : 'block';
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            toggleLoginVsProfile(); // asegura que el perfil no aparezca si no hay sesión
+        });
+
+        // Reaccionar si la sesión cambia en otra pestaña
+        window.addEventListener('storage', function(e) {
+            if (!e || e.key === 'usuarioLogueado') toggleLoginVsProfile();
+        });
+    })();
     </script>

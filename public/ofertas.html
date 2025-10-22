@@ -306,7 +306,6 @@
         }
 
         // Función para actualizar contador del carrito
-        // Reemplazo leve para actualizar todos los contadores
         function actualizarContadorCarrito() {
             const carrito = JSON.parse(sessionStorage.getItem('carritoCompra')) || [];
             const totalItems = carrito.reduce((total, item) => total + (Number(item.cantidad) || 1), 0);
