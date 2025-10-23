@@ -71,63 +71,80 @@ exports.obtenerProductosPorCategoria = (req, res) => {
     });
 };
 
-// ✅ FUNCIÓN CORREGIDA CON LOGS DE DEBUG
 exports.buscarProductos = (req, res) => {
     const db = req.db;
     const { termino } = req.query;
-    
-    console.log('🔍 BÚSQUEDA INICIADA');
-    console.log('📝 Término recibido:', termino);
-    console.log('📝 Tipo de término:', typeof termino);
-    
+
+    console.log(' BÚSQUEDA RECIBIDA:', termino);
+
     if (!termino || termino.trim() === '') {
-        console.log('⚠️ Término vacío o inválido');
-        return res.status(400).json({ 
-            success: false, 
+        return res.status(400).json({
+            success: false,
             message: 'Se requiere un término de búsqueda',
             productos: []
         });
     }
+
+    const limpio = termino.trim().toLowerCase();
+    const palabras = limpio.split(/\s+/).filter(Boolean);
     
-    const parametro = `%${termino.trim()}%`;
-    console.log('🔎 Parámetro SQL:', parametro);
+    console.log(' Palabras:', palabras);
     
-    const sql = `SELECT ID_producto, Nombre, Precio, imagen, Descripcion 
-                 FROM producto 
-                 WHERE Nombre LIKE ? OR Descripcion LIKE ?`;
+    const variantes = new Set();
+    variantes.add(limpio);
     
-    console.log('💾 Ejecutando consulta SQL...');
+    palabras.forEach(palabra => {
+        variantes.add(palabra);
+        
+        if (palabra.endsWith('es') && palabra.length > 3) {
+            variantes.add(palabra.slice(0, -2));
+        }
+        if (palabra.endsWith('s') && palabra.length > 2) {
+            variantes.add(palabra.slice(0, -1));
+        }
+        
+        if (!palabra.endsWith('s')) {
+            variantes.add(palabra + 's');
+            variantes.add(palabra + 'es');
+        }
+    });
     
-    db.query(sql, [parametro, parametro], (err, results) => {
+    const variantesArray = Array.from(variantes);
+    console.log(' Variantes:', variantesArray);
+    
+    const condiciones = variantesArray.map(() => 
+        '(LOWER(Nombre) LIKE ? OR LOWER(Descripcion) LIKE ?)'
+    );
+    
+    const params = [];
+    variantesArray.forEach(v => {
+        params.push(`%${v}%`, `%${v}%`);
+    });
+    
+    const sql = `SELECT DISTINCT ID_producto, Nombre, Precio, imagen, Descripcion FROM producto WHERE ${condiciones.join(' OR ')} LIMIT 100`;
+
+    db.query(sql, params, (err, results) => {
         if (err) {
-            console.error('❌ Error en consulta:', err);
-            return res.status(500).json({ 
-                success: false, 
+            console.error('ERROR:', err.message);
+            return res.status(500).json({
+                success: false,
                 message: 'Error en la base de datos',
                 productos: []
             });
         }
-        
-        console.log('✅ Consulta ejecutada');
-        console.log('📊 Resultados brutos:', results);
-        console.log('📊 Total de resultados:', results ? results.length : 0);
-        
-        const productos = Array.isArray(results) ? results.map(r => {
-            console.log('📦 Procesando producto:', r.Nombre);
-            return {
-                id: r.ID_producto,
-                Nombre: r.Nombre || '',
-                Precio: parseFloat(r.Precio) || 0,
-                Imagen: r.imagen || '',
-                Descripcion: r.Descripcion || ''
-            };
-        }) : [];
-        
-        console.log('✅ Productos procesados:', productos.length);
-        console.log('📤 Enviando respuesta...');
-        
-        res.json({ 
-            success: true, 
+
+        console.log(` Encontrados: ${results.length}`);
+
+        const productos = Array.isArray(results) ? results.map(r => ({
+            id: r.ID_producto,
+            Nombre: r.Nombre || '',
+            Precio: parseFloat(r.Precio) || 0,
+            Imagen: r.imagen || '',
+            Descripcion: r.Descripcion || ''
+        })) : [];
+
+        res.json({
+            success: true,
             productos: productos,
             total: productos.length
         });

@@ -1,4 +1,4 @@
-      .resultados-busqueda {
+.resultados-busqueda {
             margin-top: 120px;
             padding: 20px;
             min-height: 60vh;
@@ -93,12 +93,24 @@
         }
         
         .btn-agregar-carrito {
+            display: block;
+            width: 100%;
+            padding: 10px 15px;
+            margin-top: 15px;
+            border-radius: 6px;
+            font-size: 0.95em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            border: none;
             background-color: #28a745;
             color: white;
+            font-weight: 500;
         }
         
         .btn-agregar-carrito:hover {
             background-color: #218838;
+            transform: translateY(-1px);
         }
         
         .no-resultados {

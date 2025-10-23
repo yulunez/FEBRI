@@ -7,7 +7,8 @@
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="busqueda.css">
-    
+    <!-- Reemplazar el kit que da 403 por CDN de Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 <body>
     <!-- Barra de navegación para pantallas grandes -->
@@ -83,7 +84,8 @@
         </div>
     </section>
 
-    <script src="https://kit.fontawesome.com/eb496ab1a0.js" crossorigin="anonymous"></script>
+    <!-- Eliminar esta línea que genera 403 -->
+    <!-- <script src="https://kit.fontawesome.com/eb496ab1a0.js" crossorigin="anonymous"></script> -->
     <script>
         // Función para obtener parámetros de la URL
         function obtenerParametroURL(nombre) {
@@ -149,20 +151,19 @@
                         card.className = 'producto-card';
                         
                         const descripcion = producto.Descripcion || '';
-                        const descripcionCorta = descripcion.length > 100 
-                            ? descripcion.substring(0, 100) + '...' 
+                        const descripcionCorta = descripcion.length > 100
+                            ? descripcion.substring(0, 100) + '...'
                             : descripcion;
                         
                         card.innerHTML = `
                             <img src="${producto.Imagen || 'imagenes/inicio.webp'}" alt="${producto.Nombre}" class="producto-imagen">
                             <div class="producto-info">
                                 <h3 class="producto-nombre">${producto.Nombre}</h3>
-                                <p class="producto-precio">$${producto.Precio.toFixed(2)}</p>
+                                <p class="producto-precio">$${(producto.Precio || 0).toFixed(2)}</p>
                                 ${descripcionCorta ? `<p class="producto-descripcion">${descripcionCorta}</p>` : ''}
                                 <div>
-                                    <a href="detalle.html?id=${producto.id}" class="btn-ver-producto">Ver detalles</a>
                                     <button class="btn-agregar-carrito" onclick="agregarAlCarrito(${producto.id})">
-                                        <i class="fas fa-cart-plus"></i> Agregar
+                                        <i class="fas fa-cart-plus"></i> Agregar al carrito
                                     </button>
                                 </div>
                             </div>
@@ -253,32 +254,22 @@
             const perfilLinkMovil = document.querySelector('.nav-pequeno a[href="perfil_usuario.html"]');
             
             if (usuario) {
-                // Usuario logueado
-                if (btnIniciarSesion) {
-                    btnIniciarSesion.style.display = 'none';
-                }
-                if (perfilLink) {
-                    perfilLink.style.display = 'block';
-                }
-                if (perfilLinkMovil) {
-                    perfilLinkMovil.style.display = 'block';
-                }
+                if (btnIniciarSesion) btnIniciarSesion.style.display = 'none';
+                if (perfilLink) perfilLink.style.display = 'block';
+                if (perfilLinkMovil) perfilLinkMovil.style.display = 'block';
             } else {
-                // Usuario no logueado
-                if (btnIniciarSesion) {
-                    btnIniciarSesion.style.display = 'block';
-                }
-                if (perfilLink) {
-                    perfilLink.style.display = 'none';
-                }
-                if (perfilLinkMovil) {
-                    perfilLinkMovil.style.display = 'none';
-                }
+                if (btnIniciarSesion) btnIniciarSesion.style.display = 'block';
+                if (perfilLink) perfilLink.style.display = 'none';
+                if (perfilLinkMovil) perfilLinkMovil.style.display = 'none';
             }
         }
         
-        // Ejecutar validación al cargar la página
-        validarNavegacion();
+        document.addEventListener('DOMContentLoaded', function() {
+            cargarResultados();
+            validarNavegacion();
+            // Ejecutar validación al cargar la página
+            validarNavegacion();
+        });
     </script>
 </body>
 </html>
