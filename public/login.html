@@ -200,6 +200,9 @@ formularioLogin.addEventListener('submit', async function(e) {
     } else {
         window.location.href = 'index.html?refresh=' + Date.now();
     }
+        // Guardar ID del usuario para aislar compras por usuario
+        const id = (data.usuario && (data.usuario.ID_cliente || data.usuario.ID_empleado || data.usuario.id || data.usuario.ID));
+        if (id) { localStorage.setItem('usuarioId', String(id)); }
 }, 1200);
         } else {
             mostrarMensajeLogin(data.message || 'Correo o contraseña incorrectos', '#666666');

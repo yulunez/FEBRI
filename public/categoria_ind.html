@@ -293,8 +293,13 @@ function agregarFuncionalidadFavoritos() {
     });
 }
 
-// Función para agregar producto al carrito (tu código original)
+// Función para agregar producto al carrito 
 function agregarAlCarrito(productoId) {
+    if (localStorage.getItem('usuarioLogueado') !== 'true') {
+        alert('Debes iniciar sesión para agregar productos al carrito');
+        window.location.href = 'login.html';
+        return;
+    }
     // Encontrar el producto por ID
     const producto = productosDisponibles.find(p => p.id === productoId);
     

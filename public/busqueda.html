@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resultados de Búsqueda - Febri</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="busqueda.css">
+    
+</head>
+<body>
+    <!-- Barra de navegación para pantallas grandes -->
+    <nav class="nav-grande">
+        <div class="logo">
+            <a href="index.html">
+                <img src="imagenes/logo.png" alt="Logo">
+            </a>
+        </div>
+        <div class="barra-busqueda">
+            <input type="text" id="busqueda-input" placeholder="Buscar productos en Febri...">
+            <i class='bx bx-search' id="busqueda-btn" onclick="realizarBusqueda()"></i>
+        </div>
+        <div class="menu-items">
+            <a href="index.html" class="nav-link">Inicio</a>
+            <a href="categorias.html" class="nav-link">Categorías</a>
+            <a href="ofertas.html" class="nav-link">Ofertas</a>
+            <a href="contactos.html" class="nav-link">Contáctos</a>
+            <div class="btn-registrar" id="btn-iniciar-sesion"><a href="login.html">Iniciar sesión</a></div>
+            <div class="carrito-nav" onclick="irAlCarrito()">
+                <i class='bx bx-cart'></i>
+                <span class="contador-carrito" id="contador-carrito" style="display: none;">0</span>
+            </div>  
+            <a href="perfil_usuario.html" id="perfil-link"><i class='bx bx-user perfil-icon'></i></a>
+        </div>
+    </nav>
+
+    <!-- Menú móvil -->
+    <nav class="nav-pequeno">
+        <div class="menu-superior">
+            <div class="menu-izquierda">
+                <i class='bx bx-menu menu-icon'></i>
+                <div class="barra-busqueda-movil">
+                    <input type="text" id="busqueda-input-movil" placeholder="Buscar productos en Febri...">
+                    <i class='bx bx-search' id="busqueda-btn-movil" onclick="realizarBusquedaMovil()"></i>
+                </div>
+            </div>
+            <div class="menu-superior-derecha">
+                <div class="carrito-nav" onclick="irAlCarrito()">
+                    <i class='bx bx-cart'></i>
+                    <span class="contador-carrito" id="contador-carrito-movil" style="display: none;">0</span>
+                </div>
+                <a href="perfil_usuario.html"><i class='bx bx-user perfil-icon'></i></a>
+            </div>
+        </div>
+        <div class="menu-lateral">
+            <div class="menu-items-movil">
+                <a href="index.html" class="nav-link-movil">
+                    <i class='bx bx-home-alt'></i>
+                    <span>Inicio</span>
+                </a>
+                <a href="contactos.html" class="nav-link-movil">
+                    <i class='bx bx-phone'></i>
+                    <span>Contáctos</span>
+                </a>
+                <a href="categorias.html" class="nav-link-movil">
+                    <i class='bx bx-category'></i>
+                    <span>Categorías</span>
+                </a>
+                <a href="ofertas.html" class="nav-link-movil">
+                    <i class='bx bx-gift'></i>
+                    <span>Ofertas</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Contenido principal -->
+    <section class="resultados-busqueda">
+        <h2 class="resultados-titulo" id="titulo-resultados">Resultados de búsqueda</h2>
+        <div id="resultados-contenedor" class="productos-grid">
+            <!-- Aquí se cargarán los resultados -->
+        </div>
+    </section>
+
+    <script src="https://kit.fontawesome.com/eb496ab1a0.js" crossorigin="anonymous"></script>
+    <script>
+        // Función para obtener parámetros de la URL
+        function obtenerParametroURL(nombre) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(nombre);
+        }
+        
+        // Función para realizar búsqueda
+        function realizarBusqueda() {
+            const termino = document.getElementById('busqueda-input').value.trim();
+            if (termino) {
+                window.location.href = `busqueda.html?termino=${encodeURIComponent(termino)}`;
+            }
+        }
+        
+        // Función para realizar búsqueda móvil
+        function realizarBusquedaMovil() {
+            const termino = document.getElementById('busqueda-input-movil').value.trim();
+            if (termino) {
+                window.location.href = `busqueda.html?termino=${encodeURIComponent(termino)}`;
+            }
+        }
+        
+        // Función para cargar resultados
+        async function cargarResultados() {
+            const termino = obtenerParametroURL('termino');
+            
+            if (!termino || termino.trim() === '') {
+                mostrarNoResultados('No se especificó un término de búsqueda');
+                return;
+            }
+            
+            // Actualizar campos de búsqueda
+            document.getElementById('busqueda-input').value = termino;
+            document.getElementById('busqueda-input-movil').value = termino;
+            
+            console.log(' Buscando:', termino);
+            
+            try {
+                const response = await fetch(`/productos/buscar?termino=${encodeURIComponent(termino)}`);
+                
+                console.log(' Status:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`Error HTTP: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log(' Datos recibidos:', data);
+                
+                const contenedor = document.getElementById('resultados-contenedor');
+                const titulo = document.getElementById('titulo-resultados');
+                
+                
+                if (data.success && Array.isArray(data.productos) && data.productos.length > 0) {
+                    // HAY PRODUCTOS
+                    titulo.innerHTML = `Resultados para "<span class="termino-busqueda">${termino}</span>" (${data.productos.length} ${data.productos.length === 1 ? 'producto' : 'productos'})`;
+                    
+                    contenedor.innerHTML = '';
+                    
+                    data.productos.forEach(producto => {
+                        const card = document.createElement('div');
+                        card.className = 'producto-card';
+                        
+                        const descripcion = producto.Descripcion || '';
+                        const descripcionCorta = descripcion.length > 100 
+                            ? descripcion.substring(0, 100) + '...' 
+                            : descripcion;
+                        
+                        card.innerHTML = `
+                            <img src="${producto.Imagen || 'imagenes/inicio.webp'}" alt="${producto.Nombre}" class="producto-imagen">
+                            <div class="producto-info">
+                                <h3 class="producto-nombre">${producto.Nombre}</h3>
+                                <p class="producto-precio">$${producto.Precio.toFixed(2)}</p>
+                                ${descripcionCorta ? `<p class="producto-descripcion">${descripcionCorta}</p>` : ''}
+                                <div>
+                                    <a href="detalle.html?id=${producto.id}" class="btn-ver-producto">Ver detalles</a>
+                                    <button class="btn-agregar-carrito" onclick="agregarAlCarrito(${producto.id})">
+                                        <i class="fas fa-cart-plus"></i> Agregar
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                        
+                        contenedor.appendChild(card);
+                    });
+                } else {
+                    // NO HAY PRODUCTOS
+                    mostrarNoResultados(termino);
+                }
+            } catch (error) {
+                console.error('❌ Error:', error);
+                mostrarNoResultados(termino, true);
+            }
+        }
+        
+        // Función para mostrar mensaje de no resultados
+        function mostrarNoResultados(termino, esError = false) {
+            const contenedor = document.getElementById('resultados-contenedor');
+            const titulo = document.getElementById('titulo-resultados');
+            
+            titulo.innerHTML = `Resultados para "<span class="termino-busqueda">${termino}</span>"`;
+            
+            contenedor.innerHTML = `
+                <div class="no-resultados" style="grid-column: 1 / -1;">
+                    <h3>${esError ? 'Error al buscar' : 'No se encontraron productos'}</h3>
+                    <p>${esError 
+                        ? 'Ocurrió un error al realizar la búsqueda. Por favor, intenta nuevamente.' 
+                        : `No se encontraron productos que coincidan con "${termino}".`
+                    }</p>
+                    <p>Intenta con otra búsqueda o explora nuestras categorías.</p>
+                    <a href="categorias.html" class="btn-volver">Ver Categorías</a>
+                </div>
+            `;
+        }
+        
+        // Función para agregar al carrito
+        function agregarAlCarrito(productoId) {
+            let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+            const productoExistente = carrito.find(item => item.id === productoId);
+            
+            if (productoExistente) {
+                productoExistente.cantidad += 1;
+            } else {
+                carrito.push({ id: productoId, cantidad: 1 });
+            }
+            
+            localStorage.setItem('carrito', JSON.stringify(carrito));
+            alert('✅ Producto agregado al carrito');
+        }
+        
+        // Función para ir al carrito
+        function irAlCarrito() {
+            window.location.href = 'carrito_compra.html';
+        }
+        
+        // Configurar eventos
+        document.addEventListener('DOMContentLoaded', function() {
+            // Cargar resultados
+            cargarResultados();
+            
+            // Eventos de búsqueda con Enter
+            document.getElementById('busqueda-input').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') realizarBusqueda();
+            });
+            
+            document.getElementById('busqueda-input-movil').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') realizarBusquedaMovil();
+            });
+            
+            // Menú lateral móvil
+            const menuIcon = document.querySelector('.menu-icon');
+            const menuLateral = document.querySelector('.menu-lateral');
+            
+            if (menuIcon && menuLateral) {
+                menuIcon.addEventListener('click', function() {
+                    menuLateral.classList.toggle('activo');
+                });
+            }
+        });
+        
+        // Validaciones de navegación según estado de autenticación
+        function validarNavegacion() {
+            const usuario = localStorage.getItem('usuario');
+            const btnIniciarSesion = document.getElementById('btn-iniciar-sesion');
+            const perfilLink = document.getElementById('perfil-link');
+            const perfilLinkMovil = document.querySelector('.nav-pequeno a[href="perfil_usuario.html"]');
+            
+            if (usuario) {
+                // Usuario logueado
+                if (btnIniciarSesion) {
+                    btnIniciarSesion.style.display = 'none';
+                }
+                if (perfilLink) {
+                    perfilLink.style.display = 'block';
+                }
+                if (perfilLinkMovil) {
+                    perfilLinkMovil.style.display = 'block';
+                }
+            } else {
+                // Usuario no logueado
+                if (btnIniciarSesion) {
+                    btnIniciarSesion.style.display = 'block';
+                }
+                if (perfilLink) {
+                    perfilLink.style.display = 'none';
+                }
+                if (perfilLinkMovil) {
+                    perfilLinkMovil.style.display = 'none';
+                }
+            }
+        }
+        
+        // Ejecutar validación al cargar la página
+        validarNavegacion();
+    </script>
+</body>
+</html>

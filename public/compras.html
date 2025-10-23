@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Mis Compras</title>
+    <link rel="stylesheet" href="perfil_usuario.css"/>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="compra.css">
+</head>
+<body style="background:#f8fafc;">
+    <div class="tarjeta-contenido" style="max-width:1024px;margin:2rem auto;">
+        <div class="encabezado-seccion">
+            <h3 class="titulo-seccion">Mis Compras</h3>
+            <div class="acciones-top">
+                <span class="contador-seccion" id="contador-compras">0 compras</span>
+            </div>
+        </div>
+
+        <div class="contenedor-compras" id="contenedor-compras"></div>
+    </div>
+
+    <script>
+    function getUsuarioActual() {
+        // Obtener ID del usuario logueado desde sessionStorage o localStorage
+        const usuario = localStorage.getItem('usuarioLogueado');
+        const usuarioId = localStorage.getItem('usuarioId') || sessionStorage.getItem('usuarioId');
+        return usuarioId || (usuario === 'true' ? 'usuario_default' : null);
+    }
+
+    function getStorageKey() {
+        // Usa el ID del usuario si existe; si no, separa como 'anon'
+        const usuarioId = localStorage.getItem('usuarioId') || sessionStorage.getItem('usuarioId') || 'anon';
+        return `compras_${usuarioId}`;
+    }
+
+    function getCompras() {
+        try {
+            const raw = localStorage.getItem(getStorageKey());
+            return raw ? JSON.parse(raw) : [];
+        } catch { return []; }
+    }
+
+    function setCompras(lista) {
+        try { localStorage.setItem(getStorageKey(), JSON.stringify(lista)); } catch(e) { console.error(e); }
+    }
+    function formatoFecha(iso) {
+        try { const d = new Date(iso); return d.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }); } catch { return iso || ''; }
+    }
+
+    function comprasProductos(compra) { return Array.isArray(compra.productos) ? compra.productos : []; }
+
+    function crearTarjetaCompra(compra) {
+        const productosHTML = (comprasProductos(compra) || []).map(p => `
+            <div class="mini-prod">
+                <img src="${p.imagen || 'imagenes/producto-default.jpg'}" alt="${p.nombre || 'Producto'}">
+                ${p.cantidad > 1 ? `<div class="mini-cant">${p.cantidad}</div>` : ''}
+            </div>
+        `).join('');
+
+        return `
+            <div class="tarjeta-compra">
+                <div class="encabezado-compra">
+                    <div class="info-compra">
+                        <div class="compra-id">Compra #${compra.id}</div>
+                        <div class="compra-fecha">Fecha: ${formatoFecha(compra.fecha)}</div>
+                    </div>
+                </div>
+
+                <div class="productos-compra">${productosHTML}</div>
+
+                <div class="footer-compra">
+                    <div class="total-compra">Total: $${parseFloat(compra.total || 0).toLocaleString('es-ES')}</div>
+                    <div class="acciones-compra">
+                        <button class="btn btn-perfil" onclick="window.location.href='perfil_usuario.html'">Volver al Perfil</button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    function renderCompras() {
+        const cont = document.getElementById('contenedor-compras');
+        const badge = document.getElementById('contador-compras');
+        const compras = getCompras();
+
+        if (!compras.length) {
+            badge.textContent = '0 compras';
+            cont.innerHTML = `
+                <div class="mensaje-vacio">
+                    <p>Aún no has realizado compras.</p>
+                </div>
+            `;
+            return;
+        }
+
+        badge.textContent = `${compras.length} compra${compras.length !== 1 ? 's' : ''}`;
+        cont.innerHTML = compras
+            .sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
+            .map(crearTarjetaCompra)
+            .join('');
+    }
+
+    document.addEventListener('DOMContentLoaded', function(){
+        renderCompras();
+    });
+    </script>
+</body>
+</html>

@@ -82,7 +82,7 @@
 
         <!-- Sección de Estadísticas -->
         <div class="cuadricula-estadisticas">
-            <div class="tarjeta-estadistica">
+            <div class="tarjeta-estadistica" id="card-compras">
                 <div class="contenedor-icono-estadistica">
                     <svg class="icono-estadistica carrito" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="9" cy="21" r="1"></circle>
@@ -94,7 +94,7 @@
                
                 <div class="etiqueta-estadistica">Compras</div>
             </div>
-            <div class="tarjeta-estadistica">
+            <div class="tarjeta-estadistica" id="card-compras">
                 <div class="contenedor-icono-estadistica">
                     <svg class="icono-estadistica camion" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <rect width="16" height="13" x="1" y="6" rx="2"></rect>
@@ -298,6 +298,8 @@ document.querySelectorAll('.boton-corazon-producto').forEach(boton => {
 function cerrarSesion() {
     localStorage.removeItem('usuarioLogueado');
     localStorage.removeItem('nombreUsuario');
+    // Asegura que no se reutilice el ID anterior fuera de sesión
+    localStorage.removeItem('usuarioId');
     
     fetch('/logout', {
         method: 'POST',
@@ -375,6 +377,23 @@ document.getElementById("formEdit")?.addEventListener("submit", function(e){
         alert('Error al actualizar');
         document.getElementById("modalEdit").style.display = "none";
     });
+});
+
+//envios
+document.addEventListener('DOMContentLoaded', async function() {
+    const cardEnvios = document.getElementById('card-envios');
+    if (cardEnvios) {
+        cardEnvios.style.cursor = 'pointer';
+        cardEnvios.addEventListener('click', () => { window.location.href = 'envios.html'; });
+    }
+});
+//compras
+document.addEventListener('DOMContentLoaded', async function() {
+    const cardCompras = document.getElementById('card-compras');
+    if (cardCompras) {
+        cardCompras.style.cursor = 'pointer';
+        cardCompras.addEventListener('click', () => { window.location.href = 'compras.html'; });
+    }
 });
     </script>
 

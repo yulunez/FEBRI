@@ -246,15 +246,39 @@
                 return;
             }
 
-            // Calcular total
-            const totalCompra = productosCarrito.reduce((sum, producto) => sum + (producto.precio * producto.cantidad), 0);
+            const usuarioId = localStorage.getItem('usuarioId') || sessionStorage.getItem('usuarioId') || 'anon';
+            const totalCompra = productosCarrito.reduce((sum, p) => sum + (p.precio * p.cantidad), 0);
 
-            // Guardar información para la página de pago en sessionStorage
-            sessionStorage.setItem('carritoCompra', JSON.stringify(productosCarrito));
-            sessionStorage.setItem('totalCompra', totalCompra);
+            const compra = {
+                id: Date.now(),
+                fecha: new Date().toISOString(),
+                total: totalCompra,
+                usuarioId: usuarioId,
+                productos: productosCarrito.map(p => ({
+                    id: p.id,
+                    nombre: p.nombre || p.Nombre || 'Producto',
+                    imagen: p.imagen || p.Imagen || 'imagenes/producto-default.jpg',
+                    precio: p.precio || p.Precio || 0,
+                    cantidad: p.cantidad || 1
+                }))
+            };
 
-            // Redirigir a la página de pago
-            window.location.href = 'pago.html';
+            try {
+                const clave = `compras_${usuarioId}`;
+                const comprasExistentes = JSON.parse(localStorage.getItem(clave)) || [];
+                comprasExistentes.push(compra);
+                localStorage.setItem(clave, JSON.stringify(comprasExistentes));
+            } catch (e) {
+                console.error('Error al guardar compra:', e);
+            }
+
+            // Limpiar carrito tras compra
+            productosCarrito = [];
+            guardarCarritoEnStorage();
+            renderizarCarrito();
+
+            // Redirigir a la página de compras
+            window.location.href = 'compras.html';
         }
 
         // Cerrar modal al hacer clic fuera
@@ -267,8 +291,7 @@
             });
         }
 
-        // Nota: sessionStorage es por pestaña/ventana y no se sincroniza entre pestañas.
-        // Por eso no hay listener de 'storage' aquí. Si necesitas sincronizar entre
+       
         // pestañas se debe usar localStorage o una solución basada en servidor.
         function escucharCambiosStorage() {
             // No-op para sesión por pestaña
@@ -294,7 +317,7 @@
             console.log('Carrito cargado:', productosCarrito); // Para debugging
         });
 
-        // Función adicional para limpiar todo el carrito (opcional)
+        // Función adicional para limpiar todo el carrito 
         function limpiarCarrito() {
             if (confirm('¿Estás seguro de que quieres eliminar todos los productos del carrito?')) {
                 productosCarrito = [];
