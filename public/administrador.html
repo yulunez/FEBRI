@@ -6,6 +6,23 @@
     <link rel="stylesheet" href="administrador.css">
     <title>Panel de Administrador</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Modal básico para administrador */
+        .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 1000; }
+        .modal { background: #fff; width: 720px; max-width: 95%; border-radius: 8px; padding: 20px; box-shadow: 0 8px 30px rgba(0,0,0,0.2); }
+        .modal .modal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+        .modal h3 { margin:0; font-size:1.1rem; }
+        .modal .close-btn { background:transparent; border:0; font-size:1.2rem; cursor:pointer; }
+        .modal form .row { display:flex; gap:12px; margin-bottom:10px; }
+        .modal form .col { flex:1; }
+        .modal label { display:block; font-size:0.85rem; margin-bottom:6px; color:#333; }
+        .modal input[type="text"], .modal input[type="number"], .modal textarea, .modal select { width:100%; padding:8px 10px; border:1px solid #ccc; border-radius:4px; }
+        .modal textarea { min-height:80px; resize:vertical; }
+        .modal .actions { display:flex; gap:8px; justify-content:flex-end; margin-top:12px; }
+    .btn-secondary { background:#eee; border:1px solid #ddd; padding:8px 12px; border-radius:4px; cursor:pointer; }
+    .btn-primary { background: var(--color-icono); color:#fff; border:0; padding:8px 12px; border-radius:4px; cursor:pointer; }
+        .modal-backdrop.show { display:flex; }
+    </style>
    
 </head>
 <body>
@@ -128,6 +145,10 @@
                         <i class="fas fa-plus"></i>
                         Nuevo Producto
                     </button>
+                    <button class="btn-primary" onclick="openCateModal()">
+                        <i class="fas fa-plus"></i>
+                        Nueva Categoría
+                    </button>                    
                 </div>
                 
                 <div class="table-container">
@@ -144,28 +165,10 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>#001</td>
-                                <td>collar de resina verde plateado</td>
-                                <td>acesorios</td>
-                                <td>$99.99</td>
-                                <td>25</td>
-                                <td><span class="status delivered">Activo</span></td>
-                                <td>
-                                    <button class="btn-primary" style="padding: 6px 12px; font-size: 0.8rem;">Editar</button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>#002</td>
-                                <td>Cuadro decorativo</td>
-                                <td>Arte y diseño</td>
-                                <td>$299.99</td>
-                                <td>8</td>
-                                <td><span class="status pending">Bajo Stock</span></td>
-                                <td>
-                                    <button class="btn-primary" style="padding: 6px 12px; font-size: 0.8rem;">Editar</button>
-                                </td>
-                            </tr>
+                            <!-- Filas dinámicas generadas desde /producto/admin -->
+                            <tbody id="admin-products-body">
+                                <!-- rows will be injected here -->
+                            </tbody>
                         </tbody>
                     </table>
                 </div>
@@ -407,6 +410,68 @@
         </div>
     </div>
 
+    <!-- Modal para crear/editar producto -->
+    <div id="product-modal-backdrop" class="modal-backdrop" aria-hidden="true">
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+            <div class="modal-header">
+                <h3 id="modal-title">Nuevo Producto</h3>
+                <button class="close-btn" id="modal-close">×</button>
+            </div>
+            <form id="product-form">
+                <input type="hidden" id="product-id" />
+                <div class="row">
+                    <div class="col">
+                        <label for="nombre">Nombre</label>
+                        <input id="nombre" name="nombre" type="text" required />
+                    </div>
+                    <div class="col">
+                        <label for="precio">Precio</label>
+                        <input id="precio" name="precio" type="number" step="0.01" required />
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col">
+                        <label for="stock">Stock</label>
+                        <input id="stock" name="stock" type="number" required />
+                    </div>
+                    <div class="col">
+                        <label for="categoria">Categoría</label>
+                        <select id="categoria" name="categoria">
+                            <option value="">-- Seleccione categoría --</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col">
+                        <label for="estado">Estado</label>
+                        <select id="estado" name="estado">
+                            <option value="En Stock">En Stock</option>
+                            <option value="Bajo">Bajo</option>
+                            <option value="Desavastecido">Desavastecido</option>
+                        </select>
+                    </div>
+                    <div class="col">
+                        <label for="imagen">Imagen (URL)</label>
+                        <input id="imagen" name="imagen" type="text" placeholder="http://... ó ruta relativa" />
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col">
+                        <label for="descripcion">Descripción</label>
+                        <textarea id="descripcion" name="descripcion"></textarea>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button type="button" class="btn-secondary" id="modal-cancel">Cancelar</button>
+                    <button type="submit" class="btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
     <script>
         // Navigation functionality
         document.querySelectorAll('.nav-link').forEach(link => {
@@ -443,10 +508,76 @@
             });
         });
 
-        // Sample function for product modal
-        function openProductModal() {
-            alert('Aquí se abriría el modal para crear un nuevo producto');
+    // Sample function for product modal (implemented below)
+
+        // Helper to format currency
+        function formatCurrency(value) {
+            if (value == null) return '$0.00';
+            return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'COP' }).format(value);
         }
+
+        // Cargar productos para el administrador desde el backend
+        async function loadAdminProducts() {
+            const tbody = document.getElementById('admin-products-body');
+            if (!tbody) return;
+            tbody.innerHTML = '<tr><td colspan="7">Cargando...</td></tr>';
+            try {
+                const res = await fetch('/producto/admin/list');
+                if (!res.ok) throw new Error('Error al obtener productos');
+                const data = await res.json();
+                if (!data.success || !Array.isArray(data.productos)) {
+                    tbody.innerHTML = '<tr><td colspan="7">No se encontraron productos.</td></tr>';
+                    return;
+                }
+
+                if (data.productos.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7">No hay productos para mostrar.</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = data.productos.map(p => {
+                    const estado = p.Estado || 'En Stock';
+                    const stock = p.Stock != null ? p.Stock : '-';
+                    const categoria = p.Categoria || '-';
+                    const precio = p.Precio != null ? formatCurrency(p.Precio) : '-';
+                    const imagen = p.Imagen ? `<img src="${p.Imagen}" alt="" style="height:40px; object-fit:cover; border-radius:4px;">` : '';
+                    return `
+                        <tr>
+                            <td>#${p.id}</td>
+                            <td style="display:flex; align-items:center; gap:8px;">${imagen}<span>${p.Nombre || p.nombre || ''}</span></td>
+                            <td>${categoria}</td>
+                            <td>${precio}</td>
+                            <td>${stock}</td>
+                            <td><span class="status">${estado}</span></td>
+                            <td>
+                                <button class="btn-primary" style="padding: 6px 12px; font-size: 0.8rem;" data-id="${p.id}">Editar</button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            } catch (err) {
+                console.error('Error cargando productos admin:', err);
+                tbody.innerHTML = '<tr><td colspan="7">Error al cargar productos.</td></tr>';
+            }
+        }
+
+        // Cargar productos cuando se hace click en la pestaña productos o al cargar si está activa
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                const sectionId = this.getAttribute('data-section');
+                if (sectionId === 'productos') {
+                    loadAdminProducts();
+                }
+            });
+        });
+
+        // Si la sección productos está activa al cargar la página, cargar los productos
+        window.addEventListener('DOMContentLoaded', () => {
+            const activeLink = document.querySelector('.nav-link.active');
+            if (activeLink && activeLink.getAttribute('data-section') === 'productos') {
+                loadAdminProducts();
+            }
+        });
 
         // Add some interactivity to stat cards
         document.querySelectorAll('.stat-card').forEach(card => {
@@ -456,6 +587,157 @@
                     this.style.transform = '';
                 }, 150);
             });
+        });
+
+        // Modal logic
+        const modalBackdrop = document.getElementById('product-modal-backdrop');
+        const modalClose = document.getElementById('modal-close');
+        const modalCancel = document.getElementById('modal-cancel');
+        const modalTitle = document.getElementById('modal-title');
+        const productForm = document.getElementById('product-form');
+
+    async function openProductModal(product = null) {
+            // Si product es null -> modo crear
+            // Cargar categorías antes de abrir
+            awaitLoadCategories();
+            if (product) {
+                modalTitle.textContent = 'Editar Producto';
+                document.getElementById('product-id').value = product.id || '';
+                document.getElementById('nombre').value = product.Nombre || product.nombre || '';
+                document.getElementById('precio').value = product.Precio || '';
+                document.getElementById('stock').value = product.Stock != null ? product.Stock : '';
+                // Si el producto incluye ID_categoria, seleccionarla
+                if (product.ID_categoria) {
+                    document.getElementById('categoria').value = product.ID_categoria;
+                } else {
+                    document.getElementById('categoria').value = '';
+                }
+                document.getElementById('estado').value = product.Estado || 'Activo';
+                document.getElementById('imagen').value = product.Imagen || '';
+                document.getElementById('descripcion').value = product.Descripcion || '';
+            } else {
+                modalTitle.textContent = 'Nuevo Producto';
+                productForm.reset();
+                document.getElementById('product-id').value = '';
+                document.getElementById('categoria').value = '';
+            }
+            modalBackdrop.classList.add('show');
+            modalBackdrop.setAttribute('aria-hidden', 'false');
+        }
+
+        // Cargar lista de categorías desde el backend y poblar el select
+        let _categoriesLoaded = false;
+        async function loadCategories() {
+            try {
+                const res = await fetch('/categorias');
+                if (!res.ok) throw new Error('No se pudieron cargar categorías');
+                const data = await res.json();
+                if (!data.success || !Array.isArray(data.categorias)) return;
+                const select = document.getElementById('categoria');
+                // limpiar opciones (dejando la placeholder)
+                select.innerHTML = '<option value="">-- Seleccione categoría --</option>';
+                data.categorias.forEach(cat => {
+                    const opt = document.createElement('option');
+                    opt.value = cat.id;
+                    opt.textContent = cat.nombre;
+                    select.appendChild(opt);
+                });
+                _categoriesLoaded = true;
+            } catch (err) {
+                console.error('Error cargando categorías:', err);
+            }
+        }
+
+        // wrapper que asegura cargar categorías una vez antes de abrir modal
+        function awaitLoadCategories() {
+            if (_categoriesLoaded) return Promise.resolve();
+            return loadCategories();
+        }
+
+        function closeProductModal() {
+            modalBackdrop.classList.remove('show');
+            modalBackdrop.setAttribute('aria-hidden', 'true');
+        }
+
+        modalClose.addEventListener('click', closeProductModal);
+        modalCancel.addEventListener('click', closeProductModal);
+        modalBackdrop.addEventListener('click', (e) => {
+            if (e.target === modalBackdrop) closeProductModal();
+        });
+
+        // Delegación para botones Editar en la tabla
+        document.addEventListener('click', async (e) => {
+            const btn = e.target.closest('button[data-id]');
+            if (!btn) return;
+            const id = btn.getAttribute('data-id');
+            if (!id) return;
+            // traer datos del producto y abrir modal en modo edición
+            try {
+                const res = await fetch(`/producto/${id}`);
+                if (!res.ok) throw new Error('No se pudo obtener el producto');
+                const data = await res.json();
+                if (!data.success || !data.producto) throw new Error('Producto no encontrado');
+                openProductModal(data.producto);
+            } catch (err) {
+                console.error('Error al cargar producto para editar:', err);
+                alert('No se pudo cargar el producto para editar. Revisa la consola.');
+            }
+        });
+
+        // Manejar submit del formulario: POST (crear) o PUT (actualizar)
+        productForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('product-id').value || null;
+            const payload = {
+                Nombre: document.getElementById('nombre').value,
+                Precio: parseFloat(document.getElementById('precio').value) || 0,
+                Stock: parseInt(document.getElementById('stock').value, 10) || 0,
+                // backend acepta several names for category; send ID_categoria when available
+                ID_categoria: document.getElementById('categoria').value || null,
+                Estado: document.getElementById('estado').value,
+                imagen: document.getElementById('imagen').value,
+                Descripcion: document.getElementById('descripcion').value
+            };
+
+            try {
+                let res;
+                if (!id) {
+                    // Crear
+                    res = await fetch('/producto', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                } else {
+                    // Actualizar
+                    res = await fetch(`/producto/${encodeURIComponent(id)}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                }
+
+                if (!res.ok) {
+                    const errBody = await res.text();
+                    console.error('Error en respuesta del servidor:', res.status, errBody);
+                    alert('Error del servidor: ' + res.status + '\nRevisa la consola para más detalles.');
+                    return;
+                }
+
+                const data = await res.json();
+                if (!data.success) {
+                    console.error('Respuesta error del backend:', data);
+                    alert('No se pudo guardar el producto. Revisa la consola.');
+                    return;
+                }
+
+                // Cerrar modal y refrescar
+                closeProductModal();
+                loadAdminProducts();
+            } catch (err) {
+                console.error('Error al enviar producto:', err);
+                alert('Error de red al enviar el producto. Revisa la consola.');
+            }
         });
     </script>
 </body>

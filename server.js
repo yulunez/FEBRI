@@ -9,6 +9,12 @@ const session = require('express-session');// npm install express-session
 const app = express();
 app.use(express.json());
 
+// Simple request logger to help debug routing issues (method + path)
+app.use((req, res, next) => {
+    console.log(new Date().toISOString(), req.method, req.originalUrl);
+    next();
+});
+
 // Configuración de conexión MySQL
 const db = mysql.createConnection({
     host: 'localhost',

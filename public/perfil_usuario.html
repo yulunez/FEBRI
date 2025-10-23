@@ -168,50 +168,7 @@
                 </div>
                 
                 <div class="cuadricula-productos">
-                    <div class="tarjeta-producto">
-                        <div class="imagen-producto">
-                            <img src="imagenes/llavero-inicio.jpeg" alt="Llavero de K" class="img-producto">
-                            <button class="boton-corazon-producto">
-                                <svg class="icono-corazon-producto" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                                </svg>
-                            </button>
-                        </div>
-                        <div class="info-producto">
-                            <h3 class="nombre-producto">Llavero de K</h3>
-                            <p class="precio-producto">$25.000</p>
-                        </div>
-                    </div>
-
-                    <div class="tarjeta-producto">
-                        <div class="imagen-producto">
-                            <img src="imagenes/decoracion-inicio.avif" alt="Cuadro decorativo" class="img-producto">
-                            <button class="boton-corazon-producto">
-                                <svg class="icono-corazon-producto" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                                </svg>
-                            </button>
-                        </div>
-                        <div class="info-producto">
-                            <h3 class="nombre-producto">Cuadro decorativo</h3>
-                            <p class="precio-producto">$25.000</p>
-                        </div>
-                    </div>
-
-                    <div class="tarjeta-producto">
-                        <div class="imagen-producto">
-                            <img src="imagenes/jarron.webp" alt="Jarrón moderno" class="img-producto">
-                            <button class="boton-corazon-producto">
-                                <svg class="icono-corazon-producto" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                                </svg>
-                            </button>
-                        </div>
-                        <div class="info-producto">
-                            <h3 class="nombre-producto">Jarrón moderno</h3>
-                            <p class="precio-producto">$15.000</p>
-                        </div>
-                    </div>
+                    <div id="favoritos-grid"></div>
                 </div>
             </div>
         </div>
@@ -240,7 +197,67 @@
         } catch (err) {
             console.error('Error al cargar perfil:', err);
         }
+
+        // Cargar favoritos de la sesión y renderizarlos
+        try {
+            const resp = await fetch('/producto/favorito', { credentials: 'include' });
+            if (resp.ok) {
+                const body = await resp.json();
+                if (body && body.success && Array.isArray(body.favoritos)) {
+                    renderFavoritos(body.favoritos);
+                }
+            }
+        } catch (e) {
+            console.error('No se pudieron cargar favoritos:', e);
+        }
     });
+
+    function renderFavoritos(favs) {
+        const grid = document.getElementById('favoritos-grid');
+        grid.innerHTML = '';
+        if (!favs || favs.length === 0) {
+            grid.innerHTML = '<p>No tienes productos en favoritos.</p>';
+            return;
+        }
+        favs.forEach(p => {
+            const card = document.createElement('div');
+            card.className = 'tarjeta-producto';
+            card.innerHTML = `
+                <div class="imagen-producto">
+                    <img src="${p.imagen || 'imagenes/inicio.webp'}" alt="${(p.Nombre||p.nombre)||''}" class="img-producto">
+                    <button class="boton-corazon-producto" data-id="${p.id}">
+                        <svg class="icono-corazon-producto" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="info-producto">
+                    <h3 class="nombre-producto">${p.Nombre || p.nombre || ''}</h3>
+                    <p class="precio-producto">${p.Precio != null ? ('$ ' + p.Precio) : ''}</p>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+
+        // attach remove handlers
+        grid.querySelectorAll('.boton-corazon-producto').forEach(btn => {
+            btn.addEventListener('click', async function(){
+                const pid = this.getAttribute('data-id');
+                if (!pid) return;
+                try {
+                    const res = await fetch(`/producto/favorito/${encodeURIComponent(pid)}`, { method: 'DELETE', credentials: 'include' });
+                    if (!res.ok) throw new Error('Error al quitar favorito');
+                    const body = await res.json();
+                    if (body && body.success) {
+                        renderFavoritos(body.favoritos || []);
+                    }
+                } catch (err) {
+                    console.error('No se pudo quitar favorito:', err);
+                    alert('No se pudo quitar de favoritos');
+                }
+            });
+        });
+    }
 
         // Funcionalidad para los botones de corazón
         document.querySelectorAll('.boton-corazon-producto').forEach(boton => {
