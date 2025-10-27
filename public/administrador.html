@@ -76,12 +76,6 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link" data-section="pagos">
-                        <i class="fas fa-credit-card"></i>
-                        Pagos y Facturación
-                    </a>
-                </li>
-                <li class="nav-item">
                     <a href="#" class="nav-link" data-section="estadisticas">
                         <i class="fas fa-chart-bar"></i>
                         Estadísticas
@@ -249,10 +243,6 @@
                         <i class="fas fa-users"></i>
                         Gestión de Clientes
                     </h2>
-                    <button class="btn-primary">
-                        <i class="fas fa-envelope"></i>
-                        Enviar Promoción
-                    </button>
                 </div>
                 
                 <div class="table-container">
@@ -265,54 +255,16 @@
                                 <th>Registro</th>
                                 <th>Pedidos</th>
                                 <th>Total Compras</th>
+                                <th>Estado</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr>
-                                <td>#CLI-001</td>
-                                <td>Juan Pérez</td>
-                                <td>juan@email.com</td>
-                                <td>15/01/2025</td>
-                                <td>3</td>
-                                <td>$456.50</td>
-                                <td>
-                                    <button class="btn-primary" style="padding: 6px 12px; font-size: 0.8rem;">Ver Historial</button>
-                                </td>
-                            </tr>
+                        <tbody id="admin-clientes-body">
+                            <!-- Rows will be loaded from GET /clientes -->
                         </tbody>
                     </table>
                 </div>
             </div>
-
-            <!-- Pagos Section -->
-            <div id="pagos" class="content-section">
-                <div class="section-header">
-                    <h2 class="section-title">
-                        <i class="fas fa-credit-card"></i>
-                        Pagos y Facturación
-                    </h2>
-                    <button class="btn-primary">
-                        <i class="fas fa-file-invoice"></i>
-                        Generar Reporte
-                    </button>
-                </div>
-                
-                <div class="dashboard-grid">
-                    <div class="stat-card">
-                        <h3><i class="fas fa-money-check-alt"></i> PayU</h3>
-                        <div class="stat-number positive">$15,240</div>
-                        <div class="stat-change positive">67% del total</div>
-                    </div>
-                    
-                    <div class="stat-card">
-                        <h3><i class="fas fa-credit-card"></i> MercadoPago</h3>
-                        <div class="stat-number positive">$7,890</div>
-                        <div class="stat-change positive">33% del total</div>
-                    </div>
-                </div>
-            </div>
-
             <!-- Estadísticas Section -->
             <div id="estadisticas" class="content-section">
                 <div class="section-header">
@@ -499,6 +451,22 @@
                 </div>
             </div>
         </div>
+        <!-- Modal para ver compras de un cliente -->
+        <div id="cliente-modal-backdrop" class="modal-backdrop" aria-hidden="true">
+            <div class="modal" role="dialog" aria-modal="true" aria-labelledby="cliente-modal-title">
+                <div class="modal-header">
+                    <h3 id="cliente-modal-title">Compras del Cliente</h3>
+                    <button class="close-btn" id="cliente-modal-close">×</button>
+                </div>
+                <div id="cliente-modal-body" style="max-height:60vh; overflow:auto;">
+                    <!-- contenido generado dinámicamente -->
+                </div>
+                <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:12px;">
+                    <button class="btn-secondary" id="cliente-toggle-btn">Alternar estado</button>
+                    <button class="btn-secondary" id="cliente-modal-cerrar">Cerrar</button>
+                </div>
+            </div>
+        </div>
         <script>
         // Navigation functionality
         document.querySelectorAll('.nav-link').forEach(link => {
@@ -525,7 +493,6 @@
                     'productos': 'Gestión de Productos',
                     'pedidos': 'Pedidos y Envíos',
                     'clientes': 'Gestión de Clientes',
-                    'pagos': 'Pagos y Facturación',
                     'estadisticas': 'Estadísticas y Reportes',
                     'personalizacion': 'Personalización del Sitio',
                     'seguridad': 'Seguridad y Roles'
@@ -602,6 +569,7 @@
                         </tr>
                     `;
                 }).join('');
+                // (moved) client 'Ver' buttons are bound after clients table is rendered
             } catch (err) {
                 console.error('Error cargando productos admin:', err);
                 tbody.innerHTML = '<tr><td colspan="7">Error al cargar productos.</td></tr>';
@@ -616,6 +584,8 @@
                     loadAdminProducts();
                 } else if (sectionId === 'pedidos') {
                     loadAdminEnviosVentas();
+                } else if (sectionId === 'clientes') {
+                    loadAdminClientes();
                 }
             });
         });
@@ -627,6 +597,8 @@
                 loadAdminProducts();
             } else if (activeLink && activeLink.getAttribute('data-section') === 'pedidos') {
                 loadAdminEnviosVentas();
+            } else if (activeLink && activeLink.getAttribute('data-section') === 'clientes') {
+                loadAdminClientes();
             }
         });
 
@@ -1034,6 +1006,115 @@
             });
         }
 
+        // Cargar clientes para el administrador desde el backend
+        async function loadAdminClientes() {
+            const tbody = document.getElementById('admin-clientes-body');
+            if (!tbody) return;
+            tbody.innerHTML = '<tr><td colspan="8">Cargando...</td></tr>';
+            try {
+                // Fetch clients and totals in parallel
+                const [resClients, resTotals] = await Promise.all([
+                    fetch('/clientes'),
+                    fetch('/clientes/total-ventas')
+                ]);
+
+                if (!resClients.ok) throw new Error('Error al obtener clientes: ' + resClients.status);
+                const dataClients = await resClients.json();
+                let totalsMap = new Map();
+
+                if (resTotals.ok) {
+                    try {
+                        const dataTotals = await resTotals.json();
+                        if (dataTotals.success && Array.isArray(dataTotals.totales)) {
+                            dataTotals.totales.forEach(t => {
+                                totalsMap.set(String(t.id_cliente), {
+                                    total_ventas: Number(t.total_ventas || 0),
+                                    total_costo: Number(t.total_costo || 0)
+                                });
+                            });
+                        }
+                    } catch (e) {
+                        console.warn('No se pudo parsear totales de clientes:', e);
+                    }
+                } else {
+                    console.warn('No se pudo obtener totales de clientes:', resTotals.status);
+                }
+
+                if (!dataClients.success || !Array.isArray(dataClients.clientes)) {
+                    tbody.innerHTML = '<tr><td colspan="8">No se encontraron clientes.</td></tr>';
+                    return;
+                }
+
+                if (dataClients.clientes.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="8">No hay clientes para mostrar.</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = dataClients.clientes.map(c => {
+                    const id = c.id_cliente || c.cliente_id || '';
+                    const nombre = escapeHtml(c.nombre_completo || '');
+                    const correo = escapeHtml(c.correo || '-');
+                    const fecha = c.fecha_nacimiento ? new Date(c.fecha_nacimiento).toLocaleDateString('es-ES') : '-';
+                    const totals = totalsMap.has(String(id)) ? totalsMap.get(String(id)) : null;
+                    const pedidos = totals ? totals.total_ventas : '-';
+                    const totalCompras = totals ? formatCurrency(totals.total_costo) : '-';
+                    // Determine display for active/state with defensive normalization
+                    function normalizeEstado(rawActivo, rawEstado) {
+                        // If activo is provided (0/1), prefer it
+                        if (typeof rawActivo !== 'undefined' && rawActivo !== null) {
+                            return Number(rawActivo) ? 'Activo' : 'Suspendido';
+                        }
+                        if (!rawEstado) return '-';
+                        const s = String(rawEstado).trim();
+                        const low = s.toLowerCase();
+                        // common variants
+                        if (low.includes('act')) return 'Activo';
+                        if (low.includes('sus') || low.includes('suspend')) return 'Suspendido';
+                        // avoid showing strangely short/truncated values like 'esta'
+                        if (s.length < 3) return '-';
+                        // otherwise capitalize first letter and return
+                        return s.charAt(0).toUpperCase() + s.slice(1);
+                    }
+                    const estadoDisplay = normalizeEstado(c.activo, c.estado);
+                    return `
+                        <tr>
+                            <td>#${id}</td>
+                            <td>${nombre}</td>
+                            <td>${correo}</td>
+                            <td>${fecha}</td>
+                            <td>${peddgesOrZero(pedidos)}</td>
+                            <td>${totalCompras}</td>
+                            <td>${escapeHtml(estadoDisplay)}</td>
+                            <td>
+                                <button class="btn-primary btn-ver-cliente" style="padding:6px 12px; font-size:0.8rem;" 
+                                    data-cliente="${id}" data-nombre="${escapeHtml(c.nombre_completo || '')}" data-correo="${escapeHtml(c.correo || '')}" data-fecha="${fecha}">Ver</button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+                // attach handlers for client 'Ver' buttons (after clients table rendered)
+                document.querySelectorAll('.btn-ver-cliente').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const id = btn.getAttribute('data-cliente');
+                        const nombre = btn.getAttribute('data-nombre') || '';
+                        const correo = btn.getAttribute('data-correo') || '';
+                        const fecha = btn.getAttribute('data-fecha') || '';
+                        openClientModal(id, { nombre, correo, fecha });
+                    });
+                });
+            } catch (err) {
+                console.error('Error cargando clientes admin:', err);
+                tbody.innerHTML = '<tr><td colspan="7">Error al cargar clientes.</td></tr>';
+            }
+        }
+
+        // Small helper normalizing pedidos display
+        function peddgesOrZero(val) {
+            if (val === '-' || val === null || val === undefined) return '-';
+            return Number(val) || 0;
+        }
+
+
         // Devuelve el precio unitario de un item probando varias claves posibles
         function getUnitPrice(item) {
             if (!item) return 0;
@@ -1116,6 +1197,123 @@
             const backdrop = document.getElementById('venta-modal-backdrop');
             if (topClose) topClose.addEventListener('click', closeVentaModal);
             if (backdrop) backdrop.addEventListener('click', (e) => { if (e.target === backdrop) closeVentaModal(); });
+        })();
+
+        // Client modal logic
+        let currentClientId = null;
+        async function openClientModal(clientId, meta = {}) {
+            currentClientId = clientId;
+            const backdrop = document.getElementById('cliente-modal-backdrop');
+            const body = document.getElementById('cliente-modal-body');
+            if (!backdrop || !body) return;
+            body.innerHTML = '<div>Cargando compras...</div>';
+            try {
+                const res = await fetch(`/clientes/${encodeURIComponent(clientId)}/ventas`);
+                if (!res.ok) {
+                    const txt = await res.text();
+                    body.innerHTML = `<div>Error al obtener compras: ${escapeHtml(txt)}</div>`;
+                    backdrop.classList.add('show');
+                    backdrop.setAttribute('aria-hidden','false');
+                    return;
+                }
+                const data = await res.json();
+                if (!data.success || !Array.isArray(data.ventas) || data.ventas.length === 0) {
+                    body.innerHTML = `<div>No se encontraron compras para este cliente.</div>`;
+                    backdrop.classList.add('show');
+                    backdrop.setAttribute('aria-hidden','false');
+                    return;
+                }
+
+                // Group ventas by venta id
+                const map = new Map();
+                data.ventas.forEach(d => {
+                    const key = String(d.venta || d.VentaID || d.venta_id || d.venta);
+                    const cantidad = Number(d.cantidad || d.Cantidad) || 0;
+                    const precio = Number(d.precio_und || d.Precio) || 0;
+                    const subtotal = Number(d.subtotal || d.Subtotal) || (cantidad * precio) || 0;
+                    if (!map.has(key)) {
+                        map.set(key, { venta: key, fecha: d.fecha_venta || d.Fecha_venta || '', items: [], total: 0, venta_estado: d.venta_estado || d.Estado || d.estado || '' });
+                    }
+                    const entry = map.get(key);
+                    entry.items.push({ producto: d.producto || d.Nombre || '', cantidad, precio_und: precio, subtotal });
+                    entry.total = (Number(entry.total) || 0) + subtotal;
+                });
+
+                // Build HTML
+                let out = `<div style="margin-bottom:8px;"><strong>${escapeHtml(meta.nombre || '')}</strong> — ${escapeHtml(meta.correo || '')}</div>`;
+                for (const v of map.values()) {
+                    out += `<div style="margin-bottom:12px; border-bottom:1px solid #eee; padding-bottom:8px;"><div style="font-weight:600; margin-bottom:6px;">Pedido #${escapeHtml(v.venta)} — ${escapeHtml(v.fecha || '')} — Estado: ${escapeHtml(v.venta_estado || '')}</div>`;
+                    out += `<table style="width:100%; border-collapse: collapse;"><thead><tr style="border-bottom:1px solid #ddd; text-align:left;"><th>Producto</th><th>Cantidad</th><th>Precio</th><th>Subtotal</th></tr></thead><tbody>`;
+                    out += v.items.map(it => `<tr><td>${escapeHtml(it.producto)}</td><td>${it.cantidad}</td><td>${formatCurrency(it.precio_und)}</td><td>${formatCurrency(it.subtotal)}</td></tr>`).join('');
+                    out += `</tbody><tfoot><tr style="border-top:1px solid #ddd; font-weight:600;"><td colspan="3" style="text-align:right; padding-top:8px;">Total:</td><td style="padding-top:8px;">${formatCurrency(v.total)}</td></tr></tfoot></table></div>`;
+                }
+
+                body.innerHTML = out;
+                backdrop.classList.add('show');
+                backdrop.setAttribute('aria-hidden','false');
+            } catch (err) {
+                console.error('Error cargando compras cliente:', err);
+                body.innerHTML = '<div>Error al cargar compras del cliente. Revisa la consola.</div>';
+                backdrop.classList.add('show');
+                backdrop.setAttribute('aria-hidden','false');
+            }
+        }
+
+        function closeClientModal() {
+            const backdrop = document.getElementById('cliente-modal-backdrop');
+            if (backdrop) {
+                backdrop.classList.remove('show');
+                backdrop.setAttribute('aria-hidden','true');
+            }
+            currentClientId = null;
+        }
+
+        // Wire client modal buttons
+        (function wireClienteModalControls(){
+            const topClose = document.getElementById('cliente-modal-close');
+            const cerrar = document.getElementById('cliente-modal-cerrar');
+            const backdrop = document.getElementById('cliente-modal-backdrop');
+            const toggleBtn = document.getElementById('cliente-toggle-btn');
+            if (topClose) topClose.addEventListener('click', closeClientModal);
+            if (cerrar) cerrar.addEventListener('click', closeClientModal);
+            if (backdrop) backdrop.addEventListener('click', (e) => { if (e.target === backdrop) closeClientModal(); });
+            if (toggleBtn) toggleBtn.addEventListener('click', async (e) => {
+                if (!currentClientId) return alert('Cliente no especificado');
+                toggleBtn.disabled = true;
+                const origText = toggleBtn.textContent;
+                toggleBtn.textContent = 'Procesando...';
+                try {
+                    const res = await fetch(`/clientes/${encodeURIComponent(currentClientId)}/toggle`, { method: 'PUT' });
+                    if (!res.ok) {
+                        const txt = await res.text();
+                        console.error('Error toggling cliente:', res.status, txt);
+                        alert('Error al alternar estado del cliente. Revisa la consola.');
+                        return;
+                    }
+                    const data = await res.json();
+                    if (!data.success) {
+                        console.error('Backend no alternó cliente:', data);
+                        alert('No se pudo alternar el estado. Revisa la consola.');
+                        return;
+                    }
+                    // Show result to user and refresh clients list
+                    if (data.Activo !== undefined) {
+                        alert('Estado actualizado. Activo=' + data.Activo);
+                    } else if (data.Estado) {
+                        alert('Estado actualizado: ' + data.Estado);
+                    } else {
+                        alert('Estado actualizado');
+                    }
+                    // Refresh clients table to reflect changes
+                    loadAdminClientes();
+                } catch (err) {
+                    console.error('Error de red alternando cliente:', err);
+                    alert('Error de red al alternar cliente. Revisa la consola.');
+                } finally {
+                    toggleBtn.disabled = false;
+                    toggleBtn.textContent = origText;
+                }
+            });
         })();
     </script>
 </body>
