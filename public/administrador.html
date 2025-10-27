@@ -22,6 +22,22 @@
     .btn-secondary { background:#eee; border:1px solid #ddd; padding:8px 12px; border-radius:4px; cursor:pointer; }
     .btn-primary { background: var(--color-icono); color:#fff; border:0; padding:8px 12px; border-radius:4px; cursor:pointer; }
         .modal-backdrop.show { display:flex; }
+        /* Status button styles: oval yellow for Pendiente, green for Enviado */
+        .btn-status {
+            display:inline-block;
+            min-width:90px;
+            padding:6px 14px;
+            border-radius:999px; /* oval */
+            border: 0;
+            font-weight:600;
+            cursor:pointer;
+            color:#222;
+            background:#f6c44c; /* pending default (yellow) */
+            box-shadow: 0 1px 0 rgba(0,0,0,0.05);
+        }
+        .btn-status.pending { background:#f6c44c; color:#222; }
+        .btn-status.delivered, .btn-status.enviado { background:#28a745; color:#fff; }
+        .btn-status:focus { outline: 2px solid rgba(0,0,0,0.08); }
     </style>
    
 </head>
@@ -92,6 +108,31 @@
                    <a href="index.html"><i class="fas fa-sign-out-alt" style="cursor: pointer; color: #666;"></i></a> 
                 </div>
             </div>
+                <!-- Modal flotante para crear categoría (ubicado fuera del form de producto para evitar forms anidados) -->
+                <div id="categoria-modal-backdrop" class="modal-backdrop" aria-hidden="true">
+                    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="categoria-modal-title">
+                        <div class="modal-header">
+                            <h3 id="categoria-modal-title">Nueva Categoría</h3>
+                            <button class="close-btn" id="categoria-modal-close">×</button>
+                        </div>
+                        <form id="categoria-form">
+                            <div class="row">
+                                <div class="col">
+                                    <label for="categoria-nombre">Nombre</label>
+                                    <input id="categoria-nombre" name="nombre" type="text" required />
+                                </div>
+                                <div class="col">
+                                    <label for="categoria-imagen">Imagen (URL)</label>
+                                    <input id="categoria-imagen" name="imagen" type="text" placeholder="http://... ó ruta relativa" />
+                                </div>
+                            </div>
+                            <div class="actions">
+                                <button type="button" class="btn-secondary" id="categoria-cancel">Cancelar</button>
+                                <button type="submit" class="btn-primary">Crear Categoría</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
 
             <!-- Dashboard Section -->
             <div id="dashboard" class="content-section active">
@@ -145,7 +186,7 @@
                         <i class="fas fa-plus"></i>
                         Nuevo Producto
                     </button>
-                    <button class="btn-primary" onclick="openCateModal()">
+                    <button type="button" id="btn-open-cate" class="btn-primary">
                         <i class="fas fa-plus"></i>
                         Nueva Categoría
                     </button>                    
@@ -195,37 +236,7 @@
                                 <th>Acciones</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr>
-                                <td>#ORD-2024-001</td>
-                                <td>Juan Pérez</td>
-                                <td>20/08/2025</td>
-                                <td>$156.99</td>
-                                <td><span class="status pending">Pendiente</span></td>
-                                <td>
-                                    <button class="btn-primary" style="padding: 6px 12px; font-size: 0.8rem;">Ver Detalles</button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>#ORD-2024-002</td>
-                                <td>María González</td>
-                                <td>19/08/2025</td>
-                                <td>$299.50</td>
-                                <td><span class="status shipped">Enviado</span></td>
-                                <td>
-                                    <button class="btn-primary" style="padding: 6px 12px; font-size: 0.8rem;">Ver Detalles</button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>#ORD-2024-003</td>
-                                <td>Carlos Rodríguez</td>
-                                <td>18/08/2025</td>
-                                <td>$89.99</td>
-                                <td><span class="status delivered">Entregado</span></td>
-                                <td>
-                                    <button class="btn-primary" style="padding: 6px 12px; font-size: 0.8rem;">Ver Detalles</button>
-                                </td>
-                            </tr>
+                        <tbody id="admin-pedidos-body">
                         </tbody>
                     </table>
                 </div>
@@ -429,6 +440,7 @@
                         <input id="precio" name="precio" type="number" step="0.01" required />
                     </div>
                 </div>
+                    <!-- category modal moved below to avoid nested forms -->
 
                 <div class="row">
                     <div class="col">
@@ -446,11 +458,14 @@
                 <div class="row">
                     <div class="col">
                         <label for="estado">Estado</label>
-                        <select id="estado" name="estado">
+                        <!-- Mostrar estado (no editable por el usuario). El valor real se envía en el campo oculto 'estado-hidden'. -->
+                        <select id="estado" name="estado" disabled aria-disabled="true">
                             <option value="En Stock">En Stock</option>
-                            <option value="Bajo">Bajo</option>
-                            <option value="Desavastecido">Desavastecido</option>
+                            <option value="Bajo Stock">Bajo Stock</option>
+                            <option value="Agotado">Agotado</option>
                         </select>
+                        <!-- Campo oculto que será incluido en el payload enviado al servidor -->
+                        <input type="hidden" id="estado-hidden" name="Estado" value="" />
                     </div>
                     <div class="col">
                         <label for="imagen">Imagen (URL)</label>
@@ -472,7 +487,19 @@
             </form>
         </div>
     </div>
-    <script>
+        <!-- Modal para ver detalles de una venta -->
+        <div id="venta-modal-backdrop" class="modal-backdrop" aria-hidden="true">
+            <div class="modal" role="dialog" aria-modal="true" aria-labelledby="venta-modal-title">
+                <div class="modal-header">
+                    <h3 id="venta-modal-title">Detalles del Pedido</h3>
+                    <button class="close-btn" id="venta-modal-close">×</button>
+                </div>
+                <div id="venta-modal-body" style="max-height:60vh; overflow:auto;">
+                    <!-- contenido generado dinámicamente -->
+                </div>
+            </div>
+        </div>
+        <script>
         // Navigation functionality
         document.querySelectorAll('.nav-link').forEach(link => {
             link.addEventListener('click', function(e) {
@@ -514,6 +541,26 @@
         function formatCurrency(value) {
             if (value == null) return '$0.00';
             return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'COP' }).format(value);
+        }
+
+        function definirEstadoProducto(stock) {
+            const s = Number(stock) || 0;
+            if (s > 10) return 'En Stock';
+            if (s > 0) return 'Bajo Stock';
+            return 'Agotado';
+        }
+
+        // Actualiza el select visible (disabled) y el campo oculto para envío
+        function updateEstadoDisplay() {
+            const stockEl = document.getElementById('stock');
+            const estadoSelect = document.getElementById('estado');
+            const estadoHidden = document.getElementById('estado-hidden');
+            if (!stockEl || !estadoSelect || !estadoHidden) return;
+            const stockVal = parseInt(stockEl.value, 10);
+            const estado = definirEstadoProducto(isNaN(stockVal) ? 0 : stockVal);
+            // reflejar en UI (select disabled) y en hidden
+            estadoSelect.value = estado;
+            estadoHidden.value = estado;
         }
 
         // Cargar productos para el administrador desde el backend
@@ -567,6 +614,8 @@
                 const sectionId = this.getAttribute('data-section');
                 if (sectionId === 'productos') {
                     loadAdminProducts();
+                } else if (sectionId === 'pedidos') {
+                    loadAdminEnviosVentas();
                 }
             });
         });
@@ -576,8 +625,13 @@
             const activeLink = document.querySelector('.nav-link.active');
             if (activeLink && activeLink.getAttribute('data-section') === 'productos') {
                 loadAdminProducts();
+            } else if (activeLink && activeLink.getAttribute('data-section') === 'pedidos') {
+                loadAdminEnviosVentas();
             }
         });
+
+        // Global map to hold ventas grouped by venta id so details can be shown later
+        let ventasMapGlobal = new Map();
 
         // Add some interactivity to stat cards
         document.querySelectorAll('.stat-card').forEach(card => {
@@ -595,10 +649,8 @@
         const modalCancel = document.getElementById('modal-cancel');
         const modalTitle = document.getElementById('modal-title');
         const productForm = document.getElementById('product-form');
-
+        
     async function openProductModal(product = null) {
-            // Si product es null -> modo crear
-            // Cargar categorías antes de abrir
             awaitLoadCategories();
             if (product) {
                 modalTitle.textContent = 'Editar Producto';
@@ -612,7 +664,19 @@
                 } else {
                     document.getElementById('categoria').value = '';
                 }
-                document.getElementById('estado').value = product.Estado || 'Activo';
+                // actualizar estado visible/oculto desde stock
+                // product.Estado puede venir desde servidor, pero preferimos recomputarlo localmente desde Stock
+                // y sincronizar la vista.
+                // si no hay stock, updateEstadoDisplay usará 0 => 'Agotado'
+                // aplicamos el producto.Stock ya asignado arriba
+                // dejar el select deshabilitado; el hidden se encargará del envío.
+                // Si product tiene Estado y Stock está ausente, usamos product.Estado como fallback.
+                if (product.Stock != null) {
+                    updateEstadoDisplay();
+                } else if (product.Estado) {
+                    document.getElementById('estado').value = product.Estado;
+                    document.getElementById('estado-hidden').value = product.Estado;
+                }
                 document.getElementById('imagen').value = product.Imagen || '';
                 document.getElementById('descripcion').value = product.Descripcion || '';
             } else {
@@ -620,6 +684,8 @@
                 productForm.reset();
                 document.getElementById('product-id').value = '';
                 document.getElementById('categoria').value = '';
+                // después de reset, sincronizar el estado (stock vacío => 0)
+                updateEstadoDisplay();
             }
             modalBackdrop.classList.add('show');
             modalBackdrop.setAttribute('aria-hidden', 'false');
@@ -665,6 +731,93 @@
             if (e.target === modalBackdrop) closeProductModal();
         });
 
+        // Mantener el estado sincronizado cuando cambie el stock en el formulario
+        const stockEl = document.getElementById('stock');
+        if (stockEl) {
+            stockEl.addEventListener('input', updateEstadoDisplay);
+        }
+
+        // --- Modal y lógica para crear categoría ---
+        const categoriaBackdrop = document.getElementById('categoria-modal-backdrop');
+        const categoriaClose = document.getElementById('categoria-modal-close');
+        const categoriaCancel = document.getElementById('categoria-cancel');
+        const categoriaForm = document.getElementById('categoria-form');
+
+        function openCateModal() {
+            // reset form
+            if (categoriaForm) categoriaForm.reset();
+            if (categoriaBackdrop) {
+                categoriaBackdrop.classList.add('show');
+                categoriaBackdrop.setAttribute('aria-hidden', 'false');
+            }
+        }
+
+        function closeCateModal() {
+            if (categoriaBackdrop) {
+                categoriaBackdrop.classList.remove('show');
+                categoriaBackdrop.setAttribute('aria-hidden', 'true');
+            }
+        }
+
+        // wire buttons
+        if (categoriaClose) categoriaClose.addEventListener('click', closeCateModal);
+        if (categoriaCancel) categoriaCancel.addEventListener('click', closeCateModal);
+        if (categoriaBackdrop) {
+            categoriaBackdrop.addEventListener('click', (e) => { if (e.target === categoriaBackdrop) closeCateModal(); });
+        }
+
+        // Submit handler: POST /categorias
+        if (categoriaForm) {
+            categoriaForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const nombre = document.getElementById('categoria-nombre').value.trim();
+                const imagen = document.getElementById('categoria-imagen').value.trim() || null;
+                if (!nombre) {
+                    alert('El nombre es obligatorio');
+                    return;
+                }
+                try {
+                    const res = await fetch('/categorias', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ nombre, imagen })
+                    });
+                    if (!res.ok) {
+                        const text = await res.text();
+                        console.error('Error creando categoría:', res.status, text);
+                        alert('Error creando categoría. Revisa la consola.');
+                        return;
+                    }
+                    const data = await res.json();
+                    if (!data.success) {
+                        console.error('Respuesta backend error crear categoria:', data);
+                        alert('No se pudo crear la categoría. Revisa la consola.');
+                        return;
+                    }
+                    // cerrar modal y recargar lista de categorías en el modal producto
+                    closeCateModal();
+                    // Force reload categories next time modal producto abra
+                    _categoriesLoaded = false;
+                    await loadCategories();
+                    alert('Categoría creada correctamente');
+                } catch (err) {
+                    console.error('Error de red al crear categoría:', err);
+                    alert('Error de red al crear categoría. Revisa la consola.');
+                }
+            });
+        }
+
+        // Exponer la función globalmente para compatibilidad
+        try {
+            if (typeof openCateModal === 'function') window.openCateModal = openCateModal;
+        } catch (e) {
+            console.warn('No se pudo exponer openCateModal en window:', e);
+        }
+
+        // Bind al botón 'Nueva Categoría' de forma robusta (evita dependencia de onclick inline)
+        const btnOpenCate = document.getElementById('btn-open-cate');
+        if (btnOpenCate) btnOpenCate.addEventListener('click', (e) => { e.preventDefault(); openCateModal(); });
+
         // Delegación para botones Editar en la tabla
         document.addEventListener('click', async (e) => {
             const btn = e.target.closest('button[data-id]');
@@ -688,13 +841,16 @@
         productForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const id = document.getElementById('product-id').value || null;
+            const stockVal = parseInt(document.getElementById('stock').value, 10) || 0;
+            const computedEstado = document.getElementById('estado-hidden').value || definirEstadoProducto(stockVal);
             const payload = {
                 Nombre: document.getElementById('nombre').value,
                 Precio: parseFloat(document.getElementById('precio').value) || 0,
-                Stock: parseInt(document.getElementById('stock').value, 10) || 0,
+                Stock: stockVal,
                 // backend acepta several names for category; send ID_categoria when available
                 ID_categoria: document.getElementById('categoria').value || null,
-                Estado: document.getElementById('estado').value,
+                // Enviar el estado calculado por la función del cliente (servidor lo recalculará por seguridad)
+                Estado: computedEstado,
                 imagen: document.getElementById('imagen').value,
                 Descripcion: document.getElementById('descripcion').value
             };
@@ -739,6 +895,228 @@
                 alert('Error de red al enviar el producto. Revisa la consola.');
             }
         });
+        async function loadAdminEnviosVentas() {
+            const tbody = document.getElementById('admin-pedidos-body');
+            if (!tbody) return;
+            tbody.innerHTML = '<tr><td colspan="7">Cargando...</td></tr>';
+            try {
+                const res = await fetch('/ventas');
+                if (!res.ok) throw new Error('Error al obtener ventas: ' + res.status);
+                const data = await res.json();
+                if (!data.success || !Array.isArray(data.ventas)) {
+                    tbody.innerHTML = '<tr><td colspan="7">No se encontraron ventas.</td></tr>';
+                    return;
+                }
+
+                // Agrupar por venta (VentaID) para mostrar una fila por pedido y mantener items
+                const map = new Map();
+                data.ventas.forEach(d => {
+                    const key = String(d.venta || d.VentaID || d.venta_id || d.venta);
+                    const cantidad = Number(d.cantidad || d.Cantidad) || 0;
+                    const precio = Number(d.precio_und || d.Precio) || 0;
+                    const subtotal = Number(d.subtotal || d.Subtotal) || (cantidad * precio) || 0;
+                        if (!map.has(key)) {
+                            map.set(key, {
+                                venta: key,
+                                cliente: d.cliente || d.Cliente || '-',
+                                // keep a normalized fecha key used by the modal
+                                fecha: d.fecha_venta || d.Fecha_venta || '',
+                                // include possible contact fields so the details modal can show them
+                                cliente_correo: d.cliente_correo || d.correo || null,
+                                cliente_telefono: d.cliente_telefono || d.telefono || null,
+                                cliente_direccion: d.cliente_direccion || d.direccion || null,
+                                // include the venta-level estado if backend supplies it
+                                venta_estado: d.venta_estado || d.Estado || d.estado || 'Pendiente',
+                                items: [],
+                                total: 0
+                            });
+                    }
+                    const entry = map.get(key);
+                    // store both common price keys so rendering can pick whichever exists
+                    entry.items.push({
+                        id_detalle: d.id_detalle || d.DetalleID,
+                        id_producto: d.id_producto || d.ProductoID,
+                        producto: d.producto || d.producto || d.Nombre || '',
+                        cantidad,
+                        precio_und: precio,
+                        Precio: precio,
+                        subtotal
+                    });
+                    if (d.venta_estado || d.Estado || d.estado) {
+                        entry.venta_estado = d.venta_estado || d.Estado || d.estado;
+                    }
+                    entry.total = (Number(entry.total) || 0) + subtotal;
+                });
+
+                ventasMapGlobal = map;
+
+                if (map.size === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7">No hay pedidos para mostrar.</td></tr>';
+                    return;
+                }
+
+                const rows = [];
+                for (const v of map.values()) {
+                    const fecha = v.fecha ? new Date(v.fecha).toLocaleString('es-ES') : '-';
+                    const total = formatCurrency(v.total);
+                    // show current estado (use venta_estado if provided)
+                    const estadoLabel = (v.venta_estado || v.estado || 'Pendiente');
+                    const estadoClass = estadoLabel.toLowerCase().includes('enviado') ? 'delivered' : (estadoLabel.toLowerCase().includes('pend') ? 'pending' : '');
+                    rows.push(`
+                        <tr data-venta="${v.venta}">
+                            <td>#${v.venta}</td>
+                            <td>${escapeHtml(v.cliente)}</td>
+                            <td>${fecha}</td>
+                            <td>${total}</td>
+                            <td><button class="btn-status ${estadoClass}" data-venta="${v.venta}" style="padding:6px 10px; font-size:0.8rem;">${escapeHtml(estadoLabel)}</button></td>
+                            <td><button class="btn-primary btn-ver-detalle" data-venta="${v.venta}" style="padding:6px 12px; font-size:0.8rem;">Ver Detalles</button></td>
+                        </tr>
+                    `);
+                }
+
+                tbody.innerHTML = rows.join('');
+
+                // attach handlers for details buttons
+                document.querySelectorAll('.btn-ver-detalle').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const ventaId = btn.getAttribute('data-venta');
+                        if (ventaId) openVentaDetails(ventaId);
+                    });
+                });
+
+                // attach handlers for status buttons (allow toggling Pendiente <-> Enviado)
+                document.querySelectorAll('.btn-status').forEach(btn => {
+                    btn.addEventListener('click', async (e) => {
+                        const ventaId = btn.getAttribute('data-venta');
+                        if (!ventaId) return;
+                        const current = btn.textContent.trim();
+                        // allow only changing from Pendiente -> Enviado or viceversa
+                        const target = current.toLowerCase().includes('enviado') ? 'Pendiente' : 'Enviado';
+                        const confirmMsg = `Cambiar estado del pedido #${ventaId} de "${current}" a "${target}"?`;
+                        if (!confirm(confirmMsg)) return;
+                        try {
+                            const resp = await fetch(`/ventas/${encodeURIComponent(ventaId)}`, {
+                                method: 'PUT',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ estado: target })
+                            });
+                            if (!resp.ok) {
+                                const txt = await resp.text();
+                                console.error('Error actualizando estado:', resp.status, txt);
+                                alert('Error actualizando estado. Revisa la consola.');
+                                return;
+                            }
+                            const body = await resp.json();
+                            if (!body.success) {
+                                console.error('Backend no actualizó estado:', body);
+                                alert('No se pudo actualizar el estado. Revisa la consola.');
+                                return;
+                            }
+                            // Refresh the list to show new estado
+                            loadAdminEnviosVentas();
+                        } catch (err) {
+                            console.error('Error de red actualizando estado:', err);
+                            alert('Error de red actualizando estado. Revisa la consola.');
+                        }
+                    });
+                });
+            } catch (err) {
+                console.error('Error cargando envíos/ventas:', err);
+                tbody.innerHTML = '<tr><td colspan="7">Error al cargar pedidos.</td></tr>';
+            }
+        }
+
+        // Helper para escapar HTML (evita inyección accidental)
+        function escapeHtml(str) {
+            if (str == null) return '';
+            return String(str).replace(/[&<>"']/g, function (s) {
+                return ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;" })[s];
+            });
+        }
+
+        // Devuelve el precio unitario de un item probando varias claves posibles
+        function getUnitPrice(item) {
+            if (!item) return 0;
+            // posibles nombres: precio_und, Precio, precio
+            return Number(item.precio_und ?? item.Precio ?? item.precio ?? 0) || 0;
+        }
+
+        // Abrir modal con detalles de la venta (productos, cantidad, precio unitario, subtotal, cliente)
+        function openVentaDetails(ventaId) {
+            const entry = ventasMapGlobal.get(Number(ventaId)) || ventasMapGlobal.get(String(ventaId));
+            const backdrop = document.getElementById('venta-modal-backdrop');
+            const body = document.getElementById('venta-modal-body');
+            if (!entry || !backdrop || !body) {
+                alert('Detalles de la venta no disponibles.');
+                return;
+            }
+
+            // Build a header including contact info if available
+            const parts = [];
+            parts.push(`<strong>Pedido #${escapeHtml(entry.venta)}</strong>`);
+            if (entry.cliente) parts.push(`Cliente: ${escapeHtml(entry.cliente)}`);
+            if (entry.cliente_correo) parts.push(`Correo: ${escapeHtml(entry.cliente_correo)}`);
+            if (entry.cliente_telefono) parts.push(`Tel: ${escapeHtml(entry.cliente_telefono)}`);
+            if (entry.cliente_direccion) parts.push(`Dirección: ${escapeHtml(entry.cliente_direccion)}`);
+            if (entry.fecha) parts.push(`Fecha: ${escapeHtml(entry.fecha)}`);
+            const headerHtml = `<div style="margin-bottom:10px;">${parts.join(' — ')}</div>`;
+            const tableHead = `
+                <table style="width:100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="border-bottom:1px solid #ddd; text-align:left;">
+                            <th>Producto</th>
+                            <th>Cantidad</th>
+                            <th>Precio unitario</th>
+                            <th>Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            const rowsHtml = entry.items.map(it => `
+                        <tr>
+                            <td>${escapeHtml(it.producto)}</td>
+                            <td>${it.cantidad}</td>
+                            <td>${formatCurrency(getUnitPrice(it))}</td>
+                            <td>${formatCurrency(it.subtotal)}</td>
+                        </tr>
+            `).join('');
+
+            const tableFoot = `
+                    </tbody>
+                    <tfoot>
+                        <tr style="border-top:1px solid #ddd; font-weight:600;">
+                            <td colspan="3" style="text-align:right; padding-top:8px;">Total:</td>
+                            <td style="padding-top:8px;">${formatCurrency(entry.total)}</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            `;
+
+            body.innerHTML = headerHtml + tableHead + rowsHtml + tableFoot + '<div style="margin-top:12px; text-align:right;"><button class="btn-secondary" id="venta-modal-close-btn">Cerrar</button></div>';
+
+            backdrop.classList.add('show');
+            backdrop.setAttribute('aria-hidden', 'false');
+
+            const closeBtn = document.getElementById('venta-modal-close-btn');
+            if (closeBtn) closeBtn.addEventListener('click', closeVentaModal);
+        }
+
+        function closeVentaModal() {
+            const backdrop = document.getElementById('venta-modal-backdrop');
+            if (backdrop) {
+                backdrop.classList.remove('show');
+                backdrop.setAttribute('aria-hidden', 'true');
+            }
+        }
+
+        // Wire the top-right close button and backdrop click
+        (function wireVentaModalControls(){
+            const topClose = document.getElementById('venta-modal-close');
+            const backdrop = document.getElementById('venta-modal-backdrop');
+            if (topClose) topClose.addEventListener('click', closeVentaModal);
+            if (backdrop) backdrop.addEventListener('click', (e) => { if (e.target === backdrop) closeVentaModal(); });
+        })();
     </script>
 </body>
 </html>

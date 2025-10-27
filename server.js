@@ -71,6 +71,12 @@ app.use('/producto', productoRouter);
 const categoriasRouter = require('./routes/categorias.js');
 app.use('/categorias', categoriasRouter);
 
+const ventasRouter = require('./routes/ventas.js');
+app.use('/ventas', ventasRouter);
+
+const clientesRouter = require('./routes/clientes.js');
+app.use('/clientes', clientesRouter);
+
 app.use(express.urlencoded({ extended:true }));
 const perfilUsuarioRouter = require('./routes/perfilUsuario.js');
 const perfilRouter = require('./routes/perfil.js');

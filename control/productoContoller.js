@@ -1,3 +1,5 @@
+const e = require("express");
+
 exports.obtenerProductoPorId = (req, res) => {
     console.log(`productoContoller.obtenerProductoPorId called - url=${req.originalUrl} params=${JSON.stringify(req.params)}`);
     const db = req.db;
@@ -130,12 +132,19 @@ exports.productosParaAdmin = (req, res) => {
     });
 };
 
+exports.definirEstadoProducto = (stock) => {
+    const s = Number(stock) || 0;
+    if (s > 10) return 'En Stock';
+    if (s > 0) return 'Bajo Stock';
+    return 'Agotado';
+};
 exports.insertarProducto = (req, res) => {
     const db = req.db;
     // Normalize incoming fields (accept different casings/names)
     const Nombre = req.body.Nombre || req.body.nombre || '';
     const imagen = req.body.imagen || req.body.Imagen || null;
-    const Estado = req.body.Estado || req.body.estado || 'Activo';
+    // Determinar Estado en servidor (defensa): usar la función exportada
+    const Estado = exports.definirEstadoProducto(req.body.Stock || req.body.stock || 0);
     const Descripcion = req.body.Descripcion || req.body.descripcion || '';
     const Precio = (req.body.Precio != null) ? req.body.Precio : (req.body.precio != null ? req.body.precio : 0);
     const ID_categoria = req.body.ID_categoria || req.body.categoria || req.body.Categoria || req.body.categoriaId || null;
@@ -166,7 +175,8 @@ exports.actualizarProducto = (req, res) => {
     // Normalize incoming fields
     const Nombre = req.body.Nombre || req.body.nombre || '';
     const imagen = req.body.imagen || req.body.Imagen || null;
-    const Estado = req.body.Estado || req.body.estado || 'Activo';
+    // Determinar Estado en servidor (defensa): usar la función exportada
+    const Estado = exports.definirEstadoProducto(req.body.Stock || req.body.stock || 0);
     const Descripcion = req.body.Descripcion || req.body.descripcion || '';
     const Precio = (req.body.Precio != null) ? req.body.Precio : (req.body.precio != null ? req.body.precio : 0);
     const ID_categoria = req.body.ID_categoria || req.body.categoria || req.body.Categoria || req.body.categoriaId || null;
