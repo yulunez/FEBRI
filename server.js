@@ -77,6 +77,11 @@ app.use('/ventas', ventasRouter);
 const clientesRouter = require('./routes/clientes.js');
 app.use('/clientes', clientesRouter);
 
+const estadisticasRouter = require('./routes/estadisticas.js');
+app.use('/estadisticas', estadisticasRouter);
+const excelRouter = require('./routes/excel.js');
+app.use('/excel', excelRouter);
+
 app.use(express.urlencoded({ extended:true }));
 const perfilUsuarioRouter = require('./routes/perfilUsuario.js');
 const perfilRouter = require('./routes/perfil.js');
