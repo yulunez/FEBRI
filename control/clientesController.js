@@ -173,3 +173,24 @@ exports.toggleClienteActivo = (req, res) => {
         return res.status(400).json({ success: false, message: 'No se pudo alternar: la tabla account no tiene columnas Activo ni Estado' });
     });
 };
+
+exports.clientesActivos = (req, res) => {
+    const db = req.db;
+    const sql = `SELECT
+                COUNT(*) AS total_clientes_activos
+                FROM account
+                WHERE Activo = 1 OR Estado = 'Activo'`;
+    db.query(sql, (err, results) => {
+        if (err) {
+            console.error('Error en consulta clientesActivos:', err);
+            return res.status(500).json({ success: false, message: 'Error en la base de datos' });
+        }   
+        if (Array.isArray(results) && results.length > 0) {
+            const r = results[0];
+            const total_clientes_activos = Number(r.total_clientes_activos || 0);
+            return res.json({ success: true, total_clientes_activos });
+        } else {
+            return res.json({ success: true, total_clientes_activos: 0 });
+        }       
+    });
+}

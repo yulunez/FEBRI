@@ -133,7 +133,7 @@
                 <div class="dashboard-grid">
                     <div class="stat-card">
                         <h3><i class="fas fa-shopping-cart"></i> Pedidos Hoy</h3>
-                        <div class="stat-number positive">47</div>
+                        <div class="stat-number positive" id="stat-pedidos-hoy">Cargando...</div>
                         <div class="stat-change positive">
                             <i class="fas fa-arrow-up"></i>
                             +12% vs ayer
@@ -142,7 +142,7 @@
                     
                     <div class="stat-card">
                         <h3><i class="fas fa-dollar-sign"></i> Ventas del Día</h3>
-                        <div class="stat-number positive">$2,845</div>
+                        <div class="stat-number positive" id="stat-ventas-dia">Cargando...</div>
                         <div class="stat-change positive">
                             <i class="fas fa-arrow-up"></i>
                             +8% vs ayer
@@ -151,7 +151,7 @@
                     
                     <div class="stat-card">
                         <h3><i class="fas fa-box"></i> Productos</h3>
-                        <div class="stat-number">1,234</div>
+                        <div class="stat-number" id="stat-total-productos">Cargando...</div>
                         <div class="stat-change">
                             <i class="fas fa-minus"></i>
                             Sin cambios
@@ -160,7 +160,7 @@
                     
                     <div class="stat-card">
                         <h3><i class="fas fa-users"></i> Clientes Activos</h3>
-                        <div class="stat-number positive">892</div>
+                        <div class="stat-number positive" id="stat-clientes-activos">Cargando...</div>
                         <div class="stat-change positive">
                             <i class="fas fa-arrow-up"></i>
                             +15 nuevos
@@ -597,7 +597,10 @@
         document.querySelectorAll('.nav-link').forEach(link => {
             link.addEventListener('click', function(e) {
                 const sectionId = this.getAttribute('data-section');
-                if (sectionId === 'productos') {
+                if (sectionId === 'dashboard') {
+                    // Refresh dashboard metrics when Dashboard tab is clicked
+                    if (typeof loadDashboardMetrics === 'function') loadDashboardMetrics();
+                } else if (sectionId === 'productos') {
                     loadAdminProducts();
                 } else if (sectionId === 'pedidos') {
                     loadAdminEnviosVentas();
@@ -624,6 +627,8 @@
                 loadAdminEmpleados();
             } else if (activeLink && activeLink.getAttribute('data-section') === 'estadisticas') {
                 loadEstadisticas();
+            } else if (activeLink && activeLink.getAttribute('data-section') === 'dashboard') {
+                if (typeof loadDashboardMetrics === 'function') loadDashboardMetrics();
             }
         });
         document.getElementById("descargarExcel").addEventListener("click", async () => {
@@ -727,6 +732,95 @@
             } catch (err) {
                 console.error('Error cargando estadísticas:', err);
                 container.innerHTML = '<div style="grid-column:1/-1; color:#900;">Error al cargar estadísticas. Revisa la consola.</div>';
+            }
+        }
+
+        // Cargar métricas para el dashboard: total productos, ventas del día y clientes activos
+        async function loadDashboardMetrics() {
+            const elVentas = document.getElementById('stat-ventas-dia');
+            const elProductos = document.getElementById('stat-total-productos');
+            const elClientes = document.getElementById('stat-clientes-activos');
+            const elPedidos = document.getElementById('stat-pedidos-hoy');
+
+            if (elVentas) elVentas.textContent = 'Cargando...';
+            if (elProductos) elProductos.textContent = 'Cargando...';
+            if (elClientes) elClientes.textContent = 'Cargando...';
+
+            try {
+                // 1) Total productos: use admin products endpoint and count
+                try {
+                    const r = await fetch('/producto/admin');
+                    if (r.ok) {
+                        const d = await r.json();
+                        if (d && d.success && Array.isArray(d.productos)) {
+                            if (elProductos) elProductos.textContent = String(d.productos.length);
+                        } else if (elProductos) {
+                            // fallback: if backend returned single 'productos' object
+                            elProductos.textContent = '-';
+                        }
+                    } else if (elProductos) {
+                        elProductos.textContent = '-';
+                    }
+                } catch (err) {
+                    console.warn('Error obteniendo total de productos:', err);
+                    if (elProductos) elProductos.textContent = '-';
+                }
+
+                // 2) Ventas del día: prefer server-side aggregate endpoint /ventas/del-dia
+                try {
+                    const r2 = await fetch('/ventas/del-dia');
+                    if (r2.ok) {
+                        const d2 = await r2.json();
+                        if (d2 && d2.success && d2.ventasDelDia) {
+                            const totalVentas = Number(d2.ventasDelDia.total_ventas || 0);
+                            const totalGanancias = Number(d2.ventasDelDia.total_ganancias || 0);
+                            if (elPedidos) elPedidos.textContent = String(totalVentas);
+                            if (elVentas) elVentas.textContent = formatCurrency(totalGanancias);
+                        } else {
+                            if (elPedidos) elPedidos.textContent = '0';
+                            if (elVentas) elVentas.textContent = formatCurrency(0);
+                        }
+                    } else {
+                        // fallback to zeros
+                        if (elPedidos) elPedidos.textContent = '0';
+                        if (elVentas) elVentas.textContent = formatCurrency(0);
+                    }
+                } catch (err) {
+                    console.warn('Error obteniendo ventas del dia (aggregate):', err);
+                    if (elPedidos) elPedidos.textContent = '0';
+                    if (elVentas) elVentas.textContent = formatCurrency(0);
+                }
+
+                // 3) Clientes activos: fetch clientes and count where activo == 1 or Estado indicates activo
+                try {
+                    const r3 = await fetch('/clientes');
+                    let activos = 0;
+                    if (r3.ok) {
+                        const d3 = await r3.json();
+                        if (d3 && d3.success && Array.isArray(d3.clientes)) {
+                            for (const c of d3.clientes) {
+                                if (typeof c.activo !== 'undefined' && c.activo !== null) {
+                                    if (Number(c.activo)) activos += 1;
+                                } else if (typeof c.Activo !== 'undefined' && c.Activo !== null) {
+                                    if (Number(c.Activo)) activos += 1;
+                                } else if (c.estado || c.Estado) {
+                                    const s = String(c.estado || c.Estado).toLowerCase();
+                                    if (s.includes('act')) activos += 1;
+                                }
+                            }
+                        }
+                    }
+                    if (elClientes) elClientes.textContent = String(activos);
+                } catch (err) {
+                    console.warn('Error obteniendo clientes activos:', err);
+                    if (elClientes) elClientes.textContent = '-';
+                }
+
+            } catch (err) {
+                console.error('Error cargando métricas del dashboard:', err);
+                if (elVentas) elVentas.textContent = '-';
+                if (elProductos) elProductos.textContent = '-';
+                if (elClientes) elClientes.textContent = '-';
             }
         }
 

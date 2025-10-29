@@ -67,3 +67,31 @@ exports.actualizarEstadoVenta = (req, res) => {
         return res.json({ success: true, updated: result.affectedRows });
     });
 };
+
+exports.ventasDelDia = (req, res) => {
+    const db = req.db;
+    // Buscamos ventas del día actual y la ganancia total, ademas la comparacion al dia anterior
+    const sql = `SELECT
+                    COUNT(*) AS total_ventas,
+                    SUM(d.Cantidad * p.Precio) AS total_ganancias
+                FROM venta v
+                JOIN detalleventas d ON v.ID_venta = d.VentaID
+                JOIN producto p ON d.ProductoID = p.ID_producto
+                WHERE DATE(d.Fecha_venta) = CURDATE();`;
+    db.query(sql, (err, results) => {
+        if (err) {
+            console.error('Error en consulta ventasDelDia:', err);
+            return res.status(500).json({ success: false, message: 'Error en la base de datos' });
+        }
+        if (Array.isArray(results) && results.length > 0) {
+            const r = results[0];
+            const ventasDelDia = {  
+                total_ventas: Number(r.total_ventas || 0),
+                total_ganancias: Number(r.total_ganancias || 0)
+            };
+            return res.json({ success: true, ventasDelDia });
+        } else {
+            return res.json({ success: true, ventasDelDia: { total_ventas: 0, total_ganancias: 0 } });
+        }   
+    });
+}   

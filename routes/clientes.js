@@ -8,5 +8,6 @@ router.get('/total-ventas', clientesController.mostrarTotalVentasporCliente);
 router.get('/:id/ventas', clientesController.mostrarVentasPorCliente);
 // Alternar activo/suspendido del cliente (intenta usar columna Activo; si no existe, usa Estado)
 router.put('/:id/toggle', clientesController.toggleClienteActivo);
+router.get('/', clientesController.clientesActivos);
 
 module.exports = router;

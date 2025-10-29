@@ -20,4 +20,6 @@ router.delete('/favorito/:id', productoController.quitarFavorito);
 router.put('/:id', productoController.actualizarProducto);
 router.get('/:id', productoController.obtenerProductoPorId);
 
+
+router.get('/', productoController.totalProductos)
 module.exports = router;

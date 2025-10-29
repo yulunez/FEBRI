@@ -261,3 +261,16 @@ exports.quitarFavorito = (req, res) => {
     req.session.save?.(() => {});
     res.json({ success: true, favoritos: req.session.favoritos });
 };
+
+exports.totalProductos = (req, res) => {
+    const db = req.db;
+    const sql = 'SELECT COUNT(*) AS total FROM producto';   
+    db.query(sql, (err, results) => {
+        if (err) {  
+            console.error('Error en consulta totalProductos:', err);
+            return res.status(500).json({ success: false, message: 'Error en la base de datos' });
+        }
+        const total = (Array.isArray(results) && results.length > 0) ? Number(results[0].total || 0) : 0;
+        res.json({ success: true, total });
+    });
+};
