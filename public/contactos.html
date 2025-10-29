@@ -6,6 +6,7 @@
     <title>Document</title>
       <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link rel="stylesheet" href="style.css">
+    <script src="shared.js"></script>
 </head>
 <body>
        <!-- Barra de navegación para pantallas grandes -->
@@ -137,6 +138,17 @@
 </section>
 
 <script>
+
+// desplegable menu en pantallas pequeñas
+    document.addEventListener('DOMContentLoaded', function() {
+        const menuIcon = document.querySelector('.menu-icon');
+        const menuLateral = document.querySelector('.menu-lateral');
+        
+        menuIcon.addEventListener('click', function() {
+            menuLateral.classList.toggle('activo');
+        });
+    });
+
 const form = document.getElementById('contactForm');
 const btn = document.getElementById('contact_submit');
 
@@ -200,14 +212,14 @@ function mostrarMensajeContacto(mensaje, color) {
 
     function getCartItems() {
         try {
-            const s = JSON.parse(sessionStorage.getItem('carritoCompra')) || [];
-            const l = JSON.parse(localStorage.getItem('carritoCompra')) || [];
-            return (s && s.length ? s : l) || [];
-        } catch { return []; }
+            return JSON.parse(sessionStorage.getItem('carritoCompra')) || [];
+        } catch {
+            return [];
+        }
     }
 
     function updateCartCounters() {
-        const total = getCartItems().reduce((sum, item) => sum + (Number(item.cantidad) || 1), 0);
+        const total = getCartItems().reduce((sum, item) => sum + (Number(item.cantidad) || 0), 0);
         document.querySelectorAll('.contador-carrito').forEach(el => {
             el.textContent = String(total);
             el.style.display = total > 0 ? 'flex' : 'none';

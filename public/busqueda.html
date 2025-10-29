@@ -77,9 +77,8 @@
     </nav>
 
     <!-- Contenido principal -->
-    <section class="resultados-busqueda">
-        <h2 class="resultados-titulo" id="titulo-resultados">Resultados de búsqueda</h2>
-        <div id="resultados-contenedor" class="productos-grid">
+    <section class="productos-categoria">
+        <div class="contenedor-productos-hogar" id="contenedor-productos">
             <!-- Aquí se cargarán los resultados -->
         </div>
     </section>
@@ -114,8 +113,7 @@
             const termino = obtenerParametroURL('termino');
             
             if (!termino || termino.trim() === '') {
-                mostrarNoResultados('No se especificó un término de búsqueda');
-                return;
+                return; // Sin mensaje, solo no cargar nada
             }
             
             // Actualizar campos de búsqueda
@@ -136,84 +134,145 @@
                 const data = await response.json();
                 console.log(' Datos recibidos:', data);
                 
-                const contenedor = document.getElementById('resultados-contenedor');
-                const titulo = document.getElementById('titulo-resultados');
+                const contenedor = document.getElementById('contenedor-productos');
                 
                 
                 if (data.success && Array.isArray(data.productos) && data.productos.length > 0) {
-                    // HAY PRODUCTOS
-                    titulo.innerHTML = `Resultados para "<span class="termino-busqueda">${termino}</span>" (${data.productos.length} ${data.productos.length === 1 ? 'producto' : 'productos'})`;
-                    
+                    // Mapear resultados para usar al agregar al carrito
+                    productosBusqueda = data.productos.map(p => ({
+                        id: p.id,
+                        nombre: p.Nombre || p.nombre || 'Producto',
+                        precio: Number(p.Precio) || 0,
+                        imagen: p.Imagen || p.imagen || 'imagenes/inicio.webp',
+                        descripcion: p.Descripcion || p.descripcion || ''
+                    }));
+                    // HAY PRODUCTOS - usar el mismo diseño que las categorías
                     contenedor.innerHTML = '';
                     
                     data.productos.forEach(producto => {
-                        const card = document.createElement('div');
-                        card.className = 'producto-card';
+                        const precio = Number(producto.Precio) || 0;
+                        const precioOriginal = Number(producto.PrecioAnterior) || null;
                         
-                        const descripcion = producto.Descripcion || '';
-                        const descripcionCorta = descripcion.length > 100
-                            ? descripcion.substring(0, 100) + '...'
-                            : descripcion;
+                        // Determinar cómo mostrar los precios (igual que en categorías)
+                        let preciosHTML;
+                        if (precioOriginal && precioOriginal > precio) {
+                            preciosHTML = `
+                                <span class="precio-descuento-hogar">${precioOriginal.toLocaleString()}</span>
+                                <span class="precio-original-hogar">${precio.toLocaleString()}</span>
+                            `;
+                        } else {
+                            preciosHTML = `<span class="precio-original-hogar">${precio.toLocaleString()}</span>`;
+                        }
                         
-                        card.innerHTML = `
-                            <img src="${producto.Imagen || 'imagenes/inicio.webp'}" alt="${producto.Nombre}" class="producto-imagen">
-                            <div class="producto-info">
-                                <h3 class="producto-nombre">${producto.Nombre}</h3>
-                                <p class="producto-precio">$${(producto.Precio || 0).toFixed(2)}</p>
-                                ${descripcionCorta ? `<p class="producto-descripcion">${descripcionCorta}</p>` : ''}
-                                <div>
-                                    <button class="btn-agregar-carrito" onclick="agregarAlCarrito(${producto.id})">
-                                        <i class="fas fa-cart-plus"></i> Agregar al carrito
+                        const cardHTML = `
+                            <div class="producto-card-hogar">
+                                <div class="producto-imagen-hogar">
+                                    <a href="detalle.html?producto=${encodeURIComponent(producto.id)}">
+                                        <img src="${producto.Imagen || 'imagenes/inicio.webp'}" alt="${producto.Nombre || 'Producto'}">
+                                    </a>
+                                    <button class="btn-agregar" onclick="agregarAlCarrito(${producto.id})">
+                                        <i class='bx bx-cart-add'></i>
+                                        Agregar al carrito
+                                    </button>
+                                </div>
+                                <div class="producto-info-hogar">
+                                    <h3 class="producto-nombre-hogar">
+                                        <a href="detalle.html?producto=${encodeURIComponent(producto.id)}" style="color:inherit; text-decoration:none;">${producto.Nombre || 'Producto'}</a>
+                                    </h3>
+                                    <div class="producto-precios-hogar">
+                                        ${preciosHTML}
+                                    </div>
+                                    <button class="btn-favorito">
+                                        <i class='bx bx-heart'></i>
                                     </button>
                                 </div>
                             </div>
                         `;
                         
-                        contenedor.appendChild(card);
+                        contenedor.innerHTML += cardHTML;
                     });
+                    
+                    // Agregar funcionalidad a los botones de favoritos
+                    agregarFuncionalidadFavoritos();
                 } else {
-                    // NO HAY PRODUCTOS
-                    mostrarNoResultados(termino);
+                    // NO HAY PRODUCTOS - mostrar mensaje + botón ver categorías
+                    const contenedor = document.getElementById('contenedor-productos');
+                    if (contenedor) {
+                        contenedor.innerHTML = `
+                            <div class="no-resultados" style="grid-column: 1 / -1; text-align: center; padding: 24px;">
+                                <h3 style="margin-bottom: 8px;">No se encontraron productos</h3>
+                                <p style="margin-bottom: 16px;">
+                                    No hay resultados para "${termino}". Intenta otra búsqueda o explora nuestras categorías.
+                                </p>
+                                <a href="categorias.html" class="btn-volver"
+                                   style="display: inline-block; background: #ff7eb3; color: #fff; padding: 10px 16px; border-radius: 8px; text-decoration: none;">
+                                   Ver Categorías
+                                </a>
+                            </div>
+                        `;
+                    }
                 }
             } catch (error) {
-                console.error('❌ Error:', error);
-                mostrarNoResultados(termino, true);
+                console.error(' Error:', error);
+                // Sin mensaje de error, solo limpiar contenedor
+                const contenedor = document.getElementById('contenedor-productos');
+                if (contenedor) contenedor.innerHTML = '';
             }
         }
         
-        // Función para mostrar mensaje de no resultados
-        function mostrarNoResultados(termino, esError = false) {
-            const contenedor = document.getElementById('resultados-contenedor');
-            const titulo = document.getElementById('titulo-resultados');
-            
-            titulo.innerHTML = `Resultados para "<span class="termino-busqueda">${termino}</span>"`;
-            
-            contenedor.innerHTML = `
-                <div class="no-resultados" style="grid-column: 1 / -1;">
-                    <h3>${esError ? 'Error al buscar' : 'No se encontraron productos'}</h3>
-                    <p>${esError 
-                        ? 'Ocurrió un error al realizar la búsqueda. Por favor, intenta nuevamente.' 
-                        : `No se encontraron productos que coincidan con "${termino}".`
-                    }</p>
-                    <p>Intenta con otra búsqueda o explora nuestras categorías.</p>
-                    <a href="categorias.html" class="btn-volver">Ver Categorías</a>
-                </div>
-            `;
+        // Función para agregar funcionalidad a los botones de favoritos (igual que en categorías)
+        function agregarFuncionalidadFavoritos() {
+            const botonesFavoritos = document.querySelectorAll('.btn-favorito');
+            botonesFavoritos.forEach(boton => {
+                boton.addEventListener('click', function() {
+                    this.classList.toggle('activo');
+                });
+            });
         }
         
-        // Función para agregar al carrito
+        // Función para agregar al carrito (igual que en categorías)
         function agregarAlCarrito(productoId) {
-            let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
-            const productoExistente = carrito.find(item => item.id === productoId);
-            
-            if (productoExistente) {
-                productoExistente.cantidad += 1;
-            } else {
-                carrito.push({ id: productoId, cantidad: 1 });
+            if (localStorage.getItem('usuarioLogueado') !== 'true') {
+                alert('Debes iniciar sesión para agregar productos al carrito');
+                window.location.href = 'login.html';
+                return;
             }
-            
-            localStorage.setItem('carrito', JSON.stringify(carrito));
-            alert('✅ Producto agregado al carrito');
+
+            try {
+                let carrito = JSON.parse(sessionStorage.getItem('carritoCompra')) || [];
+                const productoExistente = carrito.find(item => item.id === productoId);
+                
+                if (productoExistente) {
+                    productoExistente.cantidad += 1;
+                } else {
+                    // Buscar el producto completo en los resultados de búsqueda
+                    const producto = productosBusqueda.find(p => p.id === productoId);
+                    if (producto) {
+                        carrito.push({
+                            id: producto.id,
+                            nombre: producto.nombre,
+                            precio: Number(producto.precio) || 0,
+                            descripcion: producto.descripcion || '',
+                            imagen: producto.imagen || 'imagenes/inicio.webp',
+                            cantidad: 1
+                        });
+                    } else {
+                        // Fallback para no romper en casos edge
+                        carrito.push({ id: productoId, cantidad: 1 });
+                    }
+                }
+        
+                // Guardar en ambas para compatibilidad con otras páginas
+                sessionStorage.setItem('carritoCompra', JSON.stringify(carrito));
+                localStorage.setItem('carritoCompra', JSON.stringify(carrito));
+        
+                // Actualizar contador del carrito
+                updateCartCounters();
+                alert('✅ Producto agregado al carrito');
+            } catch (error) {
+                console.error('Error al agregar al carrito:', error);
+                alert('❌ Error al agregar el producto al carrito');
+            }
         }
         
         // Función para ir al carrito
@@ -246,30 +305,49 @@
             }
         });
         
-        // Validaciones de navegación según estado de autenticación
-        function validarNavegacion() {
-            const usuario = localStorage.getItem('usuario');
-            const btnIniciarSesion = document.getElementById('btn-iniciar-sesion');
-            const perfilLink = document.getElementById('perfil-link');
-            const perfilLinkMovil = document.querySelector('.nav-pequeno a[href="perfil_usuario.html"]');
-            
-            if (usuario) {
-                if (btnIniciarSesion) btnIniciarSesion.style.display = 'none';
-                if (perfilLink) perfilLink.style.display = 'block';
-                if (perfilLinkMovil) perfilLinkMovil.style.display = 'block';
-            } else {
-                if (btnIniciarSesion) btnIniciarSesion.style.display = 'block';
-                if (perfilLink) perfilLink.style.display = 'none';
-                if (perfilLinkMovil) perfilLinkMovil.style.display = 'none';
+        // Funciones de navegación y carrito (iguales que en categorías)
+        function isLoggedIn() { 
+            try { 
+                return localStorage.getItem('usuarioLogueado') === 'true'; 
+            } catch { 
+                return false; 
+            } 
+        }
+        
+        function toggleLoginVsProfile() {
+            const logged = isLoggedIn();
+            const btnLogin = document.querySelector('.btn-registrar');
+            const btnLoginMovil = document.querySelector('.btn-registrar-movil');
+            const perfilIcon = document.querySelector('.perfil-icon');
+            if (btnLogin) btnLogin.style.display = logged ? 'none' : 'block';
+            if (btnLoginMovil) btnLoginMovil.style.display = logged ? 'none' : 'block';
+            if (perfilIcon) perfilIcon.style.display = logged ? 'inline-block' : 'none';
+        }
+        
+        function getCartItems() {
+            try {
+                return JSON.parse(sessionStorage.getItem('carritoCompra')) || [];
+            } catch {
+                return [];
             }
+        }
+        
+        function updateCartCounters() {
+            const total = getCartItems().reduce((sum, item) => sum + (Number(item.cantidad) || 0), 0);
+            document.querySelectorAll('.contador-carrito').forEach(el => {
+                el.textContent = String(total);
+                el.style.display = total > 0 ? 'flex' : 'none';
+            });
         }
         
         document.addEventListener('DOMContentLoaded', function() {
             cargarResultados();
-            validarNavegacion();
-            // Ejecutar validación al cargar la página
-            validarNavegacion();
+            toggleLoginVsProfile();
+            updateCartCounters();
         });
+        
+        // Memoria de resultados para el carrito
+        let productosBusqueda = [];
     </script>
 </body>
 </html>

@@ -110,17 +110,17 @@ document.addEventListener('DOMContentLoaded', async function() {
         });
         
         const data = await response.json();
-        console.log('📊 Respuesta del servidor:', data);
+        console.log(' Respuesta del servidor:', data);
         
         if (data.success && data.usuario) {
-            // ✅ Usuario AUTENTICADO
-            console.log('✅ Usuario autenticado:', data.usuario.nombre);
+            //  Usuario AUTENTICADO
+            console.log(' Usuario autenticado:', data.usuario.nombre);
             
             // Ocultar TODOS los botones de "Iniciar sesión"
             botonesRegistrar.forEach(btn => {
                 if (btn) {
                     btn.style.display = 'none';
-                    console.log('👁️ Ocultando botón de iniciar sesión');
+                    console.log('Ocultando botón de iniciar sesión');
                 }
             });
             
@@ -128,14 +128,14 @@ document.addEventListener('DOMContentLoaded', async function() {
             iconosPerfil.forEach(icono => {
                 if (icono) {
                     icono.style.display = 'inline-block';
-                    console.log('👁️ Mostrando ícono de perfil');
+                    console.log(' Mostrando ícono de perfil');
                 }
             });
             
             enlacesPerfil.forEach(enlace => {
                 if (enlace) {
                     enlace.style.display = 'inline-block';
-                    console.log('👁️ Mostrando enlace de perfil');
+                    console.log(' Mostrando enlace de perfil');
                 }
             });
             
@@ -145,17 +145,17 @@ document.addEventListener('DOMContentLoaded', async function() {
                 localStorage.setItem('nombreUsuario', data.usuario.nombre);
             }
             
-            console.log('✅ Interfaz actualizada para usuario autenticado');
+            console.log(' Interfaz actualizada para usuario autenticado');
             
         } else {
-            // ❌ Usuario NO autenticado
-            console.log('❌ Usuario no autenticado');
+            // Usuario NO autenticado
+            console.log(' Usuario no autenticado');
             
             // Mostrar botones de "Iniciar sesión"
             botonesRegistrar.forEach(btn => {
                 if (btn) {
                     btn.style.display = 'block';
-                    console.log('👁️ Mostrando botón de iniciar sesión');
+                    console.log(' Mostrando botón de iniciar sesión');
                 }
             });
             
@@ -163,14 +163,14 @@ document.addEventListener('DOMContentLoaded', async function() {
             iconosPerfil.forEach(icono => {
                 if (icono) {
                     icono.style.display = 'none';
-                    console.log('👁️ Ocultando ícono de perfil');
+                    console.log(' Ocultando ícono de perfil');
                 }
             });
             
             enlacesPerfil.forEach(enlace => {
                 if (enlace) {
                     enlace.style.display = 'none';
-                    console.log('👁️ Ocultando enlace de perfil');
+                    console.log(' Ocultando enlace de perfil');
                 }
             });
             
@@ -178,10 +178,10 @@ document.addEventListener('DOMContentLoaded', async function() {
             localStorage.removeItem('usuarioLogueado');
             localStorage.removeItem('nombreUsuario');
             
-            console.log('✅ Interfaz actualizada para usuario no autenticado');
+            console.log('Interfaz actualizada para usuario no autenticado');
         }
     } catch (error) {
-        console.error('❌ Error al verificar sesión:', error);
+        console.error(' Error al verificar sesión:', error);
         
         // En caso de error, mostrar botón de login por seguridad
         botonesRegistrar.forEach(btn => {
@@ -195,7 +195,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         });
     }
     
-    console.log('🏁 Verificación de sesión completada');
+    console.log(' Verificación de sesión completada');
 });
 </script>
     </script>
@@ -428,7 +428,7 @@ function inicializarCarrusel() {
     const totalTarjetas = tarjetas.length;
 
     function moverCarrusel(direccion) {
-        const anchoTarjeta = tarjetas[0].offsetWidth + 20; // margen aproximado
+        const anchoTarjeta = tarjetas[0].offsetWidth + 20; 
 
         if (direccion === 'siguiente' && posicionActual < totalTarjetas - tarjetasPorVista) {
             posicionActual++;
@@ -448,19 +448,6 @@ function inicializarCarrusel() {
     if (btnAnterior) btnAnterior.addEventListener('click', () => moverCarrusel('anterior'));
 }
 
-//ocultar boton de inicio de sesion despues de haver iniciado sesion
-/*document.addEventListener('DOMContentLoaded', () => {
-  const btnLogin = document.querySelector('.btn-registrar');
-  const perfilIcon = document.querySelector('.perfil-icon');
-
-  if (localStorage.getItem('usuarioLogueado') === 'true') {
-    if (btnLogin) btnLogin.style.display = 'none';
-    if (perfilIcon) perfilIcon.style.display = 'inline-block';
-  } else {
-    if (btnLogin) btnLogin.style.display = 'block';
-    if (perfilIcon) perfilIcon.style.display = 'none';
-  }
-});*/
 
     // Cargar los primeros 10 productos desde el backend y renderizar en el carrusel
     document.addEventListener('DOMContentLoaded', async function() {
@@ -542,14 +529,14 @@ function inicializarCarrusel() {
         // Helpers para carrito
         function getCartItems() {
             try {
-                const s = JSON.parse(sessionStorage.getItem('carritoCompra')) || [];
-                const l = JSON.parse(localStorage.getItem('carritoCompra')) || [];
-                return (s && s.length ? s : l) || [];
-            } catch { return []; }
+                return JSON.parse(sessionStorage.getItem('carritoCompra')) || [];
+            } catch {
+                return [];
+            }
         }
-    
+
         function updateCartCounters() {
-            const total = getCartItems().reduce((sum, item) => sum + (Number(item.cantidad) || 1), 0);
+            const total = getCartItems().reduce((sum, item) => sum + (Number(item.cantidad) || 0), 0);
             document.querySelectorAll('.contador-carrito').forEach(el => {
                 el.textContent = String(total);
                 el.style.display = total > 0 ? 'flex' : 'none';
@@ -612,3 +599,4 @@ function inicializarCarrusel() {
     </script>
 </body>
 </html>
+

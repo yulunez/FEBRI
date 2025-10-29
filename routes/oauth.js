@@ -28,30 +28,7 @@ router.get('/google/callback',
     }
 );
 
-// Ruta para iniciar autenticación con Facebook
-router.get('/facebook',
-    passport.authenticate('facebook', { scope: ['email'] })
-);
 
-// Callback de Facebook
-router.get('/facebook/callback',
-    passport.authenticate('facebook', { failureRedirect: '/login.html' }),
-    (req, res) => {
-        console.log('=== CALLBACK FACEBOOK ===');
-        console.log('Usuario autenticado:', req.user);
-        
-        // Guardar usuario en sesión
-        req.session.usuario = req.user;
-        
-        req.session.save((err) => {
-            if (err) {
-                console.error('Error al guardar sesión:', err);
-                return res.redirect('/login.html');
-            }
-            console.log('Sesión guardada, redirigiendo a index');
-            res.redirect('/index.html');
-        });
-    }
-);
+
 
 module.exports = router;
