@@ -189,20 +189,24 @@
                 <div class="table-container">
                     <table>
                         <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Producto</th>
-                                <th>Categoría</th>
-                                <th>Precio</th>
-                                <th>Stock</th>
-                                <th>Estado</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Filas dinámicas generadas desde /producto/admin -->
-                            <tbody id="admin-products-body">
-                                <!-- rows will be injected here -->
+                            try {
+                                // Use PATCH to toggle (server accepts PATCH/PUT/POST)
+                                const res = await fetch(`/empleados/toggle/${id}`, { method: 'PATCH' });
+                                if (!res.ok) {
+                                    const txt = await res.text();
+                                    throw new Error('No se pudo cambiar el estado: ' + txt);
+                                }
+                                const json = await res.json();
+                                if (json.success) {
+                                    // recargar lista de empleados
+                                    loadAdminEmpleados();
+                                } else {
+                                    alert('No se pudo cambiar el estado: ' + (json.message || ''));
+                                }
+                            } catch (err) {
+                                console.error(err);
+                                alert('Error al cambiar estado del empleado. Revisa la consola.');
+                            }
                             </tbody>
                         </tbody>
                     </table>
@@ -300,7 +304,7 @@
                         <i class="fas fa-shield-alt"></i>
                         Seguridad y Roles
                     </h2>
-                    <button class="btn-primary">
+                    <button id="btn-nuevo-usuario" class="btn-primary">
                         <i class="fas fa-user-plus"></i>
                         Nuevo Usuario
                     </button>
@@ -313,31 +317,13 @@
                                 <th>Usuario</th>
                                 <th>Email</th>
                                 <th>Rol</th>
-                                <th>Último Acceso</th>
                                 <th>Estado</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="admin-empleados-body">
                             <tr>
-                                <td>admin</td>
-                                <td>admin@tienda.com</td>
-                                <td><span class="status delivered">Administrador</span></td>
-                                <td>Hoy, 10:30 AM</td>
-                                <td><span class="status delivered">Activo</span></td>
-                                <td>
-                                    <button class="btn-primary" style="padding: 6px 12px; font-size: 0.8rem;">Editar</button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>vendedor1</td>
-                                <td>vendedor@tienda.com</td>
-                                <td><span class="status pending">Vendedor</span></td>
-                                <td>Ayer, 6:45 PM</td>
-                                <td><span class="status delivered">Activo</span></td>
-                                <td>
-                                    <button class="btn-primary" style="padding: 6px 12px; font-size: 0.8rem;">Editar</button>
-                                </td>
+                                <td colspan="6">Cargando empleados...</td>
                             </tr>
                         </tbody>
                     </table>
@@ -347,6 +333,64 @@
     </div>
 
     <!-- Modal para crear/editar producto -->
+        <!-- Modal para crear nuevo usuario (admin) -->
+        <div id="admin-user-modal-backdrop" class="modal-backdrop" aria-hidden="true">
+            <div class="modal" role="dialog" aria-modal="true" aria-labelledby="admin-user-modal-title">
+                <div class="modal-header">
+                    <h3 id="admin-user-modal-title">Crear Nuevo Usuario</h3>
+                    <button class="close-btn" id="admin-user-modal-close">×</button>
+                </div>
+                <form id="admin-user-form">
+                    <div class="row">
+                        <div class="col">
+                            <label for="admin-nombre">Nombre</label>
+                            <input id="admin-nombre" name="nombre" type="text" required />
+                        </div>
+                        <div class="col">
+                            <label for="admin-apellidos">Apellidos</label>
+                            <input id="admin-apellidos" name="apellidos" type="text" required />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <label for="admin-correo">Correo</label>
+                            <input id="admin-correo" name="correo" type="email" required />
+                        </div>
+                        <div class="col">
+                            <label for="admin-telefono">Teléfono</label>
+                            <input id="admin-telefono" name="telefono" type="text" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <label for="admin-direccion">Dirección</label>
+                            <input id="admin-direccion" name="direccion" type="text" />
+                        </div>
+                        <div class="col">
+                            <label for="admin-fecha">Fecha de nacimiento</label>
+                            <input id="admin-fecha" name="fecha_nacimiento" type="date" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <label for="admin-password">Contraseña</label>
+                            <input id="admin-password" name="password" type="password" required />
+                        </div>
+                        <div class="col">
+                            <label for="admin-tipo">Tipo de usuario</label>
+                            <select id="admin-tipo" name="tipo">
+                                <option value="cliente">Cliente</option>
+                                <option value="empleado">Empleado / Admin</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="actions">
+                        <button type="button" class="btn-secondary" id="admin-user-modal-cancel">Cancelar</button>
+                        <button type="submit" class="btn-primary">Crear Usuario</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     <div id="product-modal-backdrop" class="modal-backdrop" aria-hidden="true">
         <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
             <div class="modal-header">
@@ -537,7 +581,7 @@
                             <td>${stock}</td>
                             <td><span class="status">${estado}</span></td>
                             <td>
-                                <button class="btn-primary" style="padding: 6px 12px; font-size: 0.8rem;" data-id="${p.id}">Editar</button>
+                                <button class="btn-primary btn-edit-product" style="padding: 6px 12px; font-size: 0.8rem;" data-id="${p.id}">Editar</button>
                             </td>
                         </tr>
                     `;
@@ -559,6 +603,8 @@
                     loadAdminEnviosVentas();
                 } else if (sectionId === 'clientes') {
                     loadAdminClientes();
+                } else if (sectionId === 'seguridad') {
+                    loadAdminEmpleados();
                 } else if (sectionId === 'estadisticas') {
                     loadEstadisticas();
                 }
@@ -574,6 +620,8 @@
                 loadAdminEnviosVentas();
             } else if (activeLink && activeLink.getAttribute('data-section') === 'clientes') {
                 loadAdminClientes();
+            } else if (activeLink && activeLink.getAttribute('data-section') === 'seguridad') {
+                loadAdminEmpleados();
             } else if (activeLink && activeLink.getAttribute('data-section') === 'estadisticas') {
                 loadEstadisticas();
             }
@@ -870,16 +918,19 @@
         const btnOpenCate = document.getElementById('btn-open-cate');
         if (btnOpenCate) btnOpenCate.addEventListener('click', (e) => { e.preventDefault(); openCateModal(); });
 
-        // Delegación para botones Editar en la tabla
+        // Delegación para botones Editar (productos) en la tabla — solo botones con la clase .btn-edit-product
         document.addEventListener('click', async (e) => {
-            const btn = e.target.closest('button[data-id]');
+            const btn = e.target.closest('button.btn-edit-product');
             if (!btn) return;
             const id = btn.getAttribute('data-id');
             if (!id) return;
             // traer datos del producto y abrir modal en modo edición
             try {
                 const res = await fetch(`/producto/${id}`);
-                if (!res.ok) throw new Error('No se pudo obtener el producto');
+                if (!res.ok) {
+                    const txt = await res.text();
+                    throw new Error('No se pudo obtener el producto: ' + txt);
+                }
                 const data = await res.json();
                 if (!data.success || !data.producto) throw new Error('Producto no encontrado');
                 openProductModal(data.producto);
@@ -1188,6 +1239,111 @@
             }
         }
 
+        // Cargar empleados para la sección Seguridad
+        async function loadAdminEmpleados() {
+            const tbody = document.getElementById('admin-empleados-body');
+            if (!tbody) return;
+            tbody.innerHTML = '<tr><td colspan="6">Cargando empleados...</td></tr>';
+            try {
+                const res = await fetch('/empleados');
+                if (!res.ok) throw new Error('Error al obtener empleados: ' + res.status);
+                const data = await res.json();
+                if (!data.success || !Array.isArray(data.empleados)) {
+                    tbody.innerHTML = '<tr><td colspan="6">No se encontraron empleados.</td></tr>';
+                    return;
+                }
+
+                if (data.empleados.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6">No hay empleados para mostrar.</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = data.empleados.map(e => {
+                    const nombre = e.Nombre_completo || `${e.Nombre || ''} ${e.Apellido || ''}`.trim() || '-';
+                    const correo = e.correo || '-';
+                    const rol = e.rol || '-';
+
+                    // Normalize estado display using Activo if available, otherwise Estado
+                    let estadoLabel = '-';
+                    let estadoClass = '';
+                    // Prefer lowercase `activo` (some drivers/queries return lowercase) then `Activo`.
+                    if (typeof e.activo !== 'undefined' && e.activo !== null) {
+                        if (Number(e.activo)) {
+                            estadoLabel = 'Activo'; estadoClass = 'activo';
+                        } else {
+                            estadoLabel = 'Suspendido'; estadoClass = 'suspendido';
+                        }
+                    } else if (typeof e.Activo !== 'undefined' && e.Activo !== null) {
+                        if (Number(e.Activo)) {
+                            estadoLabel = 'Activo'; estadoClass = 'activo';
+                        } else {
+                            estadoLabel = 'Suspendido'; estadoClass = 'suspendido';
+                        }
+                    } else if (e.estado) {
+                        const s = String(e.estado).toLowerCase();
+                        if (s.includes('sus') || s.includes('suspend')) { estadoLabel = 'Suspendido'; estadoClass = 'suspendido'; }
+                        else if (s.includes('act')) { estadoLabel = 'Activo'; estadoClass = 'activo'; }
+                        else { estadoLabel = String(e.estado); estadoClass = ''; }
+                    } else if (e.Estado) {
+                        const s = String(e.Estado).toLowerCase();
+                        if (s.includes('sus') || s.includes('suspend')) { estadoLabel = 'Suspendido'; estadoClass = 'suspendido'; }
+                        else if (s.includes('act')) { estadoLabel = 'Activo'; estadoClass = 'activo'; }
+                        else { estadoLabel = String(e.Estado); estadoClass = ''; }
+                    }
+
+                    return `
+                        <tr>
+                            <td>${escapeHtml(nombre)}</td>
+                            <td>${escapeHtml(correo)}</td>
+                            <td>${escapeHtml(rol)}</td>
+                            <td><span class="status ${estadoClass}">${escapeHtml(estadoLabel)}</span></td>
+                            <td><button class="btn-primary btn-toggle-empleado" style="padding: 6px 12px; font-size: 0.8rem;" data-id="${e.ID_empleado}">Editar</button></td>
+                        </tr>
+                    `;
+                }).join('');
+
+                // attach handlers for Edit/Toggle buttons
+                document.querySelectorAll('.btn-toggle-empleado').forEach(btn => {
+                    btn.addEventListener('click', async (ev) => {
+                        const id = btn.getAttribute('data-id');
+                        if (!id) return;
+                        const confirmMsg = `Cambiar estado del empleado #${id}?`;
+                        if (!confirm(confirmMsg)) return;
+                        const originalText = btn.textContent;
+                        btn.disabled = true;
+                        btn.textContent = 'Procesando...';
+                        try {
+                            // Use PATCH to toggle (server supports PATCH/PUT/POST)
+                            const resp = await fetch(`/empleados/toggle/${encodeURIComponent(id)}`, { method: 'PATCH' });
+                            if (!resp.ok) {
+                                const txt = await resp.text();
+                                console.error('Error toggling empleado:', resp.status, txt);
+                                alert('Error al alternar el empleado. Revisa la consola.');
+                                return;
+                            }
+                            const body = await resp.json();
+                            if (!body.success) {
+                                console.error('Backend no alternó empleado:', body);
+                                alert('No se pudo alternar el empleado. Revisa la consola.');
+                                return;
+                            }
+                            // refresh list
+                            await loadAdminEmpleados();
+                        } catch (err) {
+                            console.error('Error de red alternando empleado:', err);
+                            alert('Error de red al alternar empleado. Revisa la consola.');
+                        } finally {
+                            btn.disabled = false;
+                            try { btn.textContent = originalText; } catch(e){}
+                        }
+                    });
+                });
+            } catch (err) {
+                console.error('Error cargando empleados:', err);
+                tbody.innerHTML = '<tr><td colspan="6">Error al cargar empleados. Revisa la consola.</td></tr>';
+            }
+        }
+
         // Small helper normalizing pedidos display
         function peddgesOrZero(val) {
             if (val === '-' || val === null || val === undefined) return '-';
@@ -1395,6 +1551,79 @@
                 }
             });
         })();
+
+    // --- Admin: Nuevo Usuario modal wiring ---
+    (function wireAdminUserModal(){
+        const openBtn = document.getElementById('btn-nuevo-usuario');
+        const backdrop = document.getElementById('admin-user-modal-backdrop');
+        const closeBtn = document.getElementById('admin-user-modal-close');
+        const cancelBtn = document.getElementById('admin-user-modal-cancel');
+        const form = document.getElementById('admin-user-form');
+
+        function open() {
+            if (backdrop) { backdrop.classList.add('show'); backdrop.setAttribute('aria-hidden','false'); }
+        }
+        function close() {
+            if (backdrop) { backdrop.classList.remove('show'); backdrop.setAttribute('aria-hidden','true'); }
+            if (form) form.reset();
+        }
+
+        if (openBtn) openBtn.addEventListener('click', (e) => { e.preventDefault(); open(); });
+        if (closeBtn) closeBtn.addEventListener('click', close);
+        if (cancelBtn) cancelBtn.addEventListener('click', close);
+        if (backdrop) backdrop.addEventListener('click', (e) => { if (e.target === backdrop) close(); });
+
+        if (form) {
+            form.addEventListener('submit', async (ev) => {
+                ev.preventDefault();
+                const payload = {
+                    nombre: document.getElementById('admin-nombre').value.trim(),
+                    apellidos: document.getElementById('admin-apellidos').value.trim(),
+                    correo: document.getElementById('admin-correo').value.trim(),
+                    direccion: document.getElementById('admin-direccion').value.trim() || null,
+                    telefono: document.getElementById('admin-telefono').value.trim() || null,
+                    fecha_nacimiento: document.getElementById('admin-fecha').value || null,
+                    password: document.getElementById('admin-password').value,
+                    tipo: document.getElementById('admin-tipo').value // 'cliente' or 'empleado'
+                };
+
+                // Basic validation
+                if (!payload.nombre || !payload.apellidos || !payload.correo || !payload.password) {
+                    alert('Por favor completa los campos obligatorios (nombre, apellidos, correo, contraseña).');
+                    return;
+                }
+
+                try {
+                    const res = await fetch('/registro', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    if (!res.ok) {
+                        const txt = await res.text();
+                        console.error('Error creando usuario:', res.status, txt);
+                        alert('Error creando usuario. Revisa la consola.');
+                        return;
+                    }
+                    const data = await res.json();
+                    if (!data.success) {
+                        console.error('Backend error crear usuario:', data);
+                        alert('No se pudo crear el usuario: ' + (data.message || '')); 
+                        return;
+                    }
+                    alert('Usuario creado correctamente.');
+                    close();
+                    // If a new empleado was created, refresh employees list
+                    if (payload.tipo === 'empleado') {
+                        if (typeof loadAdminEmpleados === 'function') loadAdminEmpleados();
+                    }
+                } catch (err) {
+                    console.error('Error de red creando usuario:', err);
+                    alert('Error de red al crear usuario. Revisa la consola.');
+                }
+            });
+        }
+    })();
     </script>
 </body>
 </html>

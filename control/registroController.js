@@ -4,6 +4,8 @@ const { randomUUID } = require('crypto');
 exports.registrarUsuario = (req, res) => {
     const db = req.db;
     const { nombre, correo, direccion, telefono, apellidos, password, fecha_nacimiento } = req.body;
+    // Allow admin to force the tipo: 'empleado' or 'cliente'
+    const tipoForzado = req.body.tipo;
 
     // Validar correo
     if (!correo || !correo.includes('@')) {
@@ -17,8 +19,11 @@ exports.registrarUsuario = (req, res) => {
     const idRolNull = null;
     const passwordHash = crypto.createHash('sha256').update(password).digest('hex');
 
-    // Si es @febri.com → empleados, si no → clientes
-    if (correo.endsWith('@febri.com')) {
+    // Decide si crear empleado o cliente. Priority:
+    // 1) tipoForzado (from admin UI) === 'empleado' | 'cliente'
+    // 2) fallback to email domain ending with @febri.com
+    const crearComoEmpleado = (tipoForzado === 'empleado') || (tipoForzado !== 'cliente' && correo && correo.endsWith('@febri.com'));
+    if (crearComoEmpleado) {
         db.query(
             'INSERT INTO empleado (ID_empleado, ID_rol) VALUES (?, ?)',
             [idUnico, idEmpleado],

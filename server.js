@@ -82,6 +82,9 @@ app.use('/estadisticas', estadisticasRouter);
 const excelRouter = require('./routes/excel.js');
 app.use('/excel', excelRouter);
 
+const empleadosRouter = require('./routes/empleados.js');
+app.use('/empleados', empleadosRouter);
+
 app.use(express.urlencoded({ extended:true }));
 const perfilUsuarioRouter = require('./routes/perfilUsuario.js');
 const perfilRouter = require('./routes/perfil.js');
