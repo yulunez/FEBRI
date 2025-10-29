@@ -189,25 +189,18 @@
                 <div class="table-container">
                     <table>
                         <thead>
-                            try {
-                                // Use PATCH to toggle (server accepts PATCH/PUT/POST)
-                                const res = await fetch(`/empleados/toggle/${id}`, { method: 'PATCH' });
-                                if (!res.ok) {
-                                    const txt = await res.text();
-                                    throw new Error('No se pudo cambiar el estado: ' + txt);
-                                }
-                                const json = await res.json();
-                                if (json.success) {
-                                    // recargar lista de empleados
-                                    loadAdminEmpleados();
-                                } else {
-                                    alert('No se pudo cambiar el estado: ' + (json.message || ''));
-                                }
-                            } catch (err) {
-                                console.error(err);
-                                alert('Error al cambiar estado del empleado. Revisa la consola.');
-                            }
-                            </tbody>
+                            <tr>
+                                <th>ID</th>
+                                <th>Producto</th>
+                                <th>Categoría</th>
+                                <th>Precio</th>
+                                <th>Stock</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-products-body">
+                            <tr><td colspan="7">Cargando productos...</td></tr>
                         </tbody>
                     </table>
                 </div>
