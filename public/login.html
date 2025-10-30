@@ -106,10 +106,12 @@
             }
 
             try {
-                const response = await fetch("http://localhost:3000/login", {
+                // Use a relative URL so the request is same-origin when the page is served
+                // from the app (http://localhost:3000). This avoids CORS/cookie issues.
+                const response = await fetch('/login', {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    credentials: 'include',
+                    credentials: 'same-origin',
                     body: JSON.stringify(datos)
                 });
                 const data = await response.json();

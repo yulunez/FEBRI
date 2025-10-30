@@ -342,16 +342,47 @@
                 return mostrarNotificacion('ID de producto no disponible');
             }
 
-            const carrito = JSON.parse(sessionStorage.getItem('carritoCompra')) || [];
-            const existente = carrito.find(p => Number(p.id) === Number(item.id));
-            if (existente) {
-                existente.cantidad = (parseInt(existente.cantidad, 10) || 0) + item.cantidad;
-            } else {
-                carrito.push(item);
-            }
-            sessionStorage.setItem('carritoCompra', JSON.stringify(carrito));
-            mostrarNotificacion(`${item.nombre} agregado al carrito`);
-            actualizarContadorCarrito();
+            // Try to add to server-side session first for consistency across pages
+            (async function(){
+                try {
+                    const resp = await fetch('/carro/agregar', {
+                        method: 'POST',
+                        credentials: 'same-origin',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ productoId: String(item.id), cantidad: Number(item.cantidad) })
+                    });
+                    if (!resp.ok) {
+                        // fallback to local sessionStorage
+                        throw new Error('No se pudo agregar en servidor: ' + resp.status);
+                    }
+                    const body = await resp.json();
+                    if (!body || !body.success) throw new Error('Respuesta negativa del servidor');
+                    // Keep a local copy for compatibility with other pages
+                    const carrito = JSON.parse(sessionStorage.getItem('carritoCompra')) || [];
+                    const existente = carrito.find(p => String(p.id) === String(item.id));
+                    if (existente) {
+                        existente.cantidad = (parseInt(existente.cantidad, 10) || 0) + item.cantidad;
+                    } else {
+                        carrito.push(item);
+                    }
+                    sessionStorage.setItem('carritoCompra', JSON.stringify(carrito));
+                    mostrarNotificacion(`${item.nombre} agregado al carrito`);
+                    actualizarContadorCarrito();
+                } catch (err) {
+                    console.warn('Fallo al agregar al carrito en servidor, usando sessionStorage:', err);
+                    // fallback to sessionStorage-only behaviour
+                    const carrito = JSON.parse(sessionStorage.getItem('carritoCompra')) || [];
+                    const existente = carrito.find(p => Number(p.id) === Number(item.id));
+                    if (existente) {
+                        existente.cantidad = (parseInt(existente.cantidad, 10) || 0) + item.cantidad;
+                    } else {
+                        carrito.push(item);
+                    }
+                    sessionStorage.setItem('carritoCompra', JSON.stringify(carrito));
+                    mostrarNotificacion(`${item.nombre} agregado al carrito (local)`);
+                    actualizarContadorCarrito();
+                }
+            })();
         }
 
         // Actualizar contador del carrito en la barra (lee sessionStorage)

@@ -113,28 +113,68 @@
     </div>
 
     <script>
-        // Variable para almacenar los productos del carrito (ahora se carga desde localStorage)
+        // Variable para almacenar los productos mostrados en el carrito (cada ítem incluye detalles del producto)
         let productosCarrito = [];
 
-        // Cargar productos del carrito desde sessionStorage (sesión por pestaña)
-        function cargarCarritoDesdeStorage() {
-            const carritoStorage = sessionStorage.getItem('carritoCompra');
-            if (carritoStorage) {
-                try {
-                    productosCarrito = JSON.parse(carritoStorage);
-                } catch (error) {
-                    console.error('Error al cargar carrito:', error);
-                    productosCarrito = [];
+        // --- Interacción con el servidor ---
+        // Obtener el carro desde la sesión en el servidor: GET /carro -> { carro: { productoId: cantidad, ... } }
+        async function fetchCarroFromServer() {
+            try {
+                const res = await fetch('/carro', { credentials: 'include' });
+                if (!res.ok) {
+                    console.warn('No se pudo obtener carro del servidor, usando sessionStorage fallback');
+                    return null;
                 }
-            } else {
-                productosCarrito = [];
+                const data = await res.json();
+                return data.carro || {};
+            } catch (err) {
+                console.warn('Error de red al obtener carro del servidor:', err);
+                return null;
             }
         }
 
-        // Guardar productos del carrito en sessionStorage (sesión por pestaña)
-        function guardarCarritoEnStorage() {
-            sessionStorage.setItem('carritoCompra', JSON.stringify(productosCarrito));
+        // Llamar al endpoint para sumar/al setear cantidad relativaa: POST /carro/agregar { productoId, cantidad }
+        async function postAgregarAlCarro(productoId, cantidad) {
+            try {
+                const res = await fetch('/carro/agregar', {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ productoId: String(productoId), cantidad: Number(cantidad) })
+                });
+                if (!res.ok) {
+                    const txt = await res.text();
+                    throw new Error(txt || ('HTTP ' + res.status));
+                }
+                return await res.json();
+            } catch (err) {
+                console.error('Error agregando al carro:', err);
+                throw err;
+            }
         }
+
+        // Llamar al endpoint para eliminar un producto del carro: POST /carro/eliminar { productoId }
+        async function postEliminarDelCarro(productoId) {
+            try {
+                const res = await fetch('/carro/eliminar', {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ productoId: String(productoId) })
+                });
+                if (!res.ok) {
+                    const txt = await res.text();
+                    throw new Error(txt || ('HTTP ' + res.status));
+                }
+                return await res.json();
+            } catch (err) {
+                console.error('Error eliminando del carro:', err);
+                throw err;
+            }
+        }
+
+    // Indica si el servidor respondió correctamente cuando cargamos el carro
+    let serverAvailable = false;
 
         // Formatear precio en pesos colombianos
         function formatearPrecio(precio) {
@@ -145,13 +185,13 @@
             }).format(precio);
         }
 
-        // Renderizar productos del carrito
+        // Renderizar productos del carrito (productosCarrito debe contener detalles de producto)
         function renderizarCarrito() {
             const contenedor = document.getElementById('productos-carrito');
             const carritoVacio = document.getElementById('carrito-vacio');
             const totalSection = document.getElementById('total-section');
             
-            if (productosCarrito.length === 0) {
+            if (!Array.isArray(productosCarrito) || productosCarrito.length === 0) {
                 contenedor.innerHTML = '';
                 carritoVacio.style.display = 'block';
                 totalSection.style.display = 'none';
@@ -164,97 +204,189 @@
             contenedor.innerHTML = productosCarrito.map(producto => 
                 '<div class="producto-item">' +
                     '<div class="producto-content">' +
-                        '<img src="' + producto.imagen + '" alt="' + producto.nombre + '" class="producto-imagen">' +
+                        '<img src="' + (producto.imagen || '') + '" alt="' + (producto.nombre || '') + '" class="producto-imagen">' +
                         '<div class="producto-details">' +
                             '<div class="producto-header">' +
                                 '<div class="producto-info">' +
-                                    '<h3>' + producto.nombre + '</h3>' +
-                                    '<div class="producto-precio">' + formatearPrecio(producto.precio) + ' </div>' +
+                                    '<h3>' + (producto.nombre || '') + '</h3>' +
+                                    '<div class="producto-precio">' + formatearPrecio(producto.precio || 0) + ' </div>' +
                                 '</div>' +
-                                '<button class="btn-eliminar" onclick="eliminarProducto(' + producto.id + ')" title="Eliminar producto">' +
+                                '<button class="btn-eliminar" data-id="' + producto.id + '" title="Eliminar producto">' +
                                     '<i class="bx bx-trash"></i>' +
                                 '</button>' +
                             '</div>' +
                             '<div class="producto-descripcion">' + (producto.descripcion || 'Producto de resina artesanal de alta calidad') + '</div>' +
                             '<div class="cantidad-section">' +
                                 '<div class="cantidad-controls">' +
-                                    '<button class="btn-cantidad" onclick="cambiarCantidad(' + producto.id + ', -1)" ' + (producto.cantidad <= 1 ? 'disabled' : '') + '>-</button>' +
+                                    '<button class="btn-cantidad btn-decrease" data-id="' + producto.id + '" ' + (producto.cantidad <= 1 ? 'disabled' : '') + '>-</button>' +
                                     '<span class="cantidad">' + producto.cantidad + '</span>' +
-                                    '<button class="btn-cantidad" onclick="cambiarCantidad(' + producto.id + ', 1)">+</button>' +
+                                    '<button class="btn-cantidad btn-increase" data-id="' + producto.id + '">+</button>' +
                                 '</div>' +
-                                '<div class="subtotal">Subtotal: ' + formatearPrecio(producto.precio * producto.cantidad) + '</div>' +
+                                '<div class="subtotal">Subtotal: ' + formatearPrecio((producto.precio || 0) * producto.cantidad) + '</div>' +
                             '</div>' +
                         '</div>' +
                     '</div>' +
                 '</div>'
             ).join('');
 
+            // Attach event handlers for dynamic buttons (optimistic UI)
+            document.querySelectorAll('.btn-eliminar').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const id = btn.getAttribute('data-id');
+                    if (!id) return;
+                    if (!confirm('¿Estás seguro de que quieres eliminar este producto del carrito?')) return;
+                    // optimistic remove
+                    const index = productosCarrito.findIndex(p => String(p.id) === String(id));
+                    if (index === -1) return;
+                    const removed = productosCarrito.splice(index, 1)[0];
+                    renderizarCarrito();
+                    try {
+                        if (serverAvailable) {
+                            await postEliminarDelCarro(id);
+                            // server is source-of-truth; clear legacy local cache so it won't be re-synced
+                            try { sessionStorage.removeItem('carritoCompra'); } catch (e) { /* ignore */ }
+                            // sync to server state
+                            await cargarYRenderizarCarrito();
+                        } else {
+                            // fallback: update local storage
+                            guardarCarritoEnStorage();
+                        }
+                    } catch (err) {
+                        // revert on failure
+                        productosCarrito.splice(index, 0, removed);
+                        renderizarCarrito();
+                        alert('No se pudo eliminar el producto. Revisa la consola.');
+                    }
+                });
+            });
+
+            document.querySelectorAll('.btn-increase').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const id = btn.getAttribute('data-id');
+                    if (!id) return;
+                    const p = productosCarrito.find(x => String(x.id) === String(id));
+                    if (!p) return;
+                    // optimistic increment
+                    p.cantidad = (Number(p.cantidad) || 0) + 1;
+                    renderizarCarrito();
+                    try {
+                        if (serverAvailable) {
+                            await postAgregarAlCarro(id, 1);
+                            // clear local cache -- server reflects the authoritative state
+                            try { sessionStorage.removeItem('carritoCompra'); } catch (e) { /* ignore */ }
+                            await cargarYRenderizarCarrito();
+                        } else {
+                            guardarCarritoEnStorage();
+                        }
+                    } catch (err) {
+                        // revert
+                        p.cantidad = Math.max((Number(p.cantidad) || 1) - 1, 0);
+                        renderizarCarrito();
+                        alert('No se pudo aumentar la cantidad. Revisa la consola.');
+                    }
+                });
+            });
+
+            document.querySelectorAll('.btn-decrease').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const id = btn.getAttribute('data-id');
+                    if (!id) return;
+                    const pIndex = productosCarrito.findIndex(x => String(x.id) === String(id));
+                    if (pIndex === -1) return;
+                    const p = productosCarrito[pIndex];
+                    // optimistic decrement
+                    p.cantidad = (Number(p.cantidad) || 0) - 1;
+                    let removed = null;
+                    if (p.cantidad <= 0) {
+                        removed = productosCarrito.splice(pIndex, 1)[0];
+                    }
+                    renderizarCarrito();
+                    try {
+                        if (serverAvailable) {
+                            await postAgregarAlCarro(id, -1);
+                            // if server reports zero we may need to call delete; cargarYRenderizarCarrito will sync
+                            try { sessionStorage.removeItem('carritoCompra'); } catch (e) { /* ignore */ }
+                            await cargarYRenderizarCarrito();
+                        } else {
+                            guardarCarritoEnStorage();
+                        }
+                    } catch (err) {
+                        // revert
+                        if (removed) {
+                            productosCarrito.splice(pIndex, 0, removed);
+                        } else {
+                            p.cantidad = (Number(p.cantidad) || 0) + 1;
+                        }
+                        renderizarCarrito();
+                        alert('No se pudo disminuir la cantidad. Revisa la consola.');
+                    }
+                });
+            });
+
             actualizarTotales();
         }
 
-        // Cambiar cantidad de un producto
-        function cambiarCantidad(productoId, cambio) {
-            const producto = productosCarrito.find(p => p.id === productoId);
-            if (producto) {
-                const nuevaCantidad = producto.cantidad + cambio;
-                if (nuevaCantidad >= 1) {
-                    producto.cantidad = nuevaCantidad;
-                    // Guardar cambios en localStorage
-                    guardarCarritoEnStorage();
-                    renderizarCarrito();
-                }
-            }
-        }
+        // Nota: las cantidades ahora se actualizan en el servidor
 
-        // Eliminar producto del carrito con animación
-        function eliminarProducto(productoId) {
-            if (confirm('¿Estás seguro de que quieres eliminar este producto del carrito?')) {
-                // Encontrar el elemento del producto
-                const productoElement = document.querySelector(`[onclick="eliminarProducto(${productoId})"]`).closest('.producto-item');
-                
-                // Agregar clase de animación si existe
-                if (productoElement) {
-                    productoElement.classList.add('eliminando');
-                }
-                
-                // Esperar a que termine la animación antes de eliminar del array
-                setTimeout(() => {
-                    productosCarrito = productosCarrito.filter(p => p.id !== productoId);
-                    // Guardar cambios en localStorage
-                    guardarCarritoEnStorage();
-                    renderizarCarrito();
-                }, 300); // Reducido el tiempo para mejor UX
-            }
-        }
+        // eliminarProducto -> ahora pide al servidor eliminar y recarga el carrito
 
-        // Actualizar totales y contador
+        // Actualizar totales y contador (desde productosCarrito ya poblado con detalles)
         function actualizarTotales() {
-            const totalItems = productosCarrito.reduce((total, producto) => total + producto.cantidad, 0);
-            const totalPrecio = productosCarrito.reduce((total, producto) => total + (producto.precio * producto.cantidad), 0);
+            const totalItems = productosCarrito.reduce((total, producto) => total + (Number(producto.cantidad) || 0), 0);
+            const totalPrecio = productosCarrito.reduce((total, producto) => total + ((Number(producto.precio) || 0) * (Number(producto.cantidad) || 0)), 0);
 
             const contadorElement = document.getElementById('contador-items');
             if (contadorElement) {
                 contadorElement.textContent = totalItems;
             }
             document.getElementById('total-precio').textContent = formatearPrecio(totalPrecio);
+            // Also update modal total if visible
+            const totalModal = document.getElementById('total-modal');
+            if (totalModal) totalModal.textContent = formatearPrecio(totalPrecio);
         }
 
-        // Realizar compra - Redirigir a página de pago
-        function comprar() {
-            if (productosCarrito.length === 0) {
+        // Realizar compra - la sesión del servidor ya contiene el carro; redirigir a pago
+        async function comprar() {
+            // Fetch server carro to ensure there's content
+            const serverCarro = await fetchCarroFromServer();
+            const hasItems = serverCarro && Object.keys(serverCarro).length > 0;
+            if (!hasItems && (!Array.isArray(productosCarrito) || productosCarrito.length === 0)) {
                 alert('No hay productos en el carrito');
                 return;
             }
 
-            // Calcular total
-            const totalCompra = productosCarrito.reduce((sum, producto) => sum + (producto.precio * producto.cantidad), 0);
+            // Calculate total server-side expects numeric total; derive from productosCarrito
+            const totalPrecio = productosCarrito.reduce((total, producto) => total + ((Number(producto.precio) || 0) * (Number(producto.cantidad) || 0)), 0);
 
-            // Guardar información para la página de pago en sessionStorage
-            sessionStorage.setItem('carritoCompra', JSON.stringify(productosCarrito));
-            sessionStorage.setItem('totalCompra', totalCompra);
-
-            // Redirigir a la página de pago
-            window.location.href = 'pago.html';
+            try {
+                const res = await fetch('/compras', {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ total: totalPrecio })
+                });
+                if (!res.ok) {
+                    const txt = await res.text();
+                    throw new Error(txt || ('HTTP ' + res.status));
+                }
+                const data = await res.json();
+                console.log('Response /compras:', data);
+                if (data && data.success) {
+                    // show confirmation modal with total
+                    const modal = document.getElementById('modal-confirmacion');
+                    const totalModal = document.getElementById('total-modal');
+                    if (totalModal) totalModal.textContent = formatearPrecio(totalPrecio);
+                    if (modal) modal.style.display = 'block';
+                    // clear local cache and refresh UI
+                    try { sessionStorage.removeItem('carritoCompra'); } catch (e) { /* ignore */ }
+                    await cargarYRenderizarCarrito();
+                } else {
+                    alert((data && data.mensaje) ? data.mensaje : 'Error al procesar la compra');
+                }
+            } catch (err) {
+                console.error('Error realizando compra:', err);
+                alert('No se pudo completar la compra. Revisa la consola.');
+            }
         }
 
         // Cerrar modal al hacer clic fuera
@@ -274,8 +406,100 @@
             // No-op para sesión por pestaña
         }
 
+        // Helper: cargar el carro desde el servidor, obtener detalles de productos y renderizar
+        async function cargarYRenderizarCarrito() {
+            const serverCarro = await fetchCarroFromServer();
+            // Mark whether server responded so optimistic handlers choose the server path
+            serverAvailable = serverCarro !== null;
+            console.log('Server available:', serverAvailable, 'serverCarro:', serverCarro);
+            // Fallback: si servidor no responde, intentar sessionStorage local (compatibilidad)
+            if (!serverCarro) {
+                const carritoStorage = sessionStorage.getItem('carritoCompra');
+                if (carritoStorage) {
+                    try {
+                        productosCarrito = JSON.parse(carritoStorage);
+                    } catch (e) {
+                        console.warn('No se pudo parsear carrito local:', e);
+                        productosCarrito = [];
+                    }
+                } else {
+                    productosCarrito = [];
+                }
+                renderizarCarrito();
+                return;
+            }
+
+            const ids = Object.keys(serverCarro || {});
+            if (ids.length === 0) {
+                // If server has no items but the client has items stored in sessionStorage (legacy behavior
+                // from other pages), sync them to the server so the session on server reflects the user's
+                // cart across pages.
+                const carritoStorage = sessionStorage.getItem('carritoCompra');
+                if (carritoStorage) {
+                    try {
+                        const localItems = JSON.parse(carritoStorage);
+                        if (Array.isArray(localItems) && localItems.length > 0) {
+                            // send each item to server
+                            await Promise.all(localItems.map(it => postAgregarAlCarro(it.id, Number(it.cantidad) || 1).catch(() => null)));
+                            // refetch server carro after syncing
+                            const newServerCarro = await fetchCarroFromServer();
+                            // rebuild ids and continue
+                            const newIds = Object.keys(newServerCarro || {});
+                            if (newIds.length === 0) {
+                                productosCarrito = [];
+                                renderizarCarrito();
+                                return;
+                            }
+                            // replace ids for subsequent processing
+                            ids.length = 0; ids.push(...newIds);
+                        } else {
+                            productosCarrito = [];
+                            renderizarCarrito();
+                            return;
+                        }
+                    } catch (e) {
+                        console.warn('No se pudo sincronizar carrito local al servidor:', e);
+                        productosCarrito = [];
+                        renderizarCarrito();
+                        return;
+                    }
+                } else {
+                    productosCarrito = [];
+                    renderizarCarrito();
+                    return;
+                }
+            }
+
+            // obtener detalles de cada producto desde /producto/:id en paralelo
+            const detailPromises = ids.map(id => fetch(`/producto/${encodeURIComponent(id)}`)
+                .then(r => r.ok ? r.json() : null).catch(() => null));
+
+            const details = await Promise.all(detailPromises);
+            productosCarrito = [];
+            for (let i = 0; i < ids.length; i++) {
+                const id = ids[i];
+                const qty = Number(serverCarro[id]) || 0;
+                const det = details[i];
+                if (det && det.success && det.producto) {
+                    const p = det.producto;
+                    productosCarrito.push({
+                        id: String(id),
+                        nombre: p.Nombre || p.nombre || '',
+                        precio: Number(p.Precio || p.precio || 0),
+                        imagen: p.Imagen || p.imagen || '',
+                        descripcion: p.Descripcion || p.descripcion || '',
+                        cantidad: qty
+                    });
+                } else {
+                    // No se pudo obtener detalles; crear un placeholder mínimo
+                    productosCarrito.push({ id: String(id), nombre: ('Producto ' + id), precio: 0, imagen: '', descripcion: '', cantidad: qty });
+                }
+            }
+            renderizarCarrito();
+        }
+
         // Inicialización cuando se carga la página
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
             // Configurar menú móvil
             const menuIcon = document.querySelector('.menu-icon');
             const menuLateral = document.querySelector('.menu-lateral');
@@ -286,21 +510,32 @@
                 });
             }
 
-            // Cargar y mostrar productos del carrito
-            cargarCarritoDesdeStorage();
-            renderizarCarrito();
+            // Cargar y mostrar productos del carrito desde servidor y renderizar
+            await cargarYRenderizarCarrito();
             // escucharCambiosStorage() es no-op para sessionStorage
 
             console.log('Carrito cargado:', productosCarrito); // Para debugging
         });
 
-        // Función adicional para limpiar todo el carrito (opcional)
-        function limpiarCarrito() {
-            if (confirm('¿Estás seguro de que quieres eliminar todos los productos del carrito?')) {
+        // Función adicional para limpiar todo el carrito (opcional) - ahora usa servidor
+        async function limpiarCarrito() {
+            if (!confirm('¿Estás seguro de que quieres eliminar todos los productos del carrito?')) return;
+            const serverCarro = await fetchCarroFromServer();
+            if (!serverCarro) {
+                // fallback local
                 productosCarrito = [];
-                guardarCarritoEnStorage();
+                sessionStorage.removeItem('carritoCompra');
                 renderizarCarrito();
+                return;
             }
+            const ids = Object.keys(serverCarro || {});
+            await Promise.all(ids.map(id => postEliminarDelCarro(id).catch(() => null)));
+            await cargarYRenderizarCarrito();
+        }
+
+        // Compatibilidad: si algún código llama a guardarCarritoEnStorage, mantener la función (no-op si servidor)
+        function guardarCarritoEnStorage() {
+            try { sessionStorage.setItem('carritoCompra', JSON.stringify(productosCarrito)); } catch (e) { /* ignore */ }
         }
 
         //ocultar boton de inicio de sesion despues de haver iniciado sesion

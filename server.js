@@ -85,6 +85,15 @@ app.use('/excel', excelRouter);
 const empleadosRouter = require('./routes/empleados.js');
 app.use('/empleados', empleadosRouter);
 
+const carroRouter = require('./routes/carro.js');
+app.use('/carro', carroRouter);
+
+const comprasRouter = require('./routes/compras.js');   
+app.use('/compras', comprasRouter);
+
+const envioRouter = require('./routes/envio.js');
+app.use('/envio', envioRouter);
+
 app.use(express.urlencoded({ extended:true }));
 const perfilUsuarioRouter = require('./routes/perfilUsuario.js');
 const perfilRouter = require('./routes/perfil.js');
@@ -109,6 +118,16 @@ app.post('/logout', (req, res) => {
         }
         res.clearCookie('connect.sid'); // Limpia la cookie de sesión
         res.json({ success: true, message: 'Sesión cerrada' });
+    });
+});
+
+// Debug helper (temporary): return session info so we can verify the session seen by different pages
+app.get('/debug-session', (req, res) => {
+    res.json({
+        ok: true,
+        sessionID: req.sessionID,
+        session: req.session,
+        cookieHeader: req.headers && req.headers.cookie
     });
 });
 

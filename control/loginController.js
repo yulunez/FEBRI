@@ -31,9 +31,23 @@ exports.ingresarUsuario = (req, res) => {
                     correo: usuario.Correo,
                     telefono: usuario.Telefono,
                     fechaNacimiento: usuario.Fecha_de_nacimiento,
-                    direccion: usuario.Direccion
+                    direccion: usuario.Direccion,
+                    IdCliente: usuario.ID_cliente
                 }
-                return res.json({ success: true, usuario });
+                // Guardar también una referencia rápida al id (compatibilidad con otras partes)
+                try {
+                    req.session.usuarioId = usuario.ID;
+                } catch (e) { /* ignore session write errors */ }
+                // Force-save the session and log important info for debugging session persistence
+                try {
+                    req.session.save(err => {
+                        console.log('Login: session saved, sessionID=', req.sessionID, 'err=', err, 'session=', req.session);
+                        return res.json({ success: true, usuario });
+                    });
+                } catch (e) {
+                    console.warn('Login: error saving session', e);
+                    return res.json({ success: true, usuario });
+                }
             } else {
                 // Usuario no encontrado
                 return res.json({ success: false, message: 'Correo o contraseña incorrectos' });
