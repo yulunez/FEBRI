@@ -398,6 +398,10 @@
         .status.shipped { background: var(--rosa-fondo); color: var(--gris-texto); border: 1px solid var(--color-icono); }
         .status.delivered { background: var(--color-icono); color: white; }
 
+    /* Estado para empleados: activo = rosa, suspendido = amarillo */
+    .status.activo { background: var(--color-icono); color: white; }
+    .status.suspendido { background: #f6c44c; color: #222; }
+
         /* Forms */
         .form-group {
             margin-bottom: 20px;

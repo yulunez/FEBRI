@@ -92,7 +92,7 @@
     <div id="error-message" style="display: none; text-align: center; padding: 50px; color: #dc3545; font-size: 18px;">
         <h2>Producto no encontrado</h2>
         <p>El producto que buscas no existe o ha sido eliminado.</p>
-        <a href="index.html" style="color: #007bff; text-decoration: none;">← Volver al catálogo</a>
+        <a href="index.html" style="color: #f8a4d8; text-decoration: none;">← Volver al catálogo</a>
     </div>
 
     <main id="producto-main" style="display: none;">
@@ -208,7 +208,71 @@
                 const cantidad = document.getElementById('cantidad');
                 cantidad.value = parseInt(cantidad.value) + 1;
             };
-            document.querySelector('.btn-favorito').onclick = function(){ this.classList.toggle('activo'); };
+            // Favorite button behavior will be wired to server-side session favorites
+            const favBtn = document.querySelector('.btn-favorito');
+            favBtn.onclick = async function(){
+                // toggle optimistic UI
+                const prodId = obtenerProductoId();
+                if (!prodId) return alert('ID de producto no disponible');
+                try {
+                    // decide action based on current state
+                    const isActive = favBtn.classList.contains('activo');
+                    if (!isActive) {
+                        // add favorite
+                        const res = await fetch('/producto/favorito', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            credentials: 'include',
+                            body: JSON.stringify({ id: prodId })
+                        });
+                        const text = await res.text();
+                        if (!res.ok) {
+                            console.error('Error agregando favorito (non-ok):', res.status, text);
+                            alert('No se pudo agregar a favoritos');
+                        } else {
+                            try {
+                                const data = JSON.parse(text);
+                                if (data && data.success) {
+                                    favBtn.classList.add('activo');
+                                } else {
+                                    console.error('Error agregando favorito (data):', data);
+                                    alert('No se pudo agregar a favoritos');
+                                }
+                            } catch (e) {
+                                console.error('Respuesta no JSON al agregar favorito:', text);
+                                alert('Respuesta inesperada del servidor. Revisa la consola.');
+                            }
+                        }
+                    } else {
+                        // remove favorite
+                        const res = await fetch(`/producto/favorito/${encodeURIComponent(prodId)}`, {
+                            method: 'DELETE',
+                            credentials: 'include'
+                        });
+                        const text = await res.text();
+                        if (!res.ok) {
+                            console.error('Error quitando favorito (non-ok):', res.status, text);
+                            alert('No se pudo quitar de favoritos');
+                        } else {
+                            try {
+                                const data = JSON.parse(text);
+                                if (data && data.success) {
+                                    favBtn.classList.remove('activo');
+                                } else {
+                                    console.error('Error quitando favorito (data):', data);
+                                    alert('No se pudo quitar de favoritos');
+                                }
+                            } catch (e) {
+                                console.error('Respuesta no JSON al quitar favorito:', text);
+                                alert('Respuesta inesperada del servidor. Revisa la consola.');
+                            }
+                        }
+                    }
+                } catch (err) {
+                    console.error('Error en favorito:', err);
+                    alert('Error al actualizar favoritos');
+                }
+            };
 
             // inicializar calificación (corazones) — reset para este producto
             calificacionActual = 0;
@@ -231,6 +295,27 @@
 
             // cargar comentarios desde localStorage
             cargarComentarios(obtenerProductoId());
+
+            // comprobar si este producto está en favoritos del usuario (sesión)
+            (async function checkFavorito(){
+                try {
+                    const productoId = obtenerProductoId();
+                    if (!productoId) return;
+                    const res = await fetch('/producto/favorito', { credentials: 'include' });
+                    if (!res.ok) return; // no logueado u otra causa
+                    const data = await res.json();
+                    if (!data || !data.success) return;
+                    const favs = data.favoritos || [];
+                    const favBtn = document.querySelector('.btn-favorito');
+                    if (favs.map(String).includes(String(productoId))) {
+                        favBtn.classList.add('activo');
+                    } else {
+                        favBtn.classList.remove('activo');
+                    }
+                } catch (err) {
+                    // ignore
+                }
+            })();
         }
 
         // Mostrar notificación pequeña cuando se agrega al carrito

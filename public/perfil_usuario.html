@@ -181,50 +181,7 @@
                 </div>
                 
                 <div class="cuadricula-productos">
-                    <div class="tarjeta-producto">
-                        <div class="imagen-producto">
-                            <img src="imagenes/llavero-inicio.jpeg" alt="Llavero de K" class="img-producto">
-                            <button class="boton-corazon-producto">
-                                <svg class="icono-corazon-producto" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                                </svg>
-                            </button>
-                        </div>
-                        <div class="info-producto">
-                            <h3 class="nombre-producto">Llavero de K</h3>
-                            <p class="precio-producto">$25.000</p>
-                        </div>
-                    </div>
-
-                    <div class="tarjeta-producto">
-                        <div class="imagen-producto">
-                            <img src="imagenes/decoracion-inicio.avif" alt="Cuadro decorativo" class="img-producto">
-                            <button class="boton-corazon-producto">
-                                <svg class="icono-corazon-producto" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                                </svg>
-                            </button>
-                        </div>
-                        <div class="info-producto">
-                            <h3 class="nombre-producto">Cuadro decorativo</h3>
-                            <p class="precio-producto">$25.000</p>
-                        </div>
-                    </div>
-
-                    <div class="tarjeta-producto">
-                        <div class="imagen-producto">
-                            <img src="imagenes/jarron.webp" alt="Jarrón moderno" class="img-producto">
-                            <button class="boton-corazon-producto">
-                                <svg class="icono-corazon-producto" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                                </svg>
-                            </button>
-                        </div>
-                        <div class="info-producto">
-                            <h3 class="nombre-producto">Jarrón moderno</h3>
-                            <p class="precio-producto">$15.000</p>
-                        </div>
-                    </div>
+                    <div id="favoritos-grid"></div>
                 </div>
             </div>
         </div>
@@ -235,6 +192,7 @@
 
     let usuarioActual = {};
 
+// CARGAR PERFIL AL INICIO
 document.addEventListener('DOMContentLoaded', async function() {
     console.log('=== CARGANDO PERFIL ===');
     
@@ -279,26 +237,114 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
     
     console.log('=== FIN CARGA PERFIL ===');
+    
+    // CARGAR FAVORITOS
+    await cargarFavoritos();
+    
+    // Configurar clicks para envíos y compras
+    const cardEnvios = document.getElementById('card-envios');
+    if (cardEnvios) {
+        cardEnvios.style.cursor = 'pointer';
+        cardEnvios.addEventListener('click', () => { 
+            window.location.href = 'envios.html'; 
+        });
+    }
+    
+    const cardCompras = document.getElementById('card-compras');
+    if (cardCompras) {
+        cardCompras.style.cursor = 'pointer';
+        cardCompras.addEventListener('click', () => { 
+            window.location.href = 'compras.html'; 
+        });
+    }
 });
 
-// Botones de corazón
-document.querySelectorAll('.boton-corazon-producto').forEach(boton => {
-    boton.addEventListener('click', function() {
-        const iconoCorazon = this.querySelector('.icono-corazon-producto');
-        if (iconoCorazon.style.opacity === '0.5') {
-            iconoCorazon.style.opacity = '1';
-            iconoCorazon.style.color = '#ec4899';
-        } else {
-            iconoCorazon.style.opacity = '0.5';
-            iconoCorazon.style.color = '#9ca3af';
+// FUNCIÓN PARA CARGAR FAVORITOS
+async function cargarFavoritos() {
+    try {
+        const resp = await fetch('/producto/favorito', { 
+            credentials: 'include' 
+        });
+        
+        if (resp.ok) {
+            const body = await resp.json();
+            if (body && body.success && Array.isArray(body.favoritos)) {
+                renderFavoritos(body.favoritos);
+            }
         }
-    });
-});     
+    } catch (e) {
+        console.error('No se pudieron cargar favoritos:', e);
+    }
+}
 
+// FUNCIÓN PARA RENDERIZAR FAVORITOS
+function renderFavoritos(favs) {
+    const grid = document.getElementById('favoritos-grid');
+    if (!grid) return;
+    
+    grid.innerHTML = '';
+    
+    if (!favs || favs.length === 0) {
+        grid.innerHTML = '<p>No tienes productos en favoritos.</p>';
+        return;
+    }
+    
+    // Actualizar contador
+    const contador = document.querySelector('.contador-seccion');
+    if (contador) {
+        contador.textContent = `${favs.length} producto${favs.length !== 1 ? 's' : ''}`;
+    }
+    
+    favs.forEach(p => {
+        const card = document.createElement('div');
+        card.className = 'tarjeta-producto';
+        card.innerHTML = `
+            <div class="imagen-producto">
+                <img src="${p.imagen || 'imagenes/inicio.webp'}" alt="${(p.Nombre||p.nombre)||''}" class="img-producto">
+                <button class="boton-corazon-producto" data-id="${p.id}">
+                    <svg class="icono-corazon-producto" viewBox="0 0 24 24" fill="currentColor" style="color: #ec4899;">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="info-producto">
+                <h3 class="nombre-producto">${p.Nombre || p.nombre || ''}</h3>
+                <p class="precio-producto">${p.Precio != null ? ('$ ' + p.Precio) : ''}</p>
+            </div>
+        `;
+        grid.appendChild(card);
+    });
+
+    // Agregar event listeners a los botones de eliminar favorito
+    grid.querySelectorAll('.boton-corazon-producto').forEach(btn => {
+        btn.addEventListener('click', async function() {
+            const pid = this.getAttribute('data-id');
+            if (!pid) return;
+            
+            try {
+                const res = await fetch(`/producto/favorito/${encodeURIComponent(pid)}`, { 
+                    method: 'DELETE', 
+                    credentials: 'include' 
+                });
+                
+                if (!res.ok) throw new Error('Error al quitar favorito');
+                
+                const body = await res.json();
+                if (body && body.success) {
+                    renderFavoritos(body.favoritos || []);
+                }
+            } catch (err) {
+                console.error('No se pudo quitar favorito:', err);
+                alert('No se pudo quitar de favoritos');
+            }
+        });
+    });
+}
+
+// FUNCIÓN CERRAR SESIÓN
 function cerrarSesion() {
     localStorage.removeItem('usuarioLogueado');
     localStorage.removeItem('nombreUsuario');
-    // Asegura que no se reutilice el ID anterior fuera de sesión
     localStorage.removeItem('usuarioId');
     
     fetch('/logout', {
@@ -314,13 +360,13 @@ function cerrarSesion() {
         }
     })
     .catch(err => {
-        console.error('Error:', err);
+        console.error('Error al cerrar sesión:', err);
         alert('Error al cerrar sesión');
     });
 }
 
-// Modal de edición
-document.getElementById("btnEditar").addEventListener("click", () => {
+// MODAL DE EDICIÓN - Abrir
+document.getElementById("btnEditar")?.addEventListener("click", () => {
     document.getElementById("nombre").value = usuarioActual.nombre || "";
     document.getElementById("apellidos").value = usuarioActual.apellido || "";
     document.getElementById("email").value = usuarioActual.correo || "";
@@ -335,12 +381,13 @@ document.getElementById("btnEditar").addEventListener("click", () => {
     document.getElementById("modalEdit").style.display = "flex";
 });
 
-document.getElementById("closeModalEdit").addEventListener("click", () => {
+// MODAL DE EDICIÓN - Cerrar
+document.getElementById("closeModalEdit")?.addEventListener("click", () => {
     document.getElementById("modalEdit").style.display = "none";
 });
 
-// Enviar formulario de edición
-document.getElementById("formEdit")?.addEventListener("submit", function(e){
+// MODAL DE EDICIÓN - Guardar cambios
+document.getElementById("formEdit")?.addEventListener("submit", function(e) {
     e.preventDefault();
     
     const nombre = document.getElementById("nombre").value.trim() || usuarioActual.nombre;
@@ -365,7 +412,15 @@ document.getElementById("formEdit")?.addEventListener("submit", function(e){
                 <p><span>Dirección:</span> ${direccion}</p>
                 <p><span>Teléfono:</span> ${telefono}</p>
             `;
-            usuarioActual = { ...usuarioActual, nombre, apellido: apellidos, correo, telefono, direccion, fecha_nacimiento: fecha };
+            usuarioActual = { 
+                ...usuarioActual, 
+                nombre, 
+                apellido: apellidos, 
+                correo, 
+                telefono, 
+                direccion, 
+                fecha_nacimiento: fecha 
+            };
             alert('Perfil actualizado');
         } else {
             alert('Error al actualizar');
@@ -377,23 +432,6 @@ document.getElementById("formEdit")?.addEventListener("submit", function(e){
         alert('Error al actualizar');
         document.getElementById("modalEdit").style.display = "none";
     });
-});
-
-//envios
-document.addEventListener('DOMContentLoaded', async function() {
-    const cardEnvios = document.getElementById('card-envios');
-    if (cardEnvios) {
-        cardEnvios.style.cursor = 'pointer';
-        cardEnvios.addEventListener('click', () => { window.location.href = 'envios.html'; });
-    }
-});
-//compras
-document.addEventListener('DOMContentLoaded', async function() {
-    const cardCompras = document.getElementById('card-compras');
-    if (cardCompras) {
-        cardCompras.style.cursor = 'pointer';
-        cardCompras.addEventListener('click', () => { window.location.href = 'compras.html'; });
-    }
 });
     </script>
 
