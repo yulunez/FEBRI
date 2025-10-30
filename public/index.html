@@ -14,8 +14,8 @@
             <img src="imagenes/logo.png" alt="Logo">
         </div>
         <div class="barra-busqueda">
-            <input type="text" placeholder="Buscar productos en Febri...">
-            <i class='bx bx-search'></i>
+            <input type="text" placeholder="Buscar productos en Febri..." id="busqueda-input">
+            <i class='bx bx-search' id="busqueda-btn" onclick="realizarBusqueda()"></i>
         </div>
         <div class="menu-items">
             <a href="index.html" class="nav-link">Inicio</a>
@@ -45,8 +45,8 @@
             <div class="menu-izquierda">
                 <i class='bx bx-menu menu-icon'></i>
                 <div class="barra-busqueda-movil">
-                    <input type="text" placeholder="Buscar productos en Febri...">
-                    <i class='bx bx-search'></i>
+                    <input type="text" placeholder="Buscar productos en Febri..." id="busqueda-input-movil">
+                    <i class='bx bx-search' id="busqueda-btn-movil" onclick="realizarBusquedaMovil()"></i>
                 </div>
             </div>
             
@@ -106,23 +106,21 @@ document.addEventListener('DOMContentLoaded', async function() {
         const response = await fetch('/perfil-usuario', {
             method: 'GET',
             credentials: 'include',
-            headers: {
-                'Content-Type': 'application/json'
-            }
+            headers: { 'Content-Type': 'application/json' }
         });
         
         const data = await response.json();
-        console.log('📊 Respuesta del servidor:', data);
+        console.log(' Respuesta del servidor:', data);
         
         if (data.success && data.usuario) {
-            // ✅ Usuario AUTENTICADO
-            console.log('✅ Usuario autenticado:', data.usuario.nombre);
+            //  Usuario AUTENTICADO
+            console.log(' Usuario autenticado:', data.usuario.nombre);
             
             // Ocultar TODOS los botones de "Iniciar sesión"
             botonesRegistrar.forEach(btn => {
                 if (btn) {
                     btn.style.display = 'none';
-                    console.log('👁️ Ocultando botón de iniciar sesión');
+                    console.log('Ocultando botón de iniciar sesión');
                 }
             });
             
@@ -130,14 +128,14 @@ document.addEventListener('DOMContentLoaded', async function() {
             iconosPerfil.forEach(icono => {
                 if (icono) {
                     icono.style.display = 'inline-block';
-                    console.log('👁️ Mostrando ícono de perfil');
+                    console.log(' Mostrando ícono de perfil');
                 }
             });
             
             enlacesPerfil.forEach(enlace => {
                 if (enlace) {
                     enlace.style.display = 'inline-block';
-                    console.log('👁️ Mostrando enlace de perfil');
+                    console.log(' Mostrando enlace de perfil');
                 }
             });
             
@@ -146,18 +144,33 @@ document.addEventListener('DOMContentLoaded', async function() {
             if (data.usuario.nombre) {
                 localStorage.setItem('nombreUsuario', data.usuario.nombre);
             }
-            
-            console.log('✅ Interfaz actualizada para usuario autenticado');
+
+            // NUEVO: fijar un usuarioId único para aislar compras por usuario (Google incluido)
+            const idUnico = (
+                data.usuario.ID_cliente ||
+                data.usuario.ID_empleado ||
+                data.usuario.id ||
+                data.usuario.ID ||
+                data.usuario.correo // fallback seguro para usuarios de Google sin ID en BD
+            );
+            if (idUnico) {
+                localStorage.setItem('usuarioId', String(idUnico));
+            } else {
+                // Si por alguna razón no hay ID, evitamos arrastrar el anterior
+                localStorage.removeItem('usuarioId');
+            }
+
+            console.log(' Interfaz actualizada para usuario autenticado');
             
         } else {
-            // ❌ Usuario NO autenticado
-            console.log('❌ Usuario no autenticado');
+            // Usuario NO autenticado
+            console.log(' Usuario no autenticado');
             
             // Mostrar botones de "Iniciar sesión"
             botonesRegistrar.forEach(btn => {
                 if (btn) {
                     btn.style.display = 'block';
-                    console.log('👁️ Mostrando botón de iniciar sesión');
+                    console.log(' Mostrando botón de iniciar sesión');
                 }
             });
             
@@ -165,25 +178,28 @@ document.addEventListener('DOMContentLoaded', async function() {
             iconosPerfil.forEach(icono => {
                 if (icono) {
                     icono.style.display = 'none';
-                    console.log('👁️ Ocultando ícono de perfil');
+                    console.log(' Ocultando ícono de perfil');
                 }
             });
             
             enlacesPerfil.forEach(enlace => {
                 if (enlace) {
                     enlace.style.display = 'none';
-                    console.log('👁️ Ocultando enlace de perfil');
+                    console.log(' Ocultando enlace de perfil');
                 }
             });
             
             // Limpiar localStorage
             localStorage.removeItem('usuarioLogueado');
             localStorage.removeItem('nombreUsuario');
-            
-            console.log('✅ Interfaz actualizada para usuario no autenticado');
+
+            // NUEVO: limpiar usuarioId para evitar que se herede entre sesiones
+            localStorage.removeItem('usuarioId');
+
+            console.log('Interfaz actualizada para usuario no autenticado');
         }
     } catch (error) {
-        console.error('❌ Error al verificar sesión:', error);
+        console.error(' Error al verificar sesión:', error);
         
         // En caso de error, mostrar botón de login por seguridad
         botonesRegistrar.forEach(btn => {
@@ -197,7 +213,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         });
     }
     
-    console.log('🏁 Verificación de sesión completada');
+    console.log(' Verificación de sesión completada');
 });
 </script>
     </script>
@@ -430,7 +446,7 @@ function inicializarCarrusel() {
     const totalTarjetas = tarjetas.length;
 
     function moverCarrusel(direccion) {
-        const anchoTarjeta = tarjetas[0].offsetWidth + 20; // margen aproximado
+        const anchoTarjeta = tarjetas[0].offsetWidth + 20; 
 
         if (direccion === 'siguiente' && posicionActual < totalTarjetas - tarjetasPorVista) {
             posicionActual++;
@@ -450,19 +466,6 @@ function inicializarCarrusel() {
     if (btnAnterior) btnAnterior.addEventListener('click', () => moverCarrusel('anterior'));
 }
 
-//ocultar boton de inicio de sesion despues de haver iniciado sesion
-/*document.addEventListener('DOMContentLoaded', () => {
-  const btnLogin = document.querySelector('.btn-registrar');
-  const perfilIcon = document.querySelector('.perfil-icon');
-
-  if (localStorage.getItem('usuarioLogueado') === 'true') {
-    if (btnLogin) btnLogin.style.display = 'none';
-    if (perfilIcon) perfilIcon.style.display = 'inline-block';
-  } else {
-    if (btnLogin) btnLogin.style.display = 'block';
-    if (perfilIcon) perfilIcon.style.display = 'none';
-  }
-});*/
 
     // Cargar los primeros 10 productos desde el backend y renderizar en el carrusel
     document.addEventListener('DOMContentLoaded', async function() {
@@ -470,10 +473,10 @@ function inicializarCarrusel() {
         if (!contenedor) return;
 
         try {
-            const res = await fetch('/productos/top10');
+            const res = await fetch('/productos/primeros-diez'); // <-- ruta correcta
             const data = await res.json();
             if (!data.success || !Array.isArray(data.productos)) {
-                console.error('Respuesta inválida de /productos/top10', data);
+                console.error('Respuesta inválida de /productos/primeros-diez', data);
                 return;
             }
 
@@ -544,14 +547,14 @@ function inicializarCarrusel() {
         // Helpers para carrito
         function getCartItems() {
             try {
-                const s = JSON.parse(sessionStorage.getItem('carritoCompra')) || [];
-                const l = JSON.parse(localStorage.getItem('carritoCompra')) || [];
-                return (s && s.length ? s : l) || [];
-            } catch { return []; }
+                return JSON.parse(sessionStorage.getItem('carritoCompra')) || [];
+            } catch {
+                return [];
+            }
         }
-    
+
         function updateCartCounters() {
-            const total = getCartItems().reduce((sum, item) => sum + (Number(item.cantidad) || 1), 0);
+            const total = getCartItems().reduce((sum, item) => sum + (Number(item.cantidad) || 0), 0);
             document.querySelectorAll('.contador-carrito').forEach(el => {
                 el.textContent = String(total);
                 el.style.display = total > 0 ? 'flex' : 'none';
@@ -561,5 +564,57 @@ function inicializarCarrusel() {
         function irAlCarrito() { window.location.href = 'carrito_compra.html'; }
     
 </script>
+    <script>
+        // Función para realizar búsqueda desde la versión de escritorio
+        function realizarBusqueda() {
+            const terminoBusqueda = document.querySelector('.barra-busqueda input').value.trim();
+            if (terminoBusqueda) {
+                window.location.href = `busqueda.html?termino=${encodeURIComponent(terminoBusqueda)}`;
+            }
+        }
+        
+        // Función para realizar búsqueda desde la versión móvil
+        function realizarBusquedaMovil() {
+            const terminoBusqueda = document.querySelector('.barra-busqueda-movil input').value.trim();
+            if (terminoBusqueda) {
+                window.location.href = `busqueda.html?termino=${encodeURIComponent(terminoBusqueda)}`;
+            }
+        }
+        
+        // Configurar eventos para la tecla Enter
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputDesktop = document.querySelector('.barra-busqueda input');
+            const inputMobile = document.querySelector('.barra-busqueda-movil input');
+            
+            if (inputDesktop) {
+                inputDesktop.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        realizarBusqueda();
+                    }
+                });
+            }
+            
+            if (inputMobile) {
+                inputMobile.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        realizarBusquedaMovil();
+                    }
+                });
+            }
+            
+            // Configurar eventos para los iconos de búsqueda
+            const iconoBusquedaDesktop = document.querySelector('.barra-busqueda .bx-search');
+            const iconoBusquedaMobile = document.querySelector('.barra-busqueda-movil .bx-search');
+            
+            if (iconoBusquedaDesktop) {
+                iconoBusquedaDesktop.addEventListener('click', realizarBusqueda);
+            }
+            
+            if (iconoBusquedaMobile) {
+                iconoBusquedaMobile.addEventListener('click', realizarBusquedaMovil);
+            }
+        });
+    </script>
 </body>
 </html>
+

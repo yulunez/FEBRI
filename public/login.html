@@ -21,10 +21,7 @@
                    
             <!-- Botones de redes sociales -->
             <div class="botones-sociales">
-                <button type="button" class="boton-social boton-facebook" onclick="loginWithFacebook()">
-                    <i class='bx bxl-facebook'></i>
-                    <span>Continuar con Facebook</span>
-                </button>
+        
                 
                 <button type="button" class="boton-social boton-google" onclick="loginWithGoogle()">
                     <i class='bx bxl-google'></i>
@@ -200,6 +197,9 @@ formularioLogin.addEventListener('submit', async function(e) {
     } else {
         window.location.href = 'index.html?refresh=' + Date.now();
     }
+        // Guardar ID del usuario para aislar compras por usuario
+        const id = (data.usuario && (data.usuario.ID_cliente || data.usuario.ID_empleado || data.usuario.id || data.usuario.ID));
+        if (id) { localStorage.setItem('usuarioId', String(id)); }
 }, 1200);
         } else {
             mostrarMensajeLogin(data.message || 'Correo o contraseña incorrectos', '#666666');

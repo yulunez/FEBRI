@@ -6,6 +6,7 @@
     <title>Document</title>
      <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link rel="stylesheet" href="style.css">
+    <script src="shared.js"></script>
 </head>
 <body>
       <!-- Barra de navegación para pantallas grandes -->
@@ -145,6 +146,17 @@
     </main>
 
     <script>
+
+
+ // desplegable menu en pantallas pequeñas
+    document.addEventListener('DOMContentLoaded', function() {
+        const menuIcon = document.querySelector('.menu-icon');
+        const menuLateral = document.querySelector('.menu-lateral');
+        
+        menuIcon.addEventListener('click', function() {
+            menuLateral.classList.toggle('activo');
+        });
+    });
     // Dentro del IIFE del script de detalle
     (function(){
         const loadingDiv = document.getElementById('loading-message');
@@ -347,7 +359,7 @@
                     }
                 }
             } catch(err){
-                // ignore, keep Anónimo
+               
             }
         }
 

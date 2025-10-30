@@ -82,6 +82,7 @@ const productoRoutes = require('./routes/producto');
 const oauthRoutes = require('./routes/oauth');
 const recuperacionRoutes = require('./routes/recuperacion');
 const contactoRoutes = require('./routes/contacto');
+const enviosRoutes = require('./routes/envios');
 
 // Usar rutas
 app.use('/login', loginRoutes);
@@ -93,6 +94,7 @@ app.use('/productos', productoRoutes);
 app.use('/auth', oauthRoutes);
 app.use('/recuperar', recuperacionRoutes);
 app.use('/contacto', contactoRoutes);
+app.use('/envios', enviosRoutes);
 
 // Ruta para verificar si el usuario ha iniciado sesión
 app.get('/verificar-sesion', (req, res) => {

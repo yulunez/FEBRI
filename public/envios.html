@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Mis Envíos</title>
+    <link rel="stylesheet" href="perfil_usuario.css"/>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <!-- Reutiliza botones/contador de Compras -->
+    <link rel="stylesheet" href="compra.css">
+    <!-- Estilos específicos de Envíos -->
+    <link rel="stylesheet" href="envios.css">
+</head>
+<body style="background:#f8fafc;">
+    <div class="tarjeta-contenido" style="max-width:1024px;margin:2rem auto;">
+        <div class="encabezado-seccion">
+            <h3 class="titulo-seccion">Mis Envíos</h3>
+            <span class="contador-seccion" id="contador-envios">0 envíos</span>
+        </div>
+        <div class="contenedor-envios" id="contenedor-envios">
+            <!-- Barras de envío dinámicas -->
+        </div>
+    </div>
+
+    <script>
+    async function fetchEnvios() {
+        try {
+            const res = await fetch('/envios/usuario', { credentials: 'include' });
+            if (!res.ok) throw new Error('Error al obtener envíos');
+            const data = await res.json();
+            return data.success ? data.envios : [];
+        } catch (e) {
+            console.error(e);
+            return [];
+        }
+    }
+
+    function crearBarraEnvio(envio) {
+        const estadoClases = {
+            'en_proceso': 'estado-en-proceso',
+            'en_transito': 'estado-en-transito',
+            'entregado': 'estado-entregado',
+            'cancelado': 'estado-cancelado'
+        };
+        const estadoTextos = {
+            'en_proceso': 'En Proceso',
+            'en_transito': 'En Tránsito',
+            'entregado': 'Entregado',
+            'cancelado': 'Cancelado'
+        };
+
+        const productosHTML = (envio.productos || []).map(p => `
+            <div class="producto-miniatura">
+                <img src="${p.imagen || 'imagenes/producto-default.jpg'}" alt="${p.nombre || 'Producto'}"/>
+                ${p.cantidad > 1 ? `<div class="cantidad-producto">${p.cantidad}</div>` : ''}
+            </div>
+        `).join('');
+
+        const fechaEnvio = envio.fechaEnvio
+            ? new Date(envio.fechaEnvio).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })
+            : '';
+
+        return `
+            <div class="barra-envio">
+                <div class="encabezado-envio">
+                    <div class="info-envio-principal">
+                        <img src="${envio.empresa.logo || 'imagenes/empresa-default.png'}" alt="${envio.empresa.nombre || 'Empresa'}" class="logo-empresa">
+                        <div class="datos-envio">
+                            <div class="numero-seguimiento">#${envio.numeroSeguimiento}</div>
+                            <div class="empresa-nombre">${envio.empresa.nombre || ''}</div>
+                        </div>
+                    </div>
+                    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:.5rem;">
+                        <div class="fecha-envio">Enviado: ${fechaEnvio}</div>
+                        <span class="estado-envio ${estadoClases[envio.estado] || 'estado-en-proceso'}">
+                            ${estadoTextos[envio.estado] || 'En Proceso'}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="productos-envio">${productosHTML}</div>
+
+                <div class="detalles-envio">
+                    <div class="direccion-envio"><strong>Destino:</strong> ${envio.direccionDestino || ''}</div>
+                    <div class="total-envio">$${parseFloat(envio.costo || 0).toLocaleString('es-ES')}</div>
+                    <div class="acciones-envio">
+                        <button class="btn btn-perfil" onclick="copiarSeguimiento('${envio.numeroSeguimiento}')">
+                            <i class='bx bx-copy'></i><span>Copiar seguimiento</span>
+                        </button>
+                        <button class="btn btn-envio" onclick="window.location.href='compras.html'">
+                            <i class='bx bx-receipt'></i><span>Ver compras</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const DEMO = urlParams.get('demo') === '1';
+    
+    // Envíos de ejemplo para modo demo
+    function mockEnvios() {
+        return [
+            {
+                id: 1205,
+                numeroSeguimiento: 'ENV-1205',
+                fechaEnvio: '2025-10-01',
+                estado: 'en_transito',
+                direccionDestino: 'Cra 10 # 20-30, Bogotá',
+                costo: 35000,
+                empresa: { nombre: 'Envíos Express', logo: 'imagenes/logo.png' },
+                productos: [
+                    { nombre: 'Llavero de K', imagen: 'imagenes/llavero-inicio.jpeg', cantidad: 1 },
+                    { nombre: 'Jarrón moderno', imagen: 'imagenes/jarron.webp', cantidad: 2 }
+                ]
+            },
+            {
+                id: 1188,
+                numeroSeguimiento: 'ENV-1188',
+                fechaEnvio: '2025-09-28',
+                estado: 'en_proceso',
+                direccionDestino: 'Cl 45 # 8-12, Medellín',
+                costo: 19000,
+                empresa: { nombre: 'Logística Rápida', logo: 'imagenes/logo.png' },
+                productos: [
+                    { nombre: 'Cuadro decorativo', imagen: 'imagenes/decoracion-inicio.avif', cantidad: 1 }
+                ]
+            },
+            {
+                id: 1150,
+                numeroSeguimiento: 'ENV-1150',
+                fechaEnvio: '2025-09-20',
+                estado: 'entregado',
+                direccionDestino: 'Av 5 # 22-16, Cali',
+                costo: 12000,
+                empresa: { nombre: 'Courier Nacional', logo: 'imagenes/logo.png' },
+                productos: [
+                    { nombre: 'Collar pétalo', imagen: 'imagenes/joyas2.jpg', cantidad: 1 }
+                ]
+            }
+        ];
+    }
+
+    async function renderizarEnvios() {
+        const seccionContador = document.getElementById('contador-envios');
+        const contenedor = document.getElementById('contenedor-envios');
+    
+        let envios = await fetchEnvios();
+        if (!envios.length && DEMO) {
+            envios = mockEnvios();
+        }
+    
+        if (!envios.length) {
+            seccionContador.textContent = '0 envíos';
+            contenedor.innerHTML = `
+                <div class="mensaje-sin-envios">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 9v4m0 4h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+                    </svg>
+                    <p>No tienes envíos en proceso.</p>
+                </div>
+            `;
+            return;
+        }
+    
+        seccionContador.textContent = `${envios.length} envío${envios.length !== 1 ? 's' : ''}`;
+        contenedor.innerHTML = envios.map(crearBarraEnvio).join('');
+    }
+
+    document.addEventListener('DOMContentLoaded', renderizarEnvios);
+    // Acción de copiar al portapapeles
+    function copiarSeguimiento(numero) {
+        if (!numero) return;
+        navigator.clipboard.writeText(String(numero))
+            .then(() => console.log('Número copiado:', numero))
+            .catch(() => alert('No se pudo copiar el número'));
+    }
+    </script>
+</body>
+</html>

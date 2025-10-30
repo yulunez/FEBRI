@@ -1,0 +1,60 @@
+:root {
+    --rosa-claro: #f8a4d8;
+    --rosa-fondo: #ffd6ef;
+    --gris-texto: #666666;
+    --gris-claro: #f0f0f0;
+    --blanco: #fff;
+    --gradiente-principal: linear-gradient(135deg, var(--rosa-claro) 0%, var(--rosa-fondo) 100%);
+    --gradiente-hover: linear-gradient(135deg, var(--rosa-fondo) 0%, var(--rosa-claro) 100%);
+    --gris-oscuro: #334155;
+}
+
+.contenedor-envios { display: flex; flex-direction: column; gap: 1rem; }
+
+.barra-envio {
+    background: var(--blanco);
+    border-radius: 12px;
+    padding: 1.25rem;
+    box-shadow: 0 2px 10px rgba(248, 164, 216, 0.25);
+    border-left: 5px solid var(--rosa-claro);
+    transition: transform .15s ease, box-shadow .15s ease;
+}
+.barra-envio:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(248, 164, 216, 0.35); }
+
+.encabezado-envio { display:flex; justify-content:space-between; align-items:center; margin-bottom:.75rem; }
+.info-envio-principal { display:flex; align-items:center; gap:.75rem; }
+.logo-empresa { width:42px; height:42px; border-radius:8px; border:2px solid var(--rosa-claro); background: var(--gris-claro); object-fit:contain; }
+.numero-seguimiento { font-weight: 700; color: #1e293b; }
+.empresa-nombre { color: var(--gris-texto); font-size: .9rem; }
+.fecha-envio { color: var(--gris-texto); font-size:.9rem; }
+
+.estado-envio {
+    display:inline-flex; align-items:center; gap:.35rem;
+    border-radius:999px; padding:.3rem .6rem; font-weight:700;
+    border:1px solid var(--gris-claro);
+}
+.estado-en-proceso { background: var(--rosa-fondo); border-color: var(--rosa-claro); color:#1e293b; }
+.estado-en-transito { background: var(--gradiente-principal); border-color: var(--rosa-claro); color:#fff; box-shadow: 0 4px 12px rgba(248, 164, 216, 0.35); }
+.estado-entregado { background: #fff; color: var(--gris-oscuro); }
+.estado-cancelado { background: #fee; border-color: #ff6b6b; color: #b91c1c; }
+
+.productos-envio { display:flex; gap:.5rem; flex-wrap:wrap; margin-top:.5rem; }
+.producto-miniatura { width:50px; height:50px; border-radius:8px; overflow:hidden; border:2px solid var(--rosa-claro); position:relative; background: var(--gris-claro); }
+.producto-miniatura img { width:100%; height:100%; object-fit:cover; }
+.cantidad-producto {
+    position:absolute; top:-8px; right:-8px; background: var(--rosa-claro);
+    color:#fff; border-radius:50%; width:20px; height:20px; font-size:.75rem;
+    display:flex; align-items:center; justify-content:center; font-weight:700;
+    box-shadow: 0 2px 6px rgba(248, 164, 216, 0.5);
+}
+
+.detalles-envio { display:flex; gap:.75rem; justify-content:space-between; align-items:center; margin-top:.75rem; border-top:1px solid var(--gris-claro); padding-top:.75rem; }
+.direccion-envio { color: var(--gris-oscuro); }
+.total-envio { font-weight:700; color:#1e293b; }
+.acciones-envio { display:flex; gap:.5rem; }
+
+/* Vacío */
+.mensaje-sin-envios {
+    text-align:center; color: var(--gris-texto); padding:2rem 1rem;
+    background:#fff; border:1px dashed var(--gris-claro); border-radius:12px;
+}
