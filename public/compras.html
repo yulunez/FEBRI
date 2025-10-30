@@ -21,89 +21,147 @@
     </div>
 
     <script>
-    function getUsuarioActual() {
-        // Obtener ID del usuario logueado desde sessionStorage o localStorage
-        const usuario = localStorage.getItem('usuarioLogueado');
-        const usuarioId = localStorage.getItem('usuarioId') || sessionStorage.getItem('usuarioId');
-        return usuarioId || (usuario === 'true' ? 'usuario_default' : null);
+  // **FUNCIÓN MEJORADA**: Obtener ID único del usuario actual
+function obtenerUsuarioActual() {
+    // Intentar obtener el usuarioId almacenado
+    let usuarioId = localStorage.getItem('usuarioId') || sessionStorage.getItem('usuarioId');
+    
+    // Si no existe usuarioId pero el usuario está logueado, usar el email como identificador
+    if (!usuarioId) {
+        const usuarioLogueado = localStorage.getItem('usuarioLogueado');
+        if (usuarioLogueado === 'true') {
+            // Buscar el email del usuario en localStorage
+            const emailUsuario = localStorage.getItem('emailUsuario') || sessionStorage.getItem('emailUsuario');
+            if (emailUsuario) {
+                usuarioId = emailUsuario; // Usar email como ID único
+                // Guardar para uso futuro
+                localStorage.setItem('usuarioId', usuarioId);
+            }
+        }
     }
+    
+    // Si aún no hay usuarioId, es un usuario anónimo
+    return usuarioId || 'usuario_anonimo';
+}
 
-    function getStorageKey() {
-        // Usa el ID del usuario si existe; si no, separa como 'anon'
-        const usuarioId = localStorage.getItem('usuarioId') || sessionStorage.getItem('usuarioId') || 'anon';
-        return `compras_${usuarioId}`;
+function getStorageKey() {
+    // **CAMBIO PRINCIPAL**: Usar la función mejorada para obtener el usuario
+    const usuarioId = obtenerUsuarioActual();
+    return `compras_${usuarioId}`;
+}
+
+function getCompras() {
+    try {
+        const clave = getStorageKey();
+        const raw = localStorage.getItem(clave);
+        console.log(`Cargando compras con clave: ${clave}`); // Para debugging
+        return raw ? JSON.parse(raw) : [];
+    } catch { 
+        console.error('Error al cargar compras');
+        return []; 
     }
+}
 
-    function getCompras() {
-        try {
-            const raw = localStorage.getItem(getStorageKey());
-            return raw ? JSON.parse(raw) : [];
-        } catch { return []; }
+function setCompras(lista) {
+    try { 
+        const clave = getStorageKey();
+        localStorage.setItem(clave, JSON.stringify(lista)); 
+        console.log(`Compras guardadas con clave: ${clave}`); // Para debugging
+    } catch(e) { 
+        console.error('Error al guardar compras:', e); 
     }
+}
 
-    function setCompras(lista) {
-        try { localStorage.setItem(getStorageKey(), JSON.stringify(lista)); } catch(e) { console.error(e); }
+function formatoFecha(compra) {
+    // Si tiene fechaLegible, usarla directamente
+    if (typeof compra === 'object' && compra.fechaLegible) {
+        return compra.fechaLegible;
     }
-    function formatoFecha(iso) {
-        try { const d = new Date(iso); return d.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }); } catch { return iso || ''; }
+    
+    // Si no, formatear la fecha ISO
+    const fechaISO = typeof compra === 'object' ? compra.fecha : compra;
+    try { 
+        const d = new Date(fechaISO); 
+        const fecha = d.toLocaleDateString('es-ES', { 
+            day: '2-digit', 
+            month: '2-digit', 
+            year: 'numeric' 
+        });
+        const hora = d.toLocaleTimeString('es-ES', { 
+            hour: '2-digit', 
+            minute: '2-digit' 
+        });
+        return `${fecha} a las ${hora}`;
+    } catch { 
+        return 'Fecha no disponible'; 
     }
+}
 
-    function comprasProductos(compra) { return Array.isArray(compra.productos) ? compra.productos : []; }
+function comprasProductos(compra) { 
+    return Array.isArray(compra.productos) ? compra.productos : []; 
+}
 
-    function crearTarjetaCompra(compra) {
-        const productosHTML = (comprasProductos(compra) || []).map(p => `
-            <div class="mini-prod">
-                <img src="${p.imagen || 'imagenes/producto-default.jpg'}" alt="${p.nombre || 'Producto'}">
-                ${p.cantidad > 1 ? `<div class="mini-cant">${p.cantidad}</div>` : ''}
+function crearTarjetaCompra(compra) {
+    const productosHTML = (comprasProductos(compra) || []).map(p => `
+        <div class="mini-prod">
+            <img src="${p.imagen || 'imagenes/producto-default.jpg'}" alt="${p.nombre || 'Producto'}">
+            ${p.cantidad > 1 ? `<div class="mini-cant">${p.cantidad}</div>` : ''}
+        </div>
+    `).join('');
+
+    return `
+        <div class="tarjeta-compra">
+            <div class="encabezado-compra">
+                <div class="info-compra">
+                    <div class="compra-id">Compra #${compra.id}</div>
+                    <div class="compra-fecha">
+                        <i class='bx bx-calendar'></i>
+                        Realizada el ${formatoFecha(compra.fecha)}
+                    </div>
+                </div>
             </div>
-        `).join('');
 
-        return `
-            <div class="tarjeta-compra">
-                <div class="encabezado-compra">
-                    <div class="info-compra">
-                        <div class="compra-id">Compra #${compra.id}</div>
-                        <div class="compra-fecha">Fecha: ${formatoFecha(compra.fecha)}</div>
-                    </div>
+            <div class="productos-compra">${productosHTML}</div>
+
+            <div class="footer-compra">
+                <div class="total-compra">Total: $${parseFloat(compra.total || 0).toLocaleString('es-ES')}</div>
+                <div class="acciones-compra">
+                    <button class="btn btn-perfil" onclick="window.location.href='perfil_usuario.html'">Volver al Perfil</button>
                 </div>
+            </div>
+        </div>
+    `;
+}
 
-                <div class="productos-compra">${productosHTML}</div>
+function renderCompras() {
+    const cont = document.getElementById('contenedor-compras');
+    const badge = document.getElementById('contador-compras');
+    const compras = getCompras();
 
-                <div class="footer-compra">
-                    <div class="total-compra">Total: $${parseFloat(compra.total || 0).toLocaleString('es-ES')}</div>
-                    <div class="acciones-compra">
-                        <button class="btn btn-perfil" onclick="window.location.href='perfil_usuario.html'">Volver al Perfil</button>
-                    </div>
-                </div>
+    // Mostrar información del usuario actual para debugging
+    console.log('Usuario actual:', obtenerUsuarioActual());
+    console.log('Compras encontradas:', compras.length);
+
+    if (!compras.length) {
+        badge.textContent = '0 compras';
+        cont.innerHTML = `
+            <div class="mensaje-vacio">
+                <p>Aún no has realizado compras.</p>
             </div>
         `;
+        return;
     }
 
-    function renderCompras() {
-        const cont = document.getElementById('contenedor-compras');
-        const badge = document.getElementById('contador-compras');
-        const compras = getCompras();
+    badge.textContent = `${compras.length} compra${compras.length !== 1 ? 's' : ''}`;
+    cont.innerHTML = compras
+        .sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
+        .map(crearTarjetaCompra)
+        .join('');
+}
 
-        if (!compras.length) {
-            badge.textContent = '0 compras';
-            cont.innerHTML = `
-                <div class="mensaje-vacio">
-                    <p>Aún no has realizado compras.</p>
-                </div>
-            `;
-            return;
-        }
-
-        badge.textContent = `${compras.length} compra${compras.length !== 1 ? 's' : ''}`;
-        cont.innerHTML = compras
-            .sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
-            .map(crearTarjetaCompra)
-            .join('');
-    }
-
-    document.addEventListener('DOMContentLoaded', function(){
-        renderCompras();
-    });
+document.addEventListener('DOMContentLoaded', function(){
+    renderCompras();
+});
     </script>
 </body>
 </html>

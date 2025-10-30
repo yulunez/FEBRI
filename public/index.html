@@ -144,7 +144,22 @@ document.addEventListener('DOMContentLoaded', async function() {
             if (data.usuario.nombre) {
                 localStorage.setItem('nombreUsuario', data.usuario.nombre);
             }
-            
+
+            // NUEVO: fijar un usuarioId único para aislar compras por usuario (Google incluido)
+            const idUnico = (
+                data.usuario.ID_cliente ||
+                data.usuario.ID_empleado ||
+                data.usuario.id ||
+                data.usuario.ID ||
+                data.usuario.correo // fallback seguro para usuarios de Google sin ID en BD
+            );
+            if (idUnico) {
+                localStorage.setItem('usuarioId', String(idUnico));
+            } else {
+                // Si por alguna razón no hay ID, evitamos arrastrar el anterior
+                localStorage.removeItem('usuarioId');
+            }
+
             console.log(' Interfaz actualizada para usuario autenticado');
             
         } else {
@@ -177,7 +192,10 @@ document.addEventListener('DOMContentLoaded', async function() {
             // Limpiar localStorage
             localStorage.removeItem('usuarioLogueado');
             localStorage.removeItem('nombreUsuario');
-            
+
+            // NUEVO: limpiar usuarioId para evitar que se herede entre sesiones
+            localStorage.removeItem('usuarioId');
+
             console.log('Interfaz actualizada para usuario no autenticado');
         }
     } catch (error) {
