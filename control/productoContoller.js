@@ -26,25 +26,27 @@ exports.obtenerProductoPorId = (req, res) => {
             return res.status(404).json({ success: false, message: 'Producto no encontrado' });
         }
         const r = results[0];
-        const producto = {
-            id: r.ID_producto,
-            ID_producto: r.ID_producto,
-            Nombre: r.Nombre || r.nombre || '',
-            nombre: r.Nombre || r.nombre || '',
-            Precio: r.Precio,
-            Imagen: r.imagen || r.Imagen || '',
-            Descripcion: r.Descripcion || r.descripcion || r.detalle || '',
-            precio_anterior: r.precio_anterior || r.PrecioAnterior || null,
+            const precio_normal = r.Precio;
+            const descuento = r.descuento || null;
+            const precio_con_descuento = descuento ? precio_normal * (1 - descuento/100) : precio_normal;
 
-
-            ID_categoria: r.ID_categoria || null,
-            categoriaNombre: r.categoriaNombre || null,
-            Stock: r.Stock != null ? r.Stock : null,
-            // incluir el resto de campos por si el frontend los necesita
-            raw: r
-        };
-
-        console.log(`obtenerProductoPorId: encontrado producto id=${id}`);
+            const producto = {
+                id: r.ID_producto,
+                ID_producto: r.ID_producto,
+                Nombre: r.Nombre || r.nombre || '',
+                nombre: r.Nombre || r.nombre || '',
+                Precio: precio_con_descuento,
+                precio_normal: precio_normal,
+                Imagen: r.imagen || r.Imagen || '',
+                Descripcion: r.Descripcion || r.descripcion || r.detalle || '',
+                descuento: descuento,
+                tiene_descuento: !!descuento,
+                ID_categoria: r.ID_categoria || null,
+                categoriaNombre: r.categoriaNombre || null,
+                Stock: r.Stock != null ? r.Stock : null,
+                // incluir el resto de campos por si el frontend los necesita
+                raw: r
+            };        console.log(`obtenerProductoPorId: encontrado producto id=${id}`);
         res.json({ success: true, producto });
     });
 };
@@ -180,6 +182,7 @@ exports.productosParaAdmin = (req, res) => {
         p.Descripcion AS Descripcion,
         p.Estado AS Estado,
         p.Stock AS Stock,
+        p.Descuento AS descuento,
         c.ID_categoria AS ID_categoria,
         c.Nombre AS categoriaNombre
     FROM producto p
@@ -196,17 +199,26 @@ exports.productosParaAdmin = (req, res) => {
             // Respuesta temporal con el mensaje de error para depuración frontend
             return res.status(500).json({ success: false, message: 'Error en la base de datos', error: err.message });
         }
-        const productos = Array.isArray(results) ? results.map(r => ({
-            id: r.ID_producto,
-            Nombre: r.productoNombre || r.Nombre || r.nombre,
-            Precio: r.Precio,
-            Imagen: r.imagen,
-            Descripcion: r.Descripcion,
-            Estado: r.Estado,
-            Categoria: r.categoriaNombre || '-',
-            ID_categoria: r.ID_categoria || null,
-            Stock: r.Stock
-        })) : [];
+        const productos = Array.isArray(results) ? results.map(r => {
+            const precio_normal = r.Precio;
+            const descuento = r.descuento || null;
+            const precio_con_descuento = descuento ? precio_normal * (1 - descuento/100) : precio_normal;
+            
+            return {
+                id: r.ID_producto,
+                Nombre: r.productoNombre || r.Nombre || r.nombre,
+                Precio: precio_con_descuento,
+                precio_normal: precio_normal,
+                Imagen: r.imagen,
+                Descripcion: r.Descripcion,
+                Estado: r.Estado,
+                Categoria: r.categoriaNombre || '-',
+                ID_categoria: r.ID_categoria || null,
+                Stock: r.Stock,
+                descuento: descuento,
+                tiene_descuento: !!descuento
+            };
+        }) : [];
         res.json({ success: true, productos });
     });
 };
@@ -228,11 +240,22 @@ exports.insertarProducto = (req, res) => {
     const Precio = (req.body.Precio != null) ? req.body.Precio : (req.body.precio != null ? req.body.precio : 0);
     const ID_categoria = req.body.ID_categoria || req.body.categoria || req.body.Categoria || req.body.categoriaId || null;
     const Stock = (req.body.Stock != null) ? req.body.Stock : (req.body.stock != null ? req.body.stock : null);
+    // Handle discount logic - normalize casing for discount field
+    const descuento = req.body.descuento != null ? req.body.descuento : 
+                     req.body.Descuento != null ? req.body.Descuento : null;
+    // Calculate discounted price if there is a discount
+    const precio_con_descuento = descuento ? Precio * (1 - descuento/100) : Precio;
 
     // Only store product metadata in 'producto'. Inventory is stored in 'producto_inventario'.
-    const sql = `INSERT INTO producto (Nombre, imagen, Estado, Descripcion, Precio, Stock, ID_categoria)
-                 VALUES (?, ?, ?, ?, ?, ?, ?)`;
-    db.query(sql, [Nombre, imagen, Estado, Descripcion, Precio, Stock, ID_categoria], (err, result) => {
+    const sql = `INSERT INTO producto (
+        Nombre, imagen, Estado, Descripcion, Precio, Stock, ID_categoria, 
+        Descuento
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+    
+    db.query(sql, [
+        Nombre, imagen, Estado, Descripcion, Precio, Stock, ID_categoria,
+        descuento
+    ], (err, result) => {
         if (err) {
             console.error('Error en consulta insertarProducto:', err);
             return res.status(500).json({ success: false, message: 'Error en la base de datos', code: err.code, sqlMessage: err.sqlMessage });
@@ -260,12 +283,23 @@ exports.actualizarProducto = (req, res) => {
     const Precio = (req.body.Precio != null) ? req.body.Precio : (req.body.precio != null ? req.body.precio : 0);
     const ID_categoria = req.body.ID_categoria || req.body.categoria || req.body.Categoria || req.body.categoriaId || null;
     const Stock = (req.body.Stock != null) ? req.body.Stock : (req.body.stock != null ? req.body.stock : null);
+    // Handle discount logic - normalize casing for discount field
+    const descuento = req.body.descuento != null ? req.body.descuento : 
+                     req.body.Descuento != null ? req.body.Descuento : null;
+    // Calculate discounted price if there is a discount
+    const precio_con_descuento = descuento ? Precio * (1 - descuento/100) : Precio;
 
-    // Update only product metadata in 'producto'; inventory stored in producto_inventario
+    // Update product metadata including discount fields
     const sql = `UPDATE producto
-                 SET Nombre = ?, imagen = ?, Estado = ?, Descripcion = ?, Precio = ?, Stock = ?, ID_categoria = ?
+                 SET Nombre = ?, imagen = ?, Estado = ?, Descripcion = ?, 
+                     Precio = ?, Stock = ?, ID_categoria = ?,
+                     Descuento = ?
                  WHERE ID_producto = ?`;
-    db.query(sql, [Nombre, imagen, Estado, Descripcion, Precio, Stock, ID_categoria, id], (err, result) => {
+    db.query(sql, [
+        Nombre, imagen, Estado, Descripcion, 
+        Precio, Stock, ID_categoria,
+        descuento, id
+    ], (err, result) => {
         if (err) {
             console.error('Error en consulta actualizarProducto:', err);
             return res.status(500).json({ success: false, message: 'Error en la base de datos', error: err.message });
@@ -351,6 +385,60 @@ exports.totalProductos = (req, res) => {
         }
         const total = (Array.isArray(results) && results.length > 0) ? Number(results[0].total || 0) : 0;
         res.json({ success: true, total });
+    });
+};
+
+exports.obtenerProductosConDescuento = (req, res) => {
+    console.log('Obteniendo productos con descuento');
+    const db = req.db;
+    const sql = `
+        SELECT 
+            p.ID_producto,
+            p.Nombre,
+            p.Precio,
+            p.imagen,
+            p.Descripcion,
+            p.descuento,
+            c.Nombre AS categoriaNombre
+        FROM producto p
+        LEFT JOIN categoria c ON p.ID_categoria = c.ID_categoria
+        WHERE p.descuento IS NOT NULL 
+        AND p.descuento > 0
+        ORDER BY p.descuento DESC, p.Precio ASC`;
+    
+    db.query(sql, (err, results) => {
+        if (err) {
+            console.error('Error al obtener productos con descuento:', err);
+            return res.status(500).json({ 
+                success: false, 
+                message: 'Error al obtener productos con descuento',
+                error: err.message
+            });
+        }
+        
+        const productos = results.map(r => {
+            const precio_normal = r.Precio;
+            const descuento = r.descuento || null;
+            const precio_con_descuento = descuento ? precio_normal * (1 - descuento/100) : precio_normal;
+            
+            return {
+                id: r.ID_producto,
+                Nombre: r.Nombre,
+                Precio: precio_con_descuento,
+                precio_normal: precio_normal,
+                Imagen: r.imagen,
+                Descripcion: r.Descripcion,
+                descuento: descuento,
+                tiene_descuento: true,
+                categoriaNombre: r.categoriaNombre
+            };
+        });
+        
+        res.json({
+            success: true,
+            productos,
+            total: productos.length
+        });
     });
 };
 

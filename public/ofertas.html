@@ -7,10 +7,14 @@
     <link rel="stylesheet" href="style.css">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <script src="shared.js"></script>
-    
+    <style>
+        :root {
+            --rosa-marca: #f8a4d8;
+        }
+    </style>
 </head>
 <body>
-     <!-- Barra de navegación para pantallas grandes -->
+    <!-- Barra de navegación para pantallas grandes -->
     <nav class="nav-grande">
         <div class="logo">
             <img src="imagenes/logo.png" alt="Logo">
@@ -26,63 +30,45 @@
             <a href="contactos.html" class="nav-link">Contáctos</a>
             <div class="btn-registrar"><a href="login.html">Iniciar sesión</a></div>
 
-                   <!-- Carrito de compras -->
+            <!-- Carrito de compras -->
             <div class="carrito-nav" onclick="irAlCarrito()">
                 <i class='bx bx-cart'></i>
                 <span class="contador-carrito" id="contador-carrito" style="display: none;">0</span>
             </div>
-               <a href="perfil_usuario.html"><i class='bx bx-user perfil-icon'></i></a> 
-                
-        </div>
+            <a href="perfil_usuario.html"><i class='bx bx-user perfil-icon'></i></a>
         </div>
     </nav>
 
-   <!-- Menú móvil para pantallas pequeñas -->
+    <!-- Menú móvil para pantallas pequeñas -->
     <nav class="nav-pequeno">
         <div class="menu-superior">
             <div class="menu-izquierda">
                 <i class='bx bx-menu menu-icon'></i>
                 <div class="barra-busqueda-movil">
-                    <input type="text" placeholder="Buscar productos en Febri...">
+                    <input type="text" placeholder="Buscar...">
                     <i class='bx bx-search'></i>
                 </div>
             </div>
             
             <div class="menu-superior-derecha">
                 <div class="btn-registrar-movil">
-                    <a href="iniciar_sesion.html">Iniciar</a>
+                    <a href="login.html">Iniciar</a>
                 </div>
-            
-
-                           <!-- Carrito de compras -->
-            <div class="carrito-nav" onclick="irAlCarrito()">
-                <i class='bx bx-cart'></i>
-                <span class="contador-carrito" id="contador-carrito" style="display: none;">0</span>
+                <div class="carrito-nav" onclick="irAlCarrito()">
+                    <i class='bx bx-cart'></i>
+                    <span class="contador-carrito" id="contador-carrito-movil" style="display: none;">0</span>
+                </div>
+                <a href="perfil_usuario.html"><i class='bx bx-user perfil-icon'></i></a>
             </div>
-               <a href="perfil_usuario.html"><i class='bx bx-user perfil-icon'></i></a> 
-                
-        </div>
         </div>
         
         <!-- Menú lateral -->
         <div class="menu-lateral">
             <div class="menu-items-movil">
-                <a href="index.html" class="nav-link-movil">
-                    <i class='bx bx-home-alt'></i>
-                    <span>Inicio</span>
-                </a>
-                <a href="contactos.html" class="nav-link-movil">
-                    <i class='bx bx-phone'></i>
-                    <span>Contáctos</span>
-                </a>
-                <a href="categorias.html" class="nav-link-movil">
-                    <i class='bx bx-category'></i>
-                    <span>Categorías</span>
-                </a>
-                <a href="ofertas.html" class="nav-link-movil">
-                    <i class='bx bx-gift'></i>
-                    <span>Ofertas</span>
-                </a>
+                <a href="index.html" class="nav-link-movil">Inicio</a>
+                <a href="categorias.html" class="nav-link-movil">Categorías</a>
+                <a href="ofertas.html" class="nav-link-movil">Ofertas</a>
+                <a href="contactos.html" class="nav-link-movil">Contáctos</a>
             </div>
         </div>
     </nav>
@@ -95,248 +81,290 @@
     </section>
 
     <script>
-        // Productos en oferta disponibles
-        const productosOfertas = [
-            {
-                id: 101,
-                nombre: "Collar Pétalo Rosa Premium",
-                precioOriginal: 35900,
-                precioOferta: 21540,
-                descuento: 40,
-                imagen: "imagenes/joyas2.jpg",
-                descripcion: "Elegante collar con diseño de pétalo rosa, edición premium con acabados especiales.",
-                tiempoRestante: "2 días"
-            },
-            {
-                id: 102,
-                nombre: "Aretes Hoja Plata Deluxe",
-                precioOriginal: 18000,
-                precioOferta: 10800,
-                descuento: 40,
-                imagen: "imagenes/joyas3.jpg",
-                descripcion: "Delicados aretes en forma de hoja con acabado en plata de alta calidad.",
-                tiempoRestante: "1 día"
-            },
-            {
-                id: 103,
-                nombre: "Dije Gota Fucsia Brillante",
-                precioOriginal: 32900,
-                precioOferta: 19740,
-                descuento: 40,
-                imagen: "imagenes/joyas4.webp",
-                descripcion: "Hermoso dije en forma de gota con cristales fucsia brillantes y cadena incluida.",
-                tiempoRestante: "3 días"
-            },
-            {
-                id: 104,
-                nombre: "Aretes Flor Coral Vintage",
-                precioOriginal: 26900,
-                precioOferta: 16140,
-                descuento: 40,
-                imagen: "imagenes/joyas5.jpg",
-                descripcion: "Aretes con diseño floral vintage en tono coral, perfectos para cualquier ocasión.",
-                tiempoRestante: "12 horas"
-            },
-            {
-                id: 105,
-                nombre: "Anillo Floral Madera Artesanal",
-                precioOriginal: 45900,
-                precioOferta: 27540,
-                descuento: 40,
-                imagen: "imagenes/joya1.jpg",
-                descripcion: "Anillo único tallado artesanalmente en madera con diseño floral exclusivo.",
-                tiempoRestante: "5 días"
-            },
-            {
-                id: 106,
-                nombre: "Llavero Inicial Dorado Personalizado",
-                precioOriginal: 22900,
-                precioOferta: 13740,
-                descuento: 40,
-                imagen: "imagenes/joya6.jpg",
-                descripcion: "Llavero personalizable con cualquier inicial en acabado dorado premium.",
-                tiempoRestante: "2 días"
-            },
-            {
-                id: 107,
-                nombre: "Bolígrafo Glitter Rosa Exclusivo",
-                precioOriginal: 25000,
-                precioOferta: 17500,
-                descuento: 30,
-                imagen: "imagenes/joya7.jpeg",
-                descripcion: "Bolígrafo decorativo exclusivo con brillos rosa y detalles únicos.",
-                tiempoRestante: "6 horas"
-            },
-            {
-                id: 108,
-                nombre: "Dije Cachorro Azul Tierno",
-                precioOriginal: 28900,
-                precioOferta: 17340,
-                descuento: 40,
-                imagen: "imagenes/joya8.webp",
-                descripcion: "Adorable dije en forma de cachorro con detalles en azul y acabado suave.",
-                tiempoRestante: "4 días"
+        // Cargar productos en oferta desde el backend
+        async function cargarProductosEnOferta() {
+            try {
+                const response = await fetch('/producto/ofertas');
+                if (!response.ok) {
+                    throw new Error('Error al cargar las ofertas');
+                }
+                const data = await response.json();
+                if (!data.success || !Array.isArray(data.productos)) {
+                    return [];
+                }
+
+                return data.productos.map(p => {
+                    const precioOriginal = p.precio_normal || p.Precio;
+                    const precioConDescuento = p.descuento ? precioOriginal * (1 - p.descuento/100) : precioOriginal;
+                    
+                    return {
+                        id: p.id || p.ID_producto,
+                        nombre: p.Nombre,
+                        imagen: p.Imagen || p.imagen,
+                        precio: precioConDescuento,
+                        precio_normal: precioOriginal,
+                        descuento: p.descuento,
+                        descripcion: p.Descripcion
+                    };
+                });
+            } catch (error) {
+                console.error('Error al cargar productos:', error);
+                return [];
             }
-        ];
+        }
+
+        // Renderizar productos de ofertas
+        async function renderizarOfertas() {
+            const contenedor = document.getElementById('ofertas-contenedor');
+            contenedor.innerHTML = '<div class="loading">Cargando ofertas...</div>';
+            
+            try {
+                const productos = await cargarProductosEnOferta();
+                if (productos.length === 0) {
+                    contenedor.innerHTML = '<div class="no-ofertas">No hay ofertas disponibles en este momento</div>';
+                    return;
+                }
+
+                contenedor.innerHTML = productos.map(producto => `
+                    <div class="oferta-card" data-id="${producto.id}">
+                        <div class="oferta-imagen">
+                            <img src="${producto.imagen}" alt="${producto.nombre}">
+                            <div class="descuento-badge">-${producto.descuento}%</div>
+                        </div>
+                        <div class="oferta-info">
+                            <h3>${producto.nombre}</h3>
+                            <p class="descripcion">${producto.descripcion || ''}</p>
+                            <div class="precio-container">
+                                <span class="precio-anterior">$${formatearPrecio(producto.precio_normal)}</span>
+                                <span class="precio-actual">$${formatearPrecio(producto.precio)}</span>
+                            </div>
+                            <button class="btn-agregar" onclick="agregarAlCarrito(${producto.id})">
+                                Agregar al carrito <i class='bx bx-cart-add'></i>
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+
+                // Agregar estilos para las ofertas
+                if (!document.getElementById('estilos-ofertas')) {
+                    const style = document.createElement('style');
+                    style.id = 'estilos-ofertas';
+                    style.textContent = `
+                        .ofertas-contenedor {
+                            display: grid;
+                            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                            gap: 20px;
+                            padding: 20px;
+                        }
+                        .oferta-card {
+                            border: 1px solid #ddd;
+                            border-radius: 8px;
+                            overflow: hidden;
+                            transition: transform 0.3s ease;
+                            background: white;
+                            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+                        }
+                        .oferta-card:hover {
+                            transform: translateY(-5px);
+                        }
+                        .oferta-imagen {
+                            position: relative;
+                            padding-top: 75%;
+                            overflow: hidden;
+                        }
+                        .oferta-imagen img {
+                            position: absolute;
+                            top: 0;
+                            left: 0;
+                            width: 100%;
+                            height: 100%;
+                            object-fit: cover;
+                        }
+                        .descuento-badge {
+                            position: absolute;
+                            top: 10px;
+                            right: 10px;
+                            background: var(--rosa-marca);
+                            color: white;
+                            padding: 5px 10px;
+                            border-radius: 20px;
+                            font-weight: bold;
+                        }
+                        .oferta-info {
+                            padding: 15px;
+                        }
+                        .oferta-info h3 {
+                            margin: 0 0 10px;
+                            font-size: 1.1em;
+                        }
+                        .descripcion {
+                            font-size: 0.9em;
+                            color: #666;
+                            margin-bottom: 10px;
+                            display: -webkit-box;
+                            -webkit-line-clamp: 2;
+                            -webkit-box-orient: vertical;
+                            overflow: hidden;
+                        }
+                        .precio-container {
+                            display: flex;
+                            align-items: center;
+                            gap: 10px;
+                            margin-bottom: 15px;
+                        }
+                        .precio-anterior {
+                            text-decoration: line-through;
+                            color: #999;
+                            font-size: 0.9em;
+                        }
+                        .precio-actual {
+                            color: var(--rosa-marca);
+                            font-size: 1.2em;
+                            font-weight: bold;
+                        }
+                        .btn-agregar {
+                            width: 100%;
+                            padding: 10px;
+                            background: #4CAF50;
+                            color: white;
+                            border: none;
+                            border-radius: 5px;
+                            cursor: pointer;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            gap: 8px;
+                            transition: background 0.3s ease;
+                        }
+                        .btn-agregar:hover {
+                            background: #45a049;
+                        }
+                        .loading, .no-ofertas {
+                            text-align: center;
+                            padding: 20px;
+                            font-size: 1.2em;
+                            color: #666;
+                        }
+                    `;
+                    document.head.appendChild(style);
+                }
+            } catch (error) {
+                console.error('Error al renderizar ofertas:', error);
+                contenedor.innerHTML = '<div class="error">Error al cargar las ofertas</div>';
+            }
+        }
 
         // Formatear precio en pesos colombianos
         function formatearPrecio(precio) {
             return new Intl.NumberFormat('es-CO', {
-                style: 'currency',
-                currency: 'COP',
+                style: 'decimal',
                 minimumFractionDigits: 0
             }).format(precio);
         }
 
-        // Renderizar productos de ofertas
-        function renderizarOfertas() {
-            const contenedor = document.getElementById('ofertas-contenedor');
-            
-            contenedor.innerHTML = productosOfertas.map(producto => `
-                <div class="oferta-card">
-                    <span class="etiqueta-descuento">-${producto.descuento}%</span>
-                    <img src="${producto.imagen}" alt="${producto.nombre}" class="oferta-imagen">
-                    <div class="oferta-contenido">
-                        <h3 class="oferta-titulo">${producto.nombre}</h3>
-                        <div class="oferta-precios">
-                            <span class="precio-original">${formatearPrecio(producto.precioOriginal)}</span>
-                            <span class="precio-oferta">${formatearPrecio(producto.precioOferta)}</span>
-                        </div>
-                        <div class="oferta-tiempo">
-                            <i class='bx bx-time-five'></i>
-                            <span>Oferta termina en ${producto.tiempoRestante}</span>
-                        </div>
-                        <button class="btn-comprar" onclick="agregarAlCarrito(${producto.id})">
-                            <i class='bx bx-shopping-bag'></i>
-                            ¡Comprar Ahora!
-                        </button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
         // Función para agregar producto al carrito
-        function agregarAlCarrito(productoId) {
+        async function agregarAlCarrito(productoId) {
             if (localStorage.getItem('usuarioLogueado') !== 'true') {
-                alert('Debes iniciar sesión para agregar productos al carrito');
                 window.location.href = 'login.html';
                 return;
             }
-            // Encontrar el producto por ID
-            const producto = productosOfertas.find(p => p.id === productoId);
-            
-            if (!producto) {
-                console.error('Producto no encontrado');
-                return;
-            }
 
-            // Obtener carrito actual de sessionStorage (sesión por pestaña)
-            let carrito = JSON.parse(sessionStorage.getItem('carritoCompra')) || [];
-            
-            // Verificar si el producto ya está en el carrito
-            const productoExistente = carrito.find(item => item.id === productoId);
-            
-            if (productoExistente) {
-                // Si ya existe, incrementar la cantidad
-                productoExistente.cantidad += 1;
-                mostrarNotificacion(`Se agregó otra unidad de ${producto.nombre} al carrito`);
-            } else {
-                // Si no existe, agregarlo como nuevo producto (usar precio de oferta)
-                const nuevoProducto = {
-                    id: producto.id,
-                    nombre: producto.nombre,
-                    precio: producto.precioOferta, // Usar precio de oferta
-                    descripcion: producto.descripcion,
-                    imagen: producto.imagen,
-                    cantidad: 1,
-                    esOferta: true,
-                    precioOriginal: producto.precioOriginal,
-                    descuento: producto.descuento
-                };
-                carrito.push(nuevoProducto);
-                mostrarNotificacion(`¡${producto.nombre} agregado al carrito con ${producto.descuento}% de descuento!`);
+            try {
+                const response = await fetch(`/producto/${productoId}`);
+                if (!response.ok) {
+                    throw new Error('Error al obtener detalles del producto');
+                }
+                const data = await response.json();
+                if (!data.success || !data.producto) {
+                    throw new Error('Producto no encontrado');
+                }
+
+                const producto = data.producto;
+                
+                // Obtener carrito actual
+                let carrito = JSON.parse(sessionStorage.getItem('carritoCompra')) || [];
+                
+                // Verificar si el producto ya está en el carrito
+                const productoExistente = carrito.find(item => item.id === productoId);
+                
+                if (productoExistente) {
+                    productoExistente.cantidad = (productoExistente.cantidad || 1) + 1;
+                    // Asegurarse de que el precio está actualizado con el descuento
+                    if (producto.descuento) {
+                        const precioOriginal = producto.Precio;
+                        const precioConDescuento = precioOriginal * (1 - producto.descuento/100);
+                        productoExistente.precio = precioConDescuento;
+                        productoExistente.precio_normal = precioOriginal;
+                        productoExistente.descuento = producto.descuento;
+                    }
+                    mostrarNotificacion(`Se agregó otra unidad de ${producto.Nombre} al carrito`);
+                } else {
+                    // Agregar nuevo producto al carrito
+                    const precioOriginal = producto.Precio;
+                    const precioConDescuento = producto.descuento ? precioOriginal * (1 - producto.descuento/100) : precioOriginal;
+                    carrito.push({
+                        id: producto.id,
+                        nombre: producto.Nombre,
+                        precio: precioConDescuento, // Precio con descuento calculado
+                        precio_normal: precioOriginal, // Guardamos el precio original también
+                        imagen: producto.Imagen,
+                        cantidad: 1,
+                        descuento: producto.descuento
+                    });
+                    mostrarNotificacion(`${producto.Nombre} agregado al carrito`);
+                }
+                
+                // Guardar carrito actualizado
+                sessionStorage.setItem('carritoCompra', JSON.stringify(carrito));
+                
+                // Actualizar contador del carrito
+                actualizarContadorCarrito();
+            } catch (error) {
+                console.error('Error al agregar al carrito:', error);
+                mostrarNotificacion('Error al agregar el producto al carrito');
             }
-            
-            // Guardar carrito actualizado en sessionStorage
-            sessionStorage.setItem('carritoCompra', JSON.stringify(carrito));
-            
-            // Actualizar contador del carrito
-            actualizarContadorCarrito();
         }
 
         // Función para mostrar notificación
         function mostrarNotificacion(mensaje) {
-            // Crear elemento de notificación si no existe
             let notificacion = document.getElementById('notificacion-carrito');
             if (!notificacion) {
                 notificacion = document.createElement('div');
                 notificacion.id = 'notificacion-carrito';
                 notificacion.style.cssText = `
                     position: fixed;
+                    right: -300px;
                     top: 20px;
-                    right: 20px;
-                    background: linear-gradient(45deg, #10b981, #059669);
+                    background: #4CAF50;
                     color: white;
-                    padding: 1rem 1.5rem;
-                    border-radius: 15px;
-                    box-shadow: 0 8px 32px rgba(253, 122, 214, 0.4);
+                    padding: 15px 20px;
+                    border-radius: 5px;
+                    transition: transform 0.3s ease;
                     z-index: 1000;
-                    transform: translateX(400px);
-                    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                    font-weight: 500;
-                    max-width: 350px;
-                    word-wrap: break-word;
-                    border: 2px solid rgba(255, 255, 255, 0.2);
+                    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
                 `;
                 document.body.appendChild(notificacion);
             }
             
-            notificacion.innerHTML = `
-                <div style="display: flex; align-items: center; gap: 0.75rem;">
-                    <i class='bx bx-check-circle' style="font-size: 1.5rem; color: #fff;"></i>
-                    <div>
-                        <div style="font-weight: bold; margin-bottom: 0.25rem;">¡Producto agregado!</div>
-                        <div style="font-size: 0.9rem; opacity: 0.9;">${mensaje}</div>
-                    </div>
-                </div>
-            `;
+            notificacion.textContent = mensaje;
+            notificacion.style.transform = 'translateX(-320px)';
             
-            // Mostrar notificación
-            notificacion.style.transform = 'translateX(0)';
-            
-            // Ocultar después de 4 segundos
             setTimeout(() => {
-                notificacion.style.transform = 'translateX(400px)';
-            }, 4000);
+                notificacion.style.transform = 'translateX(0)';
+            }, 3000);
         }
 
         // Función para actualizar contador del carrito
         function actualizarContadorCarrito() {
             const carrito = JSON.parse(sessionStorage.getItem('carritoCompra')) || [];
             const totalItems = carrito.reduce((total, item) => total + (Number(item.cantidad) || 1), 0);
-            document.querySelectorAll('.contador-carrito').forEach(el => {
-                el.textContent = totalItems;
-                el.style.display = totalItems > 0 ? 'flex' : 'none';
+            
+            document.querySelectorAll('.contador-carrito').forEach(contador => {
+                contador.textContent = totalItems;
+                contador.style.display = totalItems > 0 ? 'flex' : 'none';
             });
         }
         
-        // Ajuste para incluir botón móvil
-        document.addEventListener('DOMContentLoaded', () => {
-            const btnLogin = document.querySelector('.btn-registrar');
-            const btnLoginMovil = document.querySelector('.btn-registrar-movil');
-            const perfilIcon = document.querySelector('.perfil-icon');
-        
-            if (localStorage.getItem('usuarioLogueado') === 'true') {
-                if (btnLogin) btnLogin.style.display = 'none';
-                if (btnLoginMovil) btnLoginMovil.style.display = 'none';
-                if (perfilIcon) perfilIcon.style.display = 'inline-block';
-            } else {
-                if (btnLogin) btnLogin.style.display = 'block';
-                if (btnLoginMovil) btnLoginMovil.style.display = 'block';
-                if (perfilIcon) perfilIcon.style.display = 'none';
-            }
-        });
         // Función para ir al carrito
         function irAlCarrito() {
             window.location.href = 'carrito_compra.html';
@@ -344,10 +372,22 @@
 
         // Inicializar cuando carga la página
         document.addEventListener('DOMContentLoaded', function() {
+            const btnLogin = document.querySelector('.btn-registrar');
+            const btnLoginMovil = document.querySelector('.btn-registrar-movil');
+            const perfilIcon = document.querySelector('.perfil-icon');
+            
+            if (localStorage.getItem('usuarioLogueado') === 'true') {
+                if (btnLogin) btnLogin.style.display = 'none';
+                if (btnLoginMovil) btnLoginMovil.style.display = 'none';
+                if (perfilIcon) perfilIcon.style.display = 'inline-block';
+            } else {
+                if (perfilIcon) perfilIcon.style.display = 'none';
+            }
+
             // Renderizar ofertas
             renderizarOfertas();
             
-            // Actualizar contador
+            // Actualizar contador del carrito
             actualizarContadorCarrito();
             
             // Configurar menú móvil
@@ -355,34 +395,11 @@
             const menuLateral = document.querySelector('.menu-lateral');
             
             if (menuIcon && menuLateral) {
-                menuIcon.addEventListener('click', function() {
-                    menuLateral.classList.toggle('activo');
+                menuIcon.addEventListener('click', () => {
+                    menuLateral.classList.toggle('visible');
                 });
             }
-
-            // Agregar efectos visuales adicionales
-            const cards = document.querySelectorAll('.oferta-card');
-            cards.forEach((card, index) => {
-                // Animación de entrada escalonada
-                setTimeout(() => {
-                    card.style.opacity = '1';
-                    card.style.transform = 'translateY(0)';
-                }, index * 100);
-            });
         });
-
-        // Estilos iniciales para animación
-        document.addEventListener('DOMContentLoaded', function() {
-            const style = document.createElement('style');
-            style.textContent = `
-                .oferta-card {
-                    opacity: 0;
-                    transform: translateY(30px);
-                    transition: all 0.6s ease;
-                }
-            `;
-            document.head.appendChild(style);
-        });
-</script>
+    </script>
 </body>
 </html>

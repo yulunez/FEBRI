@@ -6,6 +6,35 @@
     <title>Document</title>
      <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link rel="stylesheet" href="style.css">
+    <style>
+        :root {
+            --rosa-marca: #f8a4d8;
+        }
+
+        .precio-anterior {
+            color: #999 !important;
+            text-decoration: line-through;
+            font-size: 0.9em;
+            margin-right: 10px;
+        }
+
+        .producto-precio-actual {
+            color: var(--rosa-marca);
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .descuento-badge {
+            background: var(--rosa-marca);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+            display: inline-block;
+            margin-left: 10px;
+        }
+    </style>
     <script src="shared.js"></script>
 </head>
 <body>
@@ -104,8 +133,11 @@
             <div class="producto-info">
                 <h1 class="producto-tituloa15" id="producto-titulo">Cargando...</h1>
                 <div class="producto-precio-fav">
-                    <span id="precio-anterior" class="precio-anterior" style="display: none; color: #999; text-decoration: line-through; font-size: 14px; margin-right: 10px;"></span>
-                    <span class="producto-precioa15" id="producto-precio">$0</span>
+                    <div class="precios-container">
+                        <span id="precio-anterior" class="precio-anterior"></span>
+                        <span class="producto-precio-actual" id="producto-precio">$0</span>
+                        <span id="descuento-badge" class="descuento-badge" style="display: none;"></span>
+                    </div>
                     <button class="btn-favorito" title="Agregar a favoritos">❤</button>
                 </div>
                 <p class="producto-descripciona15" id="producto-descripcion">Cargando descripción...</p>
@@ -169,6 +201,13 @@
             return new URLSearchParams(window.location.search).get('producto');
         }
 
+        function formatearPrecio(precio) {
+            return new Intl.NumberFormat('es-CO', {
+                style: 'decimal',
+                minimumFractionDigits: 0
+            }).format(precio);
+        }
+
         function mostrarError(){
             loadingDiv.style.display = 'none';
             errorDiv.style.display = 'block';
@@ -188,10 +227,42 @@
             document.getElementById('producto-imagen').src = producto.Imagen || 'imagenes/inicio.webp';
             document.getElementById('producto-imagen').alt = producto.Nombre || producto.nombre || '';
             document.getElementById('producto-titulo').textContent = producto.Nombre || producto.nombre || 'Sin nombre';
-            document.getElementById('producto-precio').textContent = (typeof producto.Precio !== 'undefined' && producto.Precio !== null) ? `$ ${producto.Precio}` : '';
+
+            // Calcular precios con descuento
+            const precioOriginal = producto.precio_normal || producto.Precio;
+            const precioFinal = producto.descuento ? precioOriginal * (1 - producto.descuento/100) : precioOriginal;
+            productoActual.precioFinal = precioFinal; // Guardar para usar en el carrito
+            
+            // Manejar precios y descuentos
+            const precioElement = document.getElementById('producto-precio');
+            const precioAnteriorElement = document.getElementById('precio-anterior');
+            
+            if (producto.descuento) {
+                const precioOriginal = producto.precio_normal || producto.Precio;
+                const precioConDescuento = precioOriginal * (1 - producto.descuento/100);
+                
+                precioAnteriorElement.textContent = `$ ${formatearPrecio(precioOriginal)}`;
+                precioAnteriorElement.style.display = 'inline';
+                
+                precioElement.textContent = `$ ${formatearPrecio(precioConDescuento)}`;
+                precioElement.className = 'producto-precio-actual';
+                
+                // Agregar badge de descuento
+                if (!document.querySelector('.descuento-badge')) {
+                    const descuentoBadge = document.createElement('span');
+                    descuentoBadge.className = 'descuento-badge';
+                    descuentoBadge.textContent = `-${producto.descuento}%`;
+                    precioElement.parentNode.appendChild(descuentoBadge);
+                }
+            } else {
+                precioElement.textContent = `$ ${formatearPrecio(producto.Precio)}`;
+                precioAnteriorElement.style.display = 'none';
+                const descuentoBadge = document.querySelector('.descuento-badge');
+                if (descuentoBadge) descuentoBadge.remove();
+            }
+            
             document.getElementById('producto-descripcion').textContent = producto.Descripcion || producto.descripcion || '';
 
-            const precioAnteriorElement = document.getElementById('precio-anterior');
             if (producto.precio_anterior) {
                 precioAnteriorElement.textContent = producto.precio_anterior;
                 precioAnteriorElement.style.display = 'inline';
@@ -352,7 +423,9 @@
             const item = {
                 id: productoActual.ID_producto || productoActual.id || productoActual.ID || null,
                 nombre: productoActual.Nombre || productoActual.nombre || '',
-                precio: (typeof productoActual.Precio !== 'undefined' && productoActual.Precio !== null) ? Number(productoActual.Precio) : (productoActual.precio || 0),
+                precio: productoActual.precioFinal, // Usar el precio con descuento calculado
+                precio_normal: productoActual.precio_normal || productoActual.Precio,
+                descuento: productoActual.descuento || null,
                 descripcion: productoActual.Descripcion || productoActual.descripcion || '',
                 imagen: productoActual.Imagen || productoActual.imagen || 'imagenes/inicio.webp',
                 cantidad: cantidad

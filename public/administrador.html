@@ -70,6 +70,12 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a href="#" class="nav-link" data-section="materia_prima">
+                        <i class="fas fa-seedling"></i>
+                        Materia Prima
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a href="#" class="nav-link" data-section="clientes">
                         <i class="fas fa-users"></i>
                         Clientes
@@ -201,6 +207,37 @@
                         </thead>
                         <tbody id="admin-products-body">
                             <tr><td colspan="7">Cargando productos...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- Materio Prima Section -->
+             <div id="materia_prima" class="content-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-box"></i>
+                        Gestión de Materia Prima
+                    </h2>
+                    <button class="btn-primary" onclick="openMateriaPrimaModal()">
+                        <i class="fas fa-plus"></i>
+                        Nueva Materia Prima
+                    </button>
+                </div> <!-- end section-header -->
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Materia Prima</th>
+                                <th>Proveedor</th>
+                                <th>Precio</th>
+                                <th>Stock</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-materia-prima-body">
+                            <tr><td colspan="7">Cargando materia prima...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -430,6 +467,10 @@
                         <input type="hidden" id="estado-hidden" name="Estado" value="" />
                     </div>
                     <div class="col">
+                        <label for="descuento">Descuento (%)</label>
+                        <input id="descuento" name="descuento" type="number" min="0" max="100" step="1" placeholder="0"/>
+                    </div>
+                    <div class="col">
                         <label for="imagen">Imagen (URL)</label>
                         <input id="imagen" name="imagen" type="text" placeholder="http://... ó ruta relativa" />
                     </div>
@@ -461,6 +502,51 @@
                 </div>
             </div>
         </div>
+        <!-- Modal para materia prima -->
+        <div id="materia-prima-modal-backdrop" class="modal-backdrop" aria-hidden="true">
+            <div class="modal" role="dialog" aria-modal="true" aria-labelledby="materia-prima-modal-title">
+                <div class="modal-header">
+                    <h3 id="materia-prima-modal-title">Nueva Materia Prima</h3>
+                    <button class="close-btn" id="materia-prima-modal-close">×</button>
+                </div>
+                <form id="materia-prima-form">
+                    <input type="hidden" id="materia-prima-id" />
+                    <div class="row">
+                        <div class="col">
+                            <label for="materia-prima-nombre">Nombre *</label>
+                            <input type="text" id="materia-prima-nombre" required>
+                        </div>
+                        <div class="col">
+                            <label for="materia-prima-proveedor">Proveedor *</label>
+                            <select id="materia-prima-proveedor" required>
+                                <option value="">-- Seleccione proveedor --</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <label for="materia-prima-precio">Precio *</label>
+                            <input type="number" id="materia-prima-precio" min="0" step="0.01" required>
+                        </div>
+                        <div class="col">
+                            <label for="materia-prima-cantidad">Cantidad *</label>
+                            <input type="number" id="materia-prima-cantidad" min="0" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <label for="materia-prima-descripcion">Descripción</label>
+                            <textarea id="materia-prima-descripcion" rows="3"></textarea>
+                        </div>
+                    </div>
+                    <div class="actions">
+                        <button type="button" class="btn-secondary" id="materia-prima-modal-cancel">Cancelar</button>
+                        <button type="submit" class="btn-primary">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
         <!-- Modal para ver compras de un cliente -->
         <div id="cliente-modal-backdrop" class="modal-backdrop" aria-hidden="true">
             <div class="modal" role="dialog" aria-modal="true" aria-labelledby="cliente-modal-title">
@@ -565,12 +651,23 @@
                     const categoria = p.Categoria || '-';
                     const precio = p.Precio != null ? formatCurrency(p.Precio) : '-';
                     const imagen = p.Imagen ? `<img src="${p.Imagen}" alt="" style="height:40px; object-fit:cover; border-radius:4px;">` : '';
+                    // Calcular precio con descuento si existe
+                    const descuento = p.Descuento ? Number(p.Descuento) : 0;
+                    const precioOriginal = p.Precio ? Number(p.Precio) : 0;
+                    const precioConDescuento = descuento > 0 ? precioOriginal * (1 - descuento/100) : null;
+                    
                     return `
                         <tr>
                             <td>#${p.id}</td>
                             <td style="display:flex; align-items:center; gap:8px;">${imagen}<span>${p.Nombre || p.nombre || ''}</span></td>
                             <td>${categoria}</td>
-                            <td>${precio}</td>
+                            <td>
+                                ${descuento > 0 
+                                    ? `<div style="text-decoration: line-through; color: #999;">${precio}</div>
+                                       <div style="color: #e44d26;">${formatCurrency(precioConDescuento)}</div>
+                                       <div style="font-size: 0.8em; color: #28a745;">-${descuento}%</div>`
+                                    : precio}
+                            </td>
                             <td>${stock}</td>
                             <td><span class="status">${estado}</span></td>
                             <td>
@@ -586,6 +683,59 @@
             }
         }
 
+        // Cargar materia prima para el administrador desde el backend
+        async function loadAdminMateriaPrima() {
+            const tbody = document.getElementById('admin-materia-prima-body');
+            if (!tbody) return;
+            tbody.innerHTML = '<tr><td colspan="7">Cargando...</td></tr>';
+            try {
+                const res = await fetch('/materiaPrima');
+                if (!res.ok) throw new Error('Error al obtener materia prima');
+                const data = await res.json();
+                if (!data.success || !Array.isArray(data.materiaPrima)) {
+                    tbody.innerHTML = '<tr><td colspan="7">No se encontró materia prima.</td></tr>';
+                    return;
+                }
+
+                if (data.materiaPrima.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7">No hay materia prima para mostrar.</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = data.materiaPrima.map(mp => {
+                    const id = mp.ID_materiales || mp.ID_material || mp.id || '-';
+                    const nombre = mp.Nombre || mp.nombre || '';
+                    const descripcion = mp.Descripcion || mp.descripcion || '';
+                    const proveedor = mp.Proveedor_nombre || mp.Proveedor || mp.ID_proveedor || '-';
+                    const precio = mp.Precio != null ? formatCurrency(mp.Precio) : '-';
+                    const cantidad = mp.Cantidad != null ? mp.Cantidad : '-';
+                    const estado = definirEstadoProducto(mp.Cantidad);
+
+                    return `
+                        <tr>
+                            <td>#${escapeHtml(id)}</td>
+                            <td style="min-width:220px;">
+                                <div style="display:flex; flex-direction:column; gap:4px;">
+                                    <strong>${escapeHtml(nombre)}</strong>
+                                    <small style="color:#666; font-size:0.9rem;">${escapeHtml(descripcion)}</small>
+                                </div>
+                            </td>
+                            <td>${escapeHtml(proveedor)}</td>
+                            <td>${precio}</td>
+                            <td>${escapeHtml(String(cantidad))}</td>
+                            <td><span class="status">${escapeHtml(estado)}</span></td>
+                            <td>
+                                <button class="btn-primary btn-edit-materia" style="padding:6px 12px; font-size:0.8rem;" data-id="${escapeHtml(id)}">Editar</button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            } catch (err) {
+                console.error('Error cargando materia prima admin:', err);
+                tbody.innerHTML = '<tr><td colspan="7">Error al cargar materia prima.</td></tr>';
+            }
+        }
+
         // Cargar productos cuando se hace click en la pestaña productos o al cargar si está activa
         document.querySelectorAll('.nav-link').forEach(link => {
             link.addEventListener('click', function(e) {
@@ -595,6 +745,8 @@
                     if (typeof loadDashboardMetrics === 'function') loadDashboardMetrics();
                 } else if (sectionId === 'productos') {
                     loadAdminProducts();
+                } else if (sectionId === 'materia_prima') {
+                    if (typeof loadAdminMateriaPrima === 'function') loadAdminMateriaPrima();
                 } else if (sectionId === 'pedidos') {
                     loadAdminEnviosVentas();
                 } else if (sectionId === 'clientes') {
@@ -620,6 +772,8 @@
                 loadAdminEmpleados();
             } else if (activeLink && activeLink.getAttribute('data-section') === 'estadisticas') {
                 loadEstadisticas();
+            } else if (activeLink && activeLink.getAttribute('data-section') === 'materia_prima') {
+                if (typeof loadAdminMateriaPrima === 'function') loadAdminMateriaPrima();
             } else if (activeLink && activeLink.getAttribute('data-section') === 'dashboard') {
                 if (typeof loadDashboardMetrics === 'function') loadDashboardMetrics();
             }
@@ -845,6 +999,7 @@
                 document.getElementById('nombre').value = product.Nombre || product.nombre || '';
                 document.getElementById('precio').value = product.Precio || '';
                 document.getElementById('stock').value = product.Stock != null ? product.Stock : '';
+                document.getElementById('descuento').value = product.Descuento || '0';
                 // Si el producto incluye ID_categoria, seleccionarla
                 if (product.ID_categoria) {
                     document.getElementById('categoria').value = product.ID_categoria;
@@ -1027,6 +1182,97 @@
             }
         });
 
+        // Delegación para botones Editar (materia prima)
+        document.addEventListener('click', async (e) => {
+            const btn = e.target.closest('button.btn-edit-materia');
+            if (!btn) return;
+            const id = btn.getAttribute('data-id');
+            if (!id) return;
+            try {
+                const res = await fetch(`/materiaPrima/${encodeURIComponent(id)}`);
+                if (!res.ok) {
+                    const txt = await res.text();
+                    throw new Error('No se pudo obtener la materia prima: ' + txt);
+                }
+                const data = await res.json();
+                if (!data.success || !data.materiaPrima) throw new Error('Materia prima no encontrada');
+                openMateriaPrimaModal(data.materiaPrima);
+            } catch (err) {
+                console.error('Error al cargar materia prima para editar:', err);
+                alert('No se pudo cargar la materia prima para editar. Revisa la consola.');
+            }
+        });
+
+        // Funciones para el modal de Materia Prima
+        async function loadProveedores() {
+            const select = document.getElementById('materia-prima-proveedor');
+            if (!select) return;
+            try {
+                const res = await fetch('/proveedores');
+                let errorMessage = '';
+                
+                if (!res.ok) {
+                    if (res.status === 404) {
+                        errorMessage = 'Ruta del servicio de proveedores no encontrada. Asegúrese que el servidor esté corriendo.';
+                    } else {
+                        errorMessage = `Error al obtener proveedores: ${res.status}`;
+                    }
+                    throw new Error(errorMessage);
+                }
+
+                const data = await res.json();
+                if (!data.success || !Array.isArray(data.proveedores)) {
+                    console.error('Respuesta inválida de proveedores:', data);
+                    alert('Error al cargar los proveedores: formato de respuesta inválido');
+                    return;
+                }
+                // Resetear options manteniendo el placeholder
+                select.innerHTML = '<option value="">-- Seleccione proveedor --</option>';
+                data.proveedores.forEach(p => {
+                    const opt = document.createElement('option');
+                    opt.value = p.ID_proveedor;
+                    opt.textContent = p.Nombre;
+                    select.appendChild(opt);
+                });
+
+                if (data.proveedores.length === 0) {
+                    alert('No hay proveedores registrados en el sistema.');
+                }
+            } catch (err) {
+                console.error('Error cargando proveedores:', err);
+                alert(err.message || 'Error al cargar los proveedores. Revisa la consola.');
+            }
+        }
+
+        async function openMateriaPrimaModal(materiaPrima = null) {
+            await loadProveedores();
+            const backdrop = document.getElementById('materia-prima-modal-backdrop');
+            if (materiaPrima) {
+                // Modo edición
+                document.getElementById('materia-prima-modal-title').textContent = 'Editar Materia Prima';
+                document.getElementById('materia-prima-id').value = materiaPrima.ID_materiales || '';
+                document.getElementById('materia-prima-nombre').value = materiaPrima.Nombre || '';
+                document.getElementById('materia-prima-descripcion').value = materiaPrima.Descripcion || '';
+                document.getElementById('materia-prima-proveedor').value = materiaPrima.ID_proveedor || '';
+                document.getElementById('materia-prima-precio').value = materiaPrima.Precio || '';
+                document.getElementById('materia-prima-cantidad').value = materiaPrima.Cantidad || '';
+            } else {
+                // Modo creación
+                document.getElementById('materia-prima-modal-title').textContent = 'Nueva Materia Prima';
+                document.getElementById('materia-prima-form').reset();
+                document.getElementById('materia-prima-id').value = '';
+            }
+            backdrop.classList.add('show');
+            backdrop.setAttribute('aria-hidden', 'false');
+        }
+
+        function closeMateriaPrimaModal() {
+            const backdrop = document.getElementById('materia-prima-modal-backdrop');
+            backdrop.classList.remove('show');
+            backdrop.setAttribute('aria-hidden', 'true');
+            document.getElementById('materia-prima-form').reset();
+        }
+
         // Manejar submit del formulario: POST (crear) o PUT (actualizar)
         productForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -1042,7 +1288,8 @@
                 // Enviar el estado calculado por la función del cliente (servidor lo recalculará por seguridad)
                 Estado: computedEstado,
                 imagen: document.getElementById('imagen').value,
-                Descripcion: document.getElementById('descripcion').value
+                Descripcion: document.getElementById('descripcion').value,
+                Descuento: parseInt(document.getElementById('descuento').value) || 0
             };
 
             try {
@@ -1590,6 +1837,99 @@
             }
             currentClientId = null;
         }
+
+        // Wire materia prima modal
+        (function wireMateriaPrimaModalControls(){
+            const form = document.getElementById('materia-prima-form');
+            const closeBtn = document.getElementById('materia-prima-modal-close');
+            const cancelBtn = document.getElementById('materia-prima-modal-cancel');
+            const backdrop = document.getElementById('materia-prima-modal-backdrop');
+
+            if (closeBtn) closeBtn.addEventListener('click', closeMateriaPrimaModal);
+            if (cancelBtn) cancelBtn.addEventListener('click', closeMateriaPrimaModal);
+            if (backdrop) backdrop.addEventListener('click', (e) => { if (e.target === backdrop) closeMateriaPrimaModal(); });
+
+            if (form) {
+                form.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const submitBtn = form.querySelector('button[type="submit"]');
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.textContent = 'Guardando...';
+                    }
+
+                    const id = document.getElementById('materia-prima-id').value;
+                    const formData = {
+                        nombre: document.getElementById('materia-prima-nombre').value.trim(),
+                        descripcion: document.getElementById('materia-prima-descripcion').value.trim(),
+                        id_proveedor: document.getElementById('materia-prima-proveedor').value,
+                        precio: parseFloat(document.getElementById('materia-prima-precio').value) || 0,
+                        cantidad: parseInt(document.getElementById('materia-prima-cantidad').value) || 0
+                    };
+
+                    // Log the form data being sent
+                    console.log('Enviando datos de materia prima:', formData);
+
+                    try {
+                        let res;
+                        if (!formData.nombre || !formData.id_proveedor || formData.precio <= 0 || formData.cantidad <= 0) {
+                            throw new Error('Por favor complete todos los campos requeridos con valores válidos.');
+                        }
+
+                        if (!id) {
+                            console.log('Creando nueva materia prima...');
+                            res = await fetch('/materiaPrima', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(formData)
+                            });
+                        } else {
+                            console.log('Actualizando materia prima existente:', id);
+                            res = await fetch(`/materiaPrima/${encodeURIComponent(id)}`, {
+                                method: 'PUT',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(formData)
+                            });
+                        }
+
+                        console.log('Respuesta del servidor:', res.status);
+                        let responseText = await res.text();
+                        console.log('Respuesta completa:', responseText);
+
+                        if (!res.ok) {
+                            throw new Error(`Error del servidor (${res.status}): ${responseText}`);
+                        }
+
+                        // Parse JSON response
+                        let data;
+                        try {
+                            data = JSON.parse(responseText);
+                        } catch (jsonError) {
+                            console.error('Error al parsear respuesta JSON:', jsonError);
+                            throw new Error('Respuesta inválida del servidor');
+                        }
+
+                        if (!data || !data.success) {
+                            throw new Error(data?.message || 'Error al guardar materia prima');
+                        }
+
+                        alert(id ? 'Materia prima actualizada correctamente' : 'Materia prima creada correctamente');
+                        closeMateriaPrimaModal();
+                        loadAdminMateriaPrima();
+                    } catch (err) {
+                        console.error('Error al guardar materia prima:', err);
+                        alert(err.message || 'Error al guardar materia prima. Revisa la consola.');
+                    } finally {
+                        // Re-enable submit button
+                        const submitBtn = form.querySelector('button[type="submit"]');
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                            submitBtn.textContent = 'Guardar';
+                        }
+                    }
+                });
+            }
+        })();
 
         // Wire client modal buttons
         (function wireClienteModalControls(){

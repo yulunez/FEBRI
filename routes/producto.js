@@ -11,6 +11,9 @@ const productoController = require("../control/productoContoller");
 router.get('/primeros-diez', productoController.obtenerPrimerosDiez);
 router.get('/top10', productoController.obtenerPrimerosDiez);
 
+// Productos con descuento
+router.get('/ofertas', productoController.obtenerProductosConDescuento);
+
 // Productos para administrador
 router.get('/admin', productoController.productosParaAdmin);
 router.get('/admin/list', productoController.productosParaAdmin);

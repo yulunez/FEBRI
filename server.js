@@ -98,6 +98,8 @@ const clientesRoutes = require('./routes/clientes');
 const estadisticasRoutes = require('./routes/estadisticas');
 const excelRoutes = require('./routes/excel');
 const empleadosRoutes = require('./routes/empleados');
+const materiaPrimaRoutes = require('./routes/materiaPrima');
+const proveedoresRoutes = require('./routes/proveedores');
 
 // ============================================
 // USAR RUTAS
@@ -119,6 +121,8 @@ app.use('/clientes', clientesRoutes);
 app.use('/estadisticas', estadisticasRoutes);
 app.use('/excel', excelRoutes);
 app.use('/empleados', empleadosRoutes);
+app.use('/materiaPrima', materiaPrimaRoutes);
+app.use('/proveedores', proveedoresRoutes);
 
 // ============================================
 // RUTAS ADICIONALES
