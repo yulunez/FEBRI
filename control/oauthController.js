@@ -5,69 +5,74 @@ const FacebookStrategy = require('passport-facebook').Strategy;
 module.exports.configurePassport = function(db) {
     
     // Estrategia de Google
-    passport.use(new GoogleStrategy({
-        clientID: process.env.GOOGLE_CLIENT_ID,
-        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        callbackURL: "/auth/google/callback"
-    },
-    async (accessToken, refreshToken, profile, done) => {
-        console.log('=== LOGIN GOOGLE ===');
-        console.log('Perfil de Google:', profile.displayName, profile.emails[0].value);
-        
-        const email = profile.emails[0].value;
-        const nombres = profile.name.givenName || '';
-        const apellidos = profile.name.familyName || '';
-        
-        // Buscar si el usuario ya existe en la base de datos
-        db.query('SELECT * FROM account WHERE Correo = ?', [email], (err, results) => {
-            if (err) {
-                console.error('Error al buscar usuario:', err);
-                return done(err);
-            }
+    if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+        passport.use(new GoogleStrategy({
+            clientID: process.env.GOOGLE_CLIENT_ID,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+            callbackURL: "/auth/google/callback"
+        },
+        async (accessToken, refreshToken, profile, done) => {
+            console.log('=== LOGIN GOOGLE ===');
+            console.log('Perfil de Google:', profile.displayName, profile.emails[0].value);
             
-            if (results.length > 0) {
-                // Usuario YA EXISTE en la BD - Cargar TODA su información
-                const usuarioExistente = results[0];
-                console.log('✓ Usuario encontrado en BD con toda su información');
+            const email = profile.emails[0].value;
+            const nombres = profile.name.givenName || '';
+            const apellidos = profile.name.familyName || '';
+            
+            // Buscar si el usuario ya existe en la base de datos
+            db.query('SELECT * FROM account WHERE Correo = ?', [email], (err, results) => {
+                if (err) {
+                    console.error('Error al buscar usuario:', err);
+                    return done(err);
+                }
                 
-                const usuario = {
-                    id: usuarioExistente.ID_login,
-                    nombre: usuarioExistente.Nombre || nombres,
-                    apellido: usuarioExistente.Apellido || apellidos,
-                    correo: usuarioExistente.Correo,
-                    telefono: usuarioExistente.Telefono || '',
-                    fecha_nacimiento: usuarioExistente.Fecha_de_nacimiento || '',
-                    direccion: usuarioExistente.Direccion || '',
-                    ID_cliente: usuarioExistente.ID_cliente || null,
-                    ID_empleado: usuarioExistente.ID_empleado || null,
-                    esNuevo: false 
-                };
-                
-                console.log('Usuario con datos completos:', usuario);
-                return done(null, usuario);
-                
-            } else {
-                // Usuario NUEVO - Solo tiene datos de Google
-                console.log('✓ Usuario nuevo, solo con datos de Google');
-                
-                const usuarioNuevo = {
-                    id: null, // No tiene ID en BD aún
-                    nombre: nombres,
-                    apellido: apellidos,
-                    correo: email,
-                    telefono: '',
-                    fecha_nacimiento: '',
-                    direccion: '',
-                    ID_cliente: null,
-                    ID_empleado: null,
-                    esNuevo: true // Indica que solo tiene nombre y correo
-                };
-                
-                console.log('Usuario nuevo (datos limitados):', usuarioNuevo);
-                return done(null, usuarioNuevo);
-            }
-        });
-    }));
+                if (results.length > 0) {
+                    // Usuario YA EXISTE en la BD - Cargar TODA su información
+                    const usuarioExistente = results[0];
+                    console.log('✓ Usuario encontrado en BD con toda su información');
+                    
+                    const usuario = {
+                        id: usuarioExistente.ID_login,
+                        nombre: usuarioExistente.Nombre || nombres,
+                        apellido: usuarioExistente.Apellido || apellidos,
+                        correo: usuarioExistente.Correo,
+                        telefono: usuarioExistente.Telefono || '',
+                        fecha_nacimiento: usuarioExistente.Fecha_de_nacimiento || '',
+                        direccion: usuarioExistente.Direccion || '',
+                        ID_cliente: usuarioExistente.ID_cliente || null,
+                        ID_empleado: usuarioExistente.ID_empleado || null,
+                        esNuevo: false 
+                    };
+                    
+                    console.log('Usuario con datos completos:', usuario);
+                    return done(null, usuario);
+                    
+                } else {
+                    // Usuario NUEVO - Solo tiene datos de Google
+                    console.log('✓ Usuario nuevo, solo con datos de Google');
+                    
+                    const usuarioNuevo = {
+                        id: null, // No tiene ID en BD aún
+                        nombre: nombres,
+                        apellido: apellidos,
+                        correo: email,
+                        telefono: '',
+                        fecha_nacimiento: '',
+                        direccion: '',
+                        ID_cliente: null,
+                        ID_empleado: null,
+                        esNuevo: true // Indica que solo tiene nombre y correo
+                    };
+                    
+                    console.log('Usuario nuevo (datos limitados):', usuarioNuevo);
+                    return done(null, usuarioNuevo);
+                }
+            });
+        }));
+    } else {
+        console.warn('Google OAuth not configured: set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in your .env to enable Google login.');
+    }
+
 
   
 
