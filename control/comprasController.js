@@ -177,3 +177,71 @@ exports.realizarCompra = (req, res) => {
     // If we already have usuarioId, proceed
     startPurchase(usuarioId);
 };
+
+exports.obtenerComprasUsuario = (req, res) => {
+    const usuarioId = req.session.usuarioId
+        || (req.session.usuario && (
+            req.session.usuario.id
+            || req.session.usuario.IdCliente
+            || req.session.usuario.ID_cliente
+            || req.session.usuario.ID_Cliente
+            || req.session.usuario.ID
+            || null 
+        ))
+        || null;
+    if (!usuarioId) {
+        return res.status(401).json({ success: false, mensaje: 'No autorizado: inicie sesión para ver sus compras' });
+    }
+    // Seleccionamos cantidad en detalle para poder mostrar la cantidad en el frontend
+    const sql = `SELECT 
+                v.ID_venta AS ID_venta, 
+                v.ID_cliente AS ID_cliente,
+                v.total AS total, 
+                dv.Fecha_venta AS Fecha_venta, 
+                dv.ProductoID AS ProductoID,
+                dv.Cantidad AS Cantidad,
+                p.Nombre AS Nombre_producto,
+                p.Imagen AS Imagen_producto
+                FROM venta v
+                JOIN detalleventas dv ON v.ID_venta = dv.VentaID
+                JOIN producto p ON dv.ProductoID = p.ID_producto
+                WHERE v.ID_cliente = ?
+                ORDER BY dv.Fecha_venta DESC, v.ID_venta DESC`;
+
+    req.db.query(sql, [usuarioId], (err, rows) => {
+        if (err) {
+            console.error('Error obteniendo compras del usuario:', err);
+            return res.status(500).json({ success: false, mensaje: 'Error obteniendo compras' });
+        }
+
+        // Agrupar filas por ID_venta para construir el formato que espera el front
+        // Cada compra: { id, fecha, total, productos: [{ id, nombre, imagen, cantidad }] }
+        const comprasMap = new Map();
+
+        (Array.isArray(rows) ? rows : []).forEach(r => {
+            const ventaId = r.ID_venta;
+            if (!comprasMap.has(ventaId)) {
+                comprasMap.set(ventaId, {
+                    id: ventaId,
+                    fecha: r.Fecha_venta,
+                    total: Number(r.total || 0),
+                    productos: []
+                });
+            }
+            const compra = comprasMap.get(ventaId);
+
+            // Añadir producto al arreglo de la compra
+            compra.productos.push({
+                id: r.ProductoID,
+                nombre: r.Nombre_producto || r.nombre || '',
+                imagen: r.Imagen_producto || r.Imagen || '',
+                cantidad: Number(r.Cantidad || 1)
+            });
+        });
+
+        // Convertir Map a array ordenado por fecha (desc)
+        const compras = Array.from(comprasMap.values()).sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+
+        return res.json({ success: true, compras });
+    });
+};

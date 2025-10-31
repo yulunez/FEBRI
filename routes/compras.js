@@ -3,5 +3,6 @@ const router = express.Router();
 const comprasController = require('../control/comprasController');
 
 router.post('/', comprasController.realizarCompra);
+router.get('/', comprasController.obtenerComprasUsuario);
 
 module.exports = router;

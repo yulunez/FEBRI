@@ -50,15 +50,30 @@ function getStorageKey() {
     return `compras_${usuarioId}`;
 }
 
-function getCompras() {
+async function getCompras() {
+    // Intentar obtener las compras desde el servidor; si falla, caer en el fallback local
+    try {
+        const res = await fetch('/compras', { credentials: 'include' });
+        if (res.ok) {
+            const data = await res.json();
+            if (data && data.success && Array.isArray(data.compras)) {
+                return data.compras;
+            }
+        }
+        console.warn('Respuesta inválida del servidor al obtener compras, usando fallback local');
+    } catch (e) {
+        console.warn('No se pudo conectar al servidor para obtener compras:', e);
+    }
+
+    // Fallback: leer desde localStorage (compatibilidad con versiones antiguas)
     try {
         const clave = getStorageKey();
         const raw = localStorage.getItem(clave);
-        console.log(`Cargando compras con clave: ${clave}`); // Para debugging
+        console.log(`Cargando compras (fallback) con clave: ${clave}`);
         return raw ? JSON.parse(raw) : [];
-    } catch { 
-        console.error('Error al cargar compras');
-        return []; 
+    } catch (err) {
+        console.error('Error al cargar compras fallback:', err);
+        return [];
     }
 }
 
@@ -133,16 +148,16 @@ function crearTarjetaCompra(compra) {
     `;
 }
 
-function renderCompras() {
+async function renderCompras() {
     const cont = document.getElementById('contenedor-compras');
     const badge = document.getElementById('contador-compras');
-    const compras = getCompras();
+    const compras = await getCompras();
 
     // Mostrar información del usuario actual para debugging
     console.log('Usuario actual:', obtenerUsuarioActual());
     console.log('Compras encontradas:', compras.length);
 
-    if (!compras.length) {
+    if (!compras || compras.length === 0) {
         badge.textContent = '0 compras';
         cont.innerHTML = `
             <div class="mensaje-vacio">
