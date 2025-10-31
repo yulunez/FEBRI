@@ -245,13 +245,12 @@ document.addEventListener('DOMContentLoaded', async function() {
         <button type="submit">Guardar Cambios</button>
     </form>
 </div>
-            <!-- Contenido -->
+            <!-- Dentro del contenido principal del perfil -->
             <div class="seccion-contenido">
                 <div class="encabezado-seccion">
                     <h3 class="titulo-seccion">Productos favoritos</h3>
-                    <span class="contador-seccion">3 productos</span>
+                    <span class="contador-seccion">0 productos</span>
                 </div>
-                
                 <div class="cuadricula-productos">
                     <div id="favoritos-grid"></div>
                 </div>
@@ -298,19 +297,19 @@ document.addEventListener('DOMContentLoaded', async function() {
             
             console.log('✓ Perfil mostrado correctamente');
         } else {
-            console.log('❌ No hay sesión activa');
+            console.log(' No hay sesión activa');
             alert('Por favor, inicie sesión');
             window.location.href = 'login.html';
         }
     } catch (err) {
-        console.error('❌ Error:', err);
+        console.error('Error:', err);
         alert('Error al cargar el perfil');
         window.location.href = 'login.html';
     }
     
     console.log('=== FIN CARGA PERFIL ===');
     
-    // CARGAR FAVORITOS
+    // CARGAR FAVORITOS DEL USUARIO
     await cargarFavoritos();
     
     // Configurar clicks para envíos y compras
@@ -331,42 +330,46 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 });
 
-// FUNCIÓN PARA CARGAR FAVORITOS
+// Trae favoritos desde la sesión y renderiza
 async function cargarFavoritos() {
     try {
-        const resp = await fetch('/producto/favorito', { 
-            credentials: 'include' 
-        });
-        
+        const resp = await fetch('/producto/favorito', { credentials: 'include' });
         if (resp.ok) {
             const body = await resp.json();
             if (body && body.success && Array.isArray(body.favoritos)) {
                 renderFavoritos(body.favoritos);
+            } else {
+                renderFavoritos([]);
             }
+        } else {
+            renderFavoritos([]);
         }
     } catch (e) {
         console.error('No se pudieron cargar favoritos:', e);
+        renderFavoritos([]);
     }
 }
 
-// FUNCIÓN PARA RENDERIZAR FAVORITOS
+// Pinta solo los favoritos del usuario
 function renderFavoritos(favs) {
     const grid = document.getElementById('favoritos-grid');
     if (!grid) return;
-    
+
     grid.innerHTML = '';
-    
+    grid.classList.remove('solo-uno');
+
     if (!favs || favs.length === 0) {
         grid.innerHTML = '<p>No tienes productos en favoritos.</p>';
+        const contador = document.querySelector('.contador-seccion');
+        if (contador) contador.textContent = '0 productos';
         return;
     }
-    
-    // Actualizar contador
+
     const contador = document.querySelector('.contador-seccion');
     if (contador) {
         contador.textContent = `${favs.length} producto${favs.length !== 1 ? 's' : ''}`;
     }
-    
+
     favs.forEach(p => {
         const card = document.createElement('div');
         card.className = 'tarjeta-producto';
@@ -387,20 +390,25 @@ function renderFavoritos(favs) {
         grid.appendChild(card);
     });
 
-    // Agregar event listeners a los botones de eliminar favorito
+    // Centrar si sólo hay un favorito
+    if (favs.length === 1) {
+        grid.classList.add('solo-uno');
+    } else {
+        grid.classList.remove('solo-uno');
+    }
+
+    // Listeners para quitar favorito
     grid.querySelectorAll('.boton-corazon-producto').forEach(btn => {
         btn.addEventListener('click', async function() {
             const pid = this.getAttribute('data-id');
             if (!pid) return;
-            
+
             try {
-                const res = await fetch(`/producto/favorito/${encodeURIComponent(pid)}`, { 
-                    method: 'DELETE', 
-                    credentials: 'include' 
+                const res = await fetch(`/producto/favorito/${encodeURIComponent(pid)}`, {
+                    method: 'DELETE',
+                    credentials: 'include'
                 });
-                
                 if (!res.ok) throw new Error('Error al quitar favorito');
-                
                 const body = await res.json();
                 if (body && body.success) {
                     renderFavoritos(body.favoritos || []);

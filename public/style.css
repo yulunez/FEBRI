@@ -2795,7 +2795,7 @@ body {
   line-height: 1.5rem;
 }
 
-/* estilo para sección decoracion para el hogar */
+/* contenedor de productos de categoría */
 
 .contenedor-productos-hogar {
     margin-top: 10%;
@@ -2805,7 +2805,43 @@ body {
     width: 80vw;
     max-width: 100%;
     padding: 0.5rem;
-    
+}
+/* Centrar 1 o 2 productos conservando tamaño normal */
+@media (min-width: 1201px) { /* escritorio: grid normal 4 cols */
+    .contenedor-productos-hogar:has(> .producto-card-hogar:only-child) {
+        grid-template-columns: 25%;      /* una columna del ancho normal */
+        justify-content: center;         /* centra la columna en el contenedor */
+    }
+    .contenedor-productos-hogar:has(> .producto-card-hogar:first-child:nth-last-child(2)) {
+        grid-template-columns: 25% 25%;  /* dos columnas del ancho normal */
+        justify-content: center;
+    }
+}
+@media (min-width: 769px) and (max-width: 1200px) { /* tablet: grid 3 cols */
+    .contenedor-productos-hogar:has(> .producto-card-hogar:only-child) {
+        grid-template-columns: 33.333%;
+        justify-content: center;
+    }
+    .contenedor-productos-hogar:has(> .producto-card-hogar:first-child:nth-last-child(2)) {
+        grid-template-columns: 33.333% 33.333%;
+        justify-content: center;
+    }
+}
+@media (min-width: 481px) and (max-width: 768px) { /* tablet pequeña: grid 2 cols */
+    .contenedor-productos-hogar:has(> .producto-card-hogar:only-child) {
+        grid-template-columns: 50%;
+        justify-content: center;
+    }
+    .contenedor-productos-hogar:has(> .producto-card-hogar:first-child:nth-last-child(2)) {
+        grid-template-columns: 50% 50%;
+        justify-content: center;
+    }
+}
+/* móvil (<480px) ya usa 1 columna: no tocar */
+.contenedor-productos-hogar:has(> .producto-card-hogar:only-child) .producto-card-hogar,
+.contenedor-productos-hogar:has(> .producto-card-hogar:first-child:nth-last-child(2)) .producto-card-hogar {
+    max-width: 420px;
+    width: 100%;
 }
 
 .producto-card-hogar {
