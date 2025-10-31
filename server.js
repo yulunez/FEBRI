@@ -136,7 +136,22 @@ app.get('/verificar-sesion', (req, res) => {
     }
 });
 
-// Obtener información del perfil (endpoint adicional)
+const carroRouter = require('./routes/carro.js');
+app.use('/carro', carroRouter);
+
+const comprasRouter = require('./routes/compras.js');   
+app.use('/compras', comprasRouter);
+
+const envioRouter = require('./routes/envio.js');
+app.use('/envio', envioRouter);
+
+app.use(express.urlencoded({ extended:true }));
+const perfilUsuarioRouter = require('./routes/perfilUsuario.js');
+const perfilRouter = require('./routes/perfil.js');
+// ...existing code...
+app.use('/perfilUsuario', perfilUsuarioRouter);
+app.use('/perfil', perfilRouter);
+
 app.get('/perfilUsuario', (req, res) => {
     if (req.session && req.session.usuario) {
         res.json({
@@ -166,11 +181,23 @@ app.post('/logout', (req, res) => {
     });
 });
 
+
 // ============================================
 // INICIAR SERVIDOR
 // ============================================
 const PORT = process.env.PORT || 3000;
 const HOST = '0.0.0.0';
+
+// Debug helper (temporary): return session info so we can verify the session seen by different pages
+app.get('/debug-session', (req, res) => {
+    res.json({
+        ok: true,
+        sessionID: req.sessionID,
+        session: req.session,
+        cookieHeader: req.headers && req.headers.cookie
+    });
+});
+
 
 app.listen(PORT, HOST, () => {
     console.log(`Servidor corriendo en http://localhost:${PORT}`);

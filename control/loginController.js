@@ -42,24 +42,33 @@ exports.ingresarUsuario = (req, res) => {
                     ID_empleado: usuario.ID_empleado || null
                 };
                 
+                // Guardar también una referencia rápida al id (compatibilidad con rama compras)
+                req.session.usuarioId = usuario.ID_login;
+                
                 console.log('Datos guardados en sesión:', req.session.usuario);
                 
-                // Guardar sesión explícitamente
-                req.session.save((err) => {
-                    if (err) {
-                        console.error('Error al guardar sesión:', err);
-                        return res.json({ success: false, message: 'Error al guardar sesión' });
-                    }
-                    
-                    console.log('Sesión guardada exitosamente');
-                    console.log('Session ID:', req.sessionID);
-                    console.log('=== FIN LOGIN ===');
-                    
-                    return res.json({ 
-                        success: true, 
-                        usuario: req.session.usuario 
+                // Guardar sesión explícitamente con mejor manejo de errores
+                try {
+                    req.session.save((err) => {
+                        if (err) {
+                            console.error('Error al guardar sesión:', err);
+                            return res.json({ success: false, message: 'Error al guardar sesión' });
+                        }
+                        
+                        console.log('Sesión guardada exitosamente');
+                        console.log('Session ID:', req.sessionID);
+                        console.log('Session data:', req.session);
+                        console.log('=== FIN LOGIN ===');
+                        
+                        return res.json({ 
+                            success: true, 
+                            usuario: req.session.usuario 
+                        });
                     });
-                });
+                } catch (e) {
+                    console.warn('Error crítico al guardar sesión:', e);
+                    return res.json({ success: false, message: 'Error crítico al guardar sesión' });
+                }
             } else {
                 console.log('Usuario NO encontrado');
                 console.log('=== FIN LOGIN ===');

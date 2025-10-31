@@ -170,46 +170,50 @@ formularioLogin.addEventListener('submit', async function(e) {
 
     console.log('Enviando datos de login:', { correo: datos.correo });
 
-    try {
-        const response = await fetch("http://localhost:3000/login", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            credentials: 'include',
-            body: JSON.stringify(datos)
-        });
-        const data = await response.json();
-        console.log('Respuesta del servidor:', data);
-        
-        if (data.success) {
-            localStorage.setItem('usuarioLogueado', 'true');
-            mostrarMensajeLogin('¡Ingreso exitoso!', '#f8a4d8');
-            
-            // Limpiar formulario
-            formularioLogin.reset();
-            document.getElementById('email').value = '';
-            document.getElementById('password').value = '';
-            
-         setTimeout(() => {
-    if (data.usuario && data.usuario.ID_cliente) {
-        window.location.href = 'index.html?refresh=' + Date.now();
-    } else if (data.usuario && data.usuario.ID_empleado) {
-        window.location.href = 'administrador.html?refresh=' + Date.now();
-    } else {
-        window.location.href = 'index.html?refresh=' + Date.now();
-    }
-        // Guardar ID del usuario para aislar compras por usuario
-        const id = (data.usuario && (data.usuario.ID_cliente || data.usuario.ID_empleado || data.usuario.id || data.usuario.ID));
-        if (id) { localStorage.setItem('usuarioId', String(id)); }
-}, 1200);
-        } else {
-            mostrarMensajeLogin(data.message || 'Correo o contraseña incorrectos', '#666666');
-            document.getElementById('password').value = '';
-        }
-    } catch (error) {
-        console.error('Error en login:', error);
-        mostrarMensajeLogin('Error en el servidor', '#666666');
-        document.getElementById('password').value = '';
-    }
+
+            try {
+                const response = await fetch('/login', {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    credentials: 'same-origin',
+                    body: JSON.stringify(datos)
+                });
+                const data = await response.json();
+                console.log('Respuesta del servidor:', data);
+                
+                if (data.success) {
+                    localStorage.setItem('usuarioLogueado', 'true');
+                    mostrarMensajeLogin('¡Ingreso exitoso!', '#f8a4d8');
+                    
+                    // Limpiar formulario
+                    formularioLogin.reset();
+                    document.getElementById('email').value = '';
+                    document.getElementById('password').value = '';
+                    
+                    // Guardar ID del usuario para aislar compras por usuario
+                    const id = (data.usuario && (data.usuario.ID_cliente || data.usuario.ID_empleado || data.usuario.id || data.usuario.ID));
+                    if (id) { 
+                        localStorage.setItem('usuarioId', String(id)); 
+                    }
+                    
+                    setTimeout(() => {
+                        if (data.usuario.ID_cliente) {
+                            window.location.href = 'index.html?refresh=' + Date.now();
+                        } else if (data.usuario.ID_empleado) {
+                            window.location.href = 'administrador.html?refresh=' + Date.now();
+                        } else {
+                            window.location.href = 'index.html?refresh=' + Date.now(); // Fallback
+                        }
+                    }, 1200);
+                } else {
+                    mostrarMensajeLogin(data.message || 'Correo o contraseña incorrectos', '#666666');
+                    document.getElementById('password').value = '';
+                }
+            } catch (error) {
+                console.error('Error en login:', error);
+                mostrarMensajeLogin('Error en el servidor', '#666666');
+                document.getElementById('password').value = '';
+            }
 });
 
 function mostrarMensajeLogin(mensaje, color) {

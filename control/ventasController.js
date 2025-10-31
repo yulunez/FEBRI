@@ -58,13 +58,76 @@ exports.actualizarEstadoVenta = (req, res) => {
     if (!ventaId || !nuevoEstado) {
         return res.status(400).json({ success: false, message: 'ID de venta y estado son requeridos' });
     }
-    const sql = 'UPDATE venta SET Estado = ? WHERE ID_venta = ?';
-    db.query(sql, [nuevoEstado, ventaId], (err, result) => {
+
+    // Iniciar transacción para actualizar tanto la venta como el envío
+    db.beginTransaction(err => {
         if (err) {
-            console.error('Error actualizando estado de venta:', err);
-            return res.status(500).json({ success: false, message: 'Error actualizando estado', error: err.message });
+            console.error('Error iniciando transacción:', err);
+            return res.status(500).json({ success: false, message: 'Error iniciando transacción', error: err.message });
         }
-        return res.json({ success: true, updated: result.affectedRows });
+
+        // 1. Actualizar estado de la venta
+        const sqlVenta = 'UPDATE venta SET Estado = ? WHERE ID_venta = ?';
+        db.query(sqlVenta, [nuevoEstado, ventaId], (err, result) => {
+            if (err) {
+                return db.rollback(() => {
+                    console.error('Error actualizando estado de venta:', err);
+                    res.status(500).json({ success: false, message: 'Error actualizando estado', error: err.message });
+                });
+            }
+
+            // 2. Actualizar el envío correspondiente
+            let sqlEnvio;
+            let parametros;
+            let fechaEnvio;
+            let fechaEntrega;
+
+            if (nuevoEstado.toLowerCase() === 'enviado') {
+                // Solo si el estado es "Enviado", actualizar fecha_de_envio y calcular fecha_de_entrega
+                fechaEnvio = new Date();
+                fechaEntrega = new Date(fechaEnvio);
+                fechaEntrega.setDate(fechaEntrega.getDate() + 15); // Fecha de entrega a 15 días
+                
+                sqlEnvio = 'UPDATE envio SET Estado = ?, Fecha_de_envio = ?, Fecha_de_entrega = ? WHERE ID_venta = ?';
+                parametros = [nuevoEstado, fechaEnvio, fechaEntrega, ventaId];
+            } else {
+                // Para otros estados, solo actualizar el estado
+                sqlEnvio = 'UPDATE envio SET Estado = ? WHERE ID_venta = ?';
+                parametros = [nuevoEstado, ventaId];
+            }
+
+            db.query(sqlEnvio, parametros, (err, envioResult) => {
+                if (err) {
+                    return db.rollback(() => {
+                        console.error('Error actualizando estado de envío:', err);
+                        res.status(500).json({ success: false, message: 'Error actualizando envío', error: err.message });
+                    });
+                }
+
+                // Commit los cambios si todo salió bien
+                db.commit(err => {
+                    if (err) {
+                        return db.rollback(() => {
+                            console.error('Error en commit:', err);
+                            res.status(500).json({ success: false, message: 'Error guardando cambios', error: err.message });
+                        });
+                    }
+                    const response = { 
+                        success: true, 
+                        updated: result.affectedRows,
+                        envioUpdated: envioResult.affectedRows
+                    };
+                    
+                    // Solo incluir fechas si el estado es "Enviado"
+                    if (nuevoEstado.toLowerCase() === 'enviado') {
+                        response.fechaEnvio = fechaEnvio;
+                        response.fechaEntrega = fechaEntrega;
+                    }
+                    
+                    res.json(response);
+                });
+            });
+        });
     });
 };
 
