@@ -91,6 +91,7 @@
         </div>
     </section>
 
+<!-- crearTarjetaProducto(producto): agrega data-id al botón favorito -->
 <script>
 
 
@@ -161,7 +162,7 @@ function crearTarjetaProducto(producto) {
                 <div class="producto-precios-hogar">
                     ${preciosHTML}
                 </div>
-                <button class="btn-favorito">
+                <button class="btn-favorito" data-id="${producto.id}">
                     <i class='bx bx-heart'></i>
                 </button>
             </div>
@@ -297,13 +298,66 @@ document.addEventListener('DOMContentLoaded', function() {
     mostrarProductos(); // usa params.get('id') internamente
 });
 // Función para agregar funcionalidad a los botones de favoritos
+<!-- agregarFuncionalidadFavoritos(): llama al backend para agregar/quitar -->
 function agregarFuncionalidadFavoritos() {
     const botonesFavoritos = document.querySelectorAll('.btn-favorito');
     botonesFavoritos.forEach(boton => {
-        boton.addEventListener('click', function() {
-            this.classList.toggle('activo');
+        boton.addEventListener('click', async function() {
+            const pid = this.getAttribute('data-id');
+            if (!pid) return;
+
+            // Opcional: seguridad UX si no hay sesión
+            const loggedIn = localStorage.getItem('usuarioLogueado') === 'true';
+            if (!loggedIn) {
+                alert('Debes iniciar sesión para marcar favoritos');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const activo = this.classList.contains('activo');
+            try {
+                if (!activo) {
+                    const res = await fetch('/producto/favorito', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify({ id: pid })
+                    });
+                    if (!res.ok) throw new Error('Error al agregar favorito');
+                    const body = await res.json();
+                    if (body && body.success) this.classList.add('activo');
+                } else {
+                    const res = await fetch(`/producto/favorito/${encodeURIComponent(pid)}`, {
+                        method: 'DELETE',
+                        credentials: 'include'
+                    });
+                    if (!res.ok) throw new Error('Error al quitar favorito');
+                    const body = await res.json();
+                    if (body && body.success) this.classList.remove('activo');
+                }
+            } catch (err) {
+                console.error('Error en favorito:', err);
+                alert('No se pudo actualizar favoritos');
+            }
         });
     });
+}
+
+// Marca corazones activos según favoritos existentes en sesión
+async function sincronizarFavoritosConSesion() {
+    try {
+        const res = await fetch('/producto/favorito', { credentials: 'include' });
+        if (!res.ok) return;
+        const data = await res.json();
+        const favoritos = (data && data.success && Array.isArray(data.favoritos)) ? data.favoritos : [];
+        const idsFav = new Set(favoritos.map(f => String(f.id)));
+        document.querySelectorAll('.btn-favorito[data-id]').forEach(btn => {
+            const pid = btn.getAttribute('data-id');
+            if (idsFav.has(String(pid))) btn.classList.add('activo');
+        });
+    } catch (e) {
+        console.warn('No se pudieron sincronizar favoritos:', e);
+    }
 }
 
 // Función para agregar producto al carrito 
@@ -475,5 +529,6 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
     
 </body>
+
 </html>
 

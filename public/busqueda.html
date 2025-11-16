@@ -83,8 +83,7 @@
         </div>
     </section>
 
-    <!-- Eliminar esta línea que genera 403 -->
-    <!-- <script src="https://kit.fontawesome.com/eb496ab1a0.js" crossorigin="anonymous"></script> -->
+    
     <script>
         // Función para obtener parámetros de la URL
         function obtenerParametroURL(nombre) {
@@ -113,7 +112,7 @@
             const termino = obtenerParametroURL('termino');
             
             if (!termino || termino.trim() === '') {
-                return; // Sin mensaje, solo no cargar nada
+                return; 
             }
             
             // Actualizar campos de búsqueda
@@ -146,7 +145,7 @@
                         imagen: p.Imagen || p.imagen || 'imagenes/inicio.webp',
                         descripcion: p.Descripcion || p.descripcion || ''
                     }));
-                    // HAY PRODUCTOS - usar el mismo diseño que las categorías
+                   
                     contenedor.innerHTML = '';
                     
                     data.productos.forEach(producto => {
@@ -268,10 +267,10 @@
         
                 // Actualizar contador del carrito
                 updateCartCounters();
-                alert('✅ Producto agregado al carrito');
+                alert('Producto agregado al carrito');
             } catch (error) {
                 console.error('Error al agregar al carrito:', error);
-                alert('❌ Error al agregar el producto al carrito');
+                alert('Error al agregar el producto al carrito');
             }
         }
         

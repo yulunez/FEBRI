@@ -1,4 +1,4 @@
-  :root {
+:root {
     --gris-claro: #f0f0f0;
     --color-icono: #f8a4d8;
     --gris-texto: #666666;
@@ -551,15 +551,17 @@
 
  /* Estilos específicos para decoración del hogar */
         .contenedor-productos-hogar {
-            margin-left: 10%;
+            margin-left: auto;
+            margin-right: auto;
             margin-top: 10%;
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 5rem;
             width: 80vw;
-            max-width: 100%;
+            max-width: 1400px;
             padding: 0.5rem;
-        }
+            justify-content: center;
+                }
 
         .producto-card-hogar {
             position: relative;
@@ -792,6 +794,33 @@
         font-size: 1rem;
         padding: 12px;
     }
+}
+
+/* Centrar 1 o 2 productos conservando tamaño normal */
+.contenedor-productos-hogar:has(> .producto-card-hogar:only-child) {
+    display: grid;
+    grid-template-columns: 1fr;
+    justify-items: center;
+    align-items: start;
+    min-height: 320px;
+}
+.contenedor-productos-hogar:has(> .producto-card-hogar:first-child:nth-last-child(2)) {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(280px, 1fr));
+    justify-content: center;
+    justify-items: center;
+    align-items: start;
+    gap: 2rem;
+}
+.contenedor-productos-hogar:has(> .producto-card-hogar:only-child) .producto-card-hogar,
+.contenedor-productos-hogar:has(> .producto-card-hogar:first-child:nth-last-child(2)) .producto-card-hogar {
+    max-width: 420px;
+    width: 100%;
+}
+.contenedor-productos-hogar:has(> .producto-card-hogar:only-child) .producto-card-hogar,
+.contenedor-productos-hogar:has(> .producto-card-hogar:first-child:nth-last-child(2)) .producto-card-hogar {
+    max-width: 420px;
+    width: 100%;
 }
 
 
