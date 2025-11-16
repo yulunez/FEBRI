@@ -6,7 +6,7 @@ const recuperacionController = require('../control/recuperacionController');
 router.post('/solicitar', recuperacionController.solicitarRecuperacion);
 
 // Validar token de recuperación
-router.get('/validar', recuperacionController.validarToken);
+router.post('/validar', recuperacionController.validarToken);
 
 // Cambiar contraseña
 router.post('/cambiar-password', recuperacionController.cambiarPassword);

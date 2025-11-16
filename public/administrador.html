@@ -105,7 +105,7 @@
                 <div class="user-info">
                     <span>Administrador</span>
                     <div class="user-avatar">A</div>
-                   <a href="index.html"><i class="fas fa-sign-out-alt" style="cursor: pointer; color: #666;"></i></a> 
+                   <a href="#" id="logout-link" title="Cerrar sesión"><i class="fas fa-sign-out-alt" style="cursor: pointer; color: #666;"></i></a>
                 </div>
             </div>
                 <!-- Modal flotante para crear categoría (ubicado fuera del form de producto para evitar forms anidados) -->
@@ -196,7 +196,7 @@
                     <table>
                         <thead>
                             <tr>
-                                <th>ID</th>
+                                <th>Código</th>
                                 <th>Producto</th>
                                 <th>Categoría</th>
                                 <th>Precio</th>
@@ -227,7 +227,7 @@
                     <table>
                         <thead>
                             <tr>
-                                <th>ID</th>
+                                <th>Código</th>
                                 <th>Materia Prima</th>
                                 <th>Proveedor</th>
                                 <th>Precio</th>
@@ -283,7 +283,6 @@
                     <table>
                         <thead>
                             <tr>
-                                <th>ID</th>
                                 <th>Nombre</th>
                                 <th>Email</th>
                                 <th>Registro</th>
@@ -1475,7 +1474,7 @@
         async function loadAdminClientes() {
             const tbody = document.getElementById('admin-clientes-body');
             if (!tbody) return;
-            tbody.innerHTML = '<tr><td colspan="8">Cargando...</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="7">Cargando...</td></tr>';
             try {
                 // Fetch clients and totals in parallel
                 const [resClients, resTotals] = await Promise.all([
@@ -1506,12 +1505,12 @@
                 }
 
                 if (!dataClients.success || !Array.isArray(dataClients.clientes)) {
-                    tbody.innerHTML = '<tr><td colspan="8">No se encontraron clientes.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="7">No se encontraron clientes.</td></tr>';
                     return;
                 }
 
                 if (dataClients.clientes.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="8">No hay clientes para mostrar.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="7">No hay clientes para mostrar.</td></tr>';
                     return;
                 }
 
@@ -1542,20 +1541,19 @@
                     }
                     const estadoDisplay = normalizeEstado(c.activo, c.estado);
                     return `
-                        <tr>
-                            <td>#${id}</td>
-                            <td>${nombre}</td>
-                            <td>${correo}</td>
-                            <td>${fecha}</td>
-                            <td>${peddgesOrZero(pedidos)}</td>
-                            <td>${totalCompras}</td>
-                            <td>${escapeHtml(estadoDisplay)}</td>
-                            <td>
-                                <button class="btn-primary btn-ver-cliente" style="padding:6px 12px; font-size:0.8rem;" 
-                                    data-cliente="${id}" data-nombre="${escapeHtml(c.nombre_completo || '')}" data-correo="${escapeHtml(c.correo || '')}" data-fecha="${fecha}">Ver</button>
-                            </td>
-                        </tr>
-                    `;
+                            <tr>
+                                <td>${nombre}</td>
+                                <td>${correo}</td>
+                                <td>${fecha}</td>
+                                <td>${peddgesOrZero(pedidos)}</td>
+                                <td>${totalCompras}</td>
+                                <td>${escapeHtml(estadoDisplay)}</td>
+                                <td>
+                                    <button class="btn-primary btn-ver-cliente" style="padding:6px 12px; font-size:0.8rem;" 
+                                        data-cliente="${id}" data-nombre="${escapeHtml(c.nombre_completo || '')}" data-correo="${escapeHtml(c.correo || '')}" data-fecha="${fecha}">Ver</button>
+                                </td>
+                            </tr>
+                        `;
                 }).join('');
                 // attach handlers for client 'Ver' buttons (after clients table rendered)
                 document.querySelectorAll('.btn-ver-cliente').forEach(btn => {
@@ -1941,7 +1939,10 @@
             if (cerrar) cerrar.addEventListener('click', closeClientModal);
             if (backdrop) backdrop.addEventListener('click', (e) => { if (e.target === backdrop) closeClientModal(); });
             if (toggleBtn) toggleBtn.addEventListener('click', async (e) => {
-                if (!currentClientId) return alert('Cliente no especificado');
+                if (!currentClientId) {
+                    console.warn('toggleClienteActivo: cliente no especificado');
+                    return;
+                }
                 toggleBtn.disabled = true;
                 const origText = toggleBtn.textContent;
                 toggleBtn.textContent = 'Procesando...';
@@ -1950,28 +1951,28 @@
                     if (!res.ok) {
                         const txt = await res.text();
                         console.error('Error toggling cliente:', res.status, txt);
-                        alert('Error al alternar estado del cliente. Revisa la consola.');
+                        // do not use alert; log and return
                         return;
                     }
                     const data = await res.json();
                     if (!data.success) {
                         console.error('Backend no alternó cliente:', data);
-                        alert('No se pudo alternar el estado. Revisa la consola.');
+                        // do not use alert; return
                         return;
                     }
-                    // Show result to user and refresh clients list
+                    // Log result and refresh clients list (non-blocking)
                     if (data.Activo !== undefined) {
-                        alert('Estado actualizado. Activo=' + data.Activo);
+                        console.log('Estado actualizado. Activo=', data.Activo);
                     } else if (data.Estado) {
-                        alert('Estado actualizado: ' + data.Estado);
+                        console.log('Estado actualizado:', data.Estado);
                     } else {
-                        alert('Estado actualizado');
+                        console.log('Estado actualizado');
                     }
                     // Refresh clients table to reflect changes
                     loadAdminClientes();
                 } catch (err) {
                     console.error('Error de red alternando cliente:', err);
-                    alert('Error de red al alternar cliente. Revisa la consola.');
+                    // do not use alert; fail silently and log
                 } finally {
                     toggleBtn.disabled = false;
                     toggleBtn.textContent = origText;
@@ -2052,5 +2053,19 @@
         }
     })();
     </script>
+        <script>
+        (function(){
+            const logoutLink = document.getElementById('logout-link');
+            if (!logoutLink) return;
+            logoutLink.addEventListener('click', async function(e){
+                e.preventDefault();
+                try {
+                    await fetch('/logout', { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' } });
+                } catch (err) { /* ignore network errors */ }
+                try { localStorage.removeItem('usuarioLogueado'); localStorage.removeItem('usuarioId'); } catch(e){}
+                window.location.href = 'index.html';
+            });
+        })();
+        </script>
 </body>
 </html>

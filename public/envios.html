@@ -20,10 +20,10 @@
         }
         .producto-miniatura {
             position: relative;
-            min-width: 60px;
-            width: 60px;
-            height: 60px;
-            border-radius: 8px;
+            min-width: 70px;
+            width: 70px;
+            height: 70px;
+            border-radius: 10px;
             overflow: hidden;
             border: 1px solid #eee;
         }
@@ -34,18 +34,21 @@
         }
         .cantidad-producto {
             position: absolute;
-            top: -5px;
-            right: -5px;
-            background: #4a90e2;
+            top: 6px;
+            right: 6px;
+            background: #f8a4d8; /* rosa claro */
             color: white;
             border-radius: 50%;
-            width: 20px;
-            height: 20px;
+            width: 22px;
+            height: 22px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 12px;
-            font-weight: bold;
+            font-weight: 800;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.12);
+            border: 2px solid rgba(255,255,255,0.85);
+            z-index: 12;
         }
     </style>
 </head>
@@ -81,8 +84,8 @@
             'cancelado': 'estado-cancelado'
         };
         const estadoTextos = {
-            'en_proceso': 'En Proceso',
-            'en_transito': 'En Tránsito',
+            'en_proceso': 'En proceso',
+            'en_transito': 'En tránsito',
             'entregado': 'Entregado',
             'cancelado': 'Cancelado'
         };
@@ -94,9 +97,50 @@
             </div>
         `).join('');
 
-        const fechaEnvio = envio.fechaEnvio
-            ? new Date(envio.fechaEnvio).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })
-            : '';
+        let fechaEnvioHtml = '';
+        if (envio.fechaEnvio) {
+            const fechaLegible = new Date(envio.fechaEnvio).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+            fechaEnvioHtml = `<div class="fecha-envio">Enviado: ${fechaLegible}</div>`;
+        } else {
+            fechaEnvioHtml = `<div class="fecha-envio">En almacén</div>`;
+        }
+
+        // Stepper logic
+        const rosa = '#f8a4d8';
+        const gris = '#e5e7eb';
+        // Estado de cada bolita
+        const almacenActive = true;
+        const enviadoActive = !!envio.fechaEnvio;
+        const entregadoActive = !!envio.fechaEntrega;
+        // Etiquetas
+        const stepLabels = ['En almacén', 'Enviado', 'Entregado'];
+        // Bolitas HTML
+        const stepperHTML = `
+            <div class="envio-stepper" style="display:flex;justify-content:center;align-items:center;margin:1.2rem 0 1.5rem 0;gap:2.5rem;">
+                <div style="display:flex;flex-direction:column;align-items:center;gap:.3rem;">
+                    <span style="width:32px;height:32px;border-radius:50%;background:${rosa};display:flex;align-items:center;justify-content:center;border:2px solid ${rosa};color:#fff;font-size:1.3rem;">
+                        <i class='bx bx-check'></i>
+                    </span>
+                    <span style="font-size:.85rem;color:#f8a4d8;;margin-top:2px;">${stepLabels[0]}</span>
+                </div>
+                <div style="display:flex;flex-direction:column;align-items:center;gap:.3rem;">
+                    <span style="width:32px;height:32px;border-radius:50%;background:${enviadoActive?rosa:gris};display:flex;align-items:center;justify-content:center;border:2px solid ${enviadoActive?rosa:gris};color:${enviadoActive?'#fff':'#888'};font-size:1.3rem;">
+                        <i class='bx bx-check'></i>
+                    </span>
+                    <span style="font-size:.85rem;color:${enviadoActive?rosa:'#888'};margin-top:2px;">${stepLabels[1]}</span>
+                </div>
+                <div style="display:flex;flex-direction:column;align-items:center;gap:.3rem;">
+                    <span style="width:32px;height:32px;border-radius:50%;background:${entregadoActive?rosa:gris};display:flex;align-items:center;justify-content:center;border:2px solid ${entregadoActive?rosa:gris};color:${entregadoActive?'#fff':'#888'};font-size:1.3rem;">
+                        <i class='bx bx-check'></i>
+                    </span>
+                    <span style="font-size:.85rem;color:${entregadoActive?rosa:'#888'};margin-top:2px;">${stepLabels[2]}</span>
+                </div>
+            </div>
+        `;
+
+        // Decide display text and CSS class based on fechaEntrega presence
+        const estadoDisplay = envio.fechaEntrega ? 'Terminado' : (estadoTextos[envio.estado] || 'En proceso');
+        const estadoClass = envio.fechaEntrega ? 'estado-entregado' : (estadoClases[envio.estado] || 'estado-en-proceso');
 
         return `
             <div class="barra-envio">
@@ -107,15 +151,16 @@
                         </div>
                     </div>
                     <div style="display:flex;flex-direction:column;align-items:flex-end;gap:.5rem;">
-                        <div class="fecha-envio">Enviado: ${fechaEnvio}</div>
-                        <span class="estado-envio ${estadoClases[envio.estado] || 'estado-en-proceso'}">
-                            ${estadoTextos[envio.estado] || 'En Proceso'}
+                        ${fechaEnvioHtml}
+                        <span class="estado-envio ${estadoClass}">
+                            ${estadoDisplay}
                         </span>
                     </div>
                 </div>
-
-                <div class="productos-envio">${productosHTML}</div>
-
+                <div class="stepper-products-row" style="display:flex;align-items:center;gap:2rem;position:relative;">
+                    <div class="productos-envio" style="margin:0;margin-right:auto;">${productosHTML}</div>
+                    <div style="position:absolute;left:50%;transform:translateX(-50%);top:0;">${stepperHTML}</div>
+                </div>
                 <div class="detalles-envio">
                     <div class="direccion-envio"><strong>Destino:</strong> ${envio.direccionDestino || ''}</div>
                     <div class="total-envio">$${parseFloat(envio.costo || 0).toLocaleString('es-ES')}</div>

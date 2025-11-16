@@ -1,7 +1,7 @@
 // Función interna para generar envío desde comprasController (usado en transacción)
 exports.generarEnvioInterno = (db, { direccion, costo, nombre, clienteId, ventaId }) => {
     return new Promise((resolve, reject) => {
-        const sql = 'INSERT INTO envio (Direccion_de_destino, Fecha_de_envio, costo, Nombre_destinatario, Estado, ID_cliente, ID_venta, ID_empresa) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+        const sql = 'INSERT INTO envio (Direccion_de_destino, Fecha_de_envio, costo, Nombre_destinatario, Estado, ID_cliente, ID_venta) VALUES (?, ?, ?, ?, ?, ?, ?)';
         const estado = 'pendiente';
         // Para estado pendiente, fecha_envio es null
         db.query(sql, [direccion, null, costo, nombre, estado, clienteId, ventaId, null], (err, result) => {

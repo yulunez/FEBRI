@@ -1,3 +1,14 @@
+.encabezado-seccion {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 2.5rem;
+    margin-bottom: 1.5rem;
+    margin-left: 2.5rem;
+    margin-right: 2.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
 :root {
     --rosa-claro: #f8a4d8;
     --rosa-fondo: #ffd6ef;
@@ -10,7 +21,12 @@
   
 }
 
-.contenedor-compras { display: flex; flex-direction: column; gap: 1rem; }
+.contenedor-compras {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin: 2.5rem 2.5rem 3rem 2.5rem; /* more margin all sides */
+}
 .tarjeta-compra {
     background: var(--blanco);
     border-radius: 12px;
@@ -27,7 +43,15 @@
 .compra-fecha { color: var(--gris-texto); font-size: .9rem; }
 
 .productos-compra { display: flex; gap: .5rem; flex-wrap: wrap; margin-top: .5rem; }
-.mini-prod { width: 50px; height: 50px; border-radius: 8px; overflow: hidden; border: 2px solid var(--rosa-claro); position: relative; background: var(--gris-claro); }
+.mini-prod {
+    width: 70px;
+    height: 70px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 2px solid var(--rosa-claro);
+    position: relative;
+    background: var(--gris-claro);
+}
 .mini-prod img { width: 100%; height: 100%; object-fit: cover; }
 .mini-cant {
     position: absolute; top: -8px; right: -8px; background: var(--rosa-claro);

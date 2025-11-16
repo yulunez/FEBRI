@@ -688,8 +688,10 @@
 }
 
 .categorias-contenedor {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    /* Use flex so items can be centered regardless of count */
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
     gap: 20px;
     padding: 0 15px;
     width: 100%;
@@ -702,9 +704,11 @@
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     cursor: pointer;
-    width: 100%;
     text-decoration: none;
-    display: block; 
+    display: block;
+    /* Flex sizing: fixed basis per column while allowing centering */
+    flex: 0 1 calc(25% - 20px);
+    max-width: 320px;
 }
 
 .categoria-tarjeta:hover {
@@ -749,9 +753,9 @@
 /* Media queries */
 @media (max-width: 1024px) {
     .categorias-contenedor {
-        grid-template-columns: repeat(2, 1fr);
         gap: 15px;
     }
+    .categoria-tarjeta { flex: 0 1 calc(50% - 15px); max-width: 520px; }
 }
 
 @media (max-width: 768px) {
@@ -765,9 +769,9 @@
     }
 
     .categorias-contenedor {
-        grid-template-columns: 1fr;
         gap: 20px;
     }
+    .categoria-tarjeta { flex: 0 1 100%; max-width: 100%; }
 
     .categoria-imagen {
         padding-bottom: 60%;

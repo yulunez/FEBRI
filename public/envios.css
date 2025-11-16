@@ -17,6 +17,7 @@
     padding: 1.25rem;
     box-shadow: 0 2px 10px rgba(248, 164, 216, 0.25);
     border-left: 5px solid var(--rosa-claro);
+    margin: 0 0.75rem;
     transition: transform .15s ease, box-shadow .15s ease;
 }
 .barra-envio:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(248, 164, 216, 0.35); }
@@ -38,14 +39,30 @@
 .estado-entregado { background: #fff; color: var(--gris-oscuro); }
 .estado-cancelado { background: #fee; border-color: #ff6b6b; color: #b91c1c; }
 
-.productos-envio { display:flex; gap:.5rem; flex-wrap:wrap; margin-top:.5rem; }
-.producto-miniatura { width:50px; height:50px; border-radius:8px; overflow:hidden; border:2px solid var(--rosa-claro); position:relative; background: var(--gris-claro); }
+.productos-envio { display:flex; gap:.5rem; flex-wrap:wrap; margin-top:.5rem; align-items:center; padding: .5rem 1rem; }
+.envio-stepper { display:flex; justify-content:center; align-items:center; gap:2.5rem; margin:1rem 0; }
+.envio-stepper .step { display:flex; flex-direction:column; align-items:center; gap:.25rem; }
+.envio-stepper .circle { width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.1rem; }
+.envio-stepper .label { font-size:.85rem; margin-top:2px; }
+.producto-miniatura { width:70px; height:70px; border-radius:10px; overflow:hidden; border:2px solid var(--rosa-claro); position:relative; background: var(--gris-claro); }
 .producto-miniatura img { width:100%; height:100%; object-fit:cover; }
 .cantidad-producto {
-    position:absolute; top:-8px; right:-8px; background: var(--rosa-claro);
-    color:#fff; border-radius:50%; width:20px; height:20px; font-size:.75rem;
-    display:flex; align-items:center; justify-content:center; font-weight:700;
-    box-shadow: 0 2px 6px rgba(248, 164, 216, 0.5);
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    background: var(--rosa-claro);
+    color: #fff;
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    font-size: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.12);
+    z-index: 10;
+    border: 2px solid rgba(255,255,255,0.85);
 }
 
 .detalles-envio { display:flex; gap:.75rem; justify-content:space-between; align-items:center; margin-top:.75rem; border-top:1px solid var(--gris-claro); padding-top:.75rem; }

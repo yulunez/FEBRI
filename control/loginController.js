@@ -27,7 +27,12 @@ exports.ingresarUsuario = (req, res) => {
             
             if (results.length > 0) {
                 const usuario = results[0];
-                console.log('Usuario encontrado - ID:', usuario.ID_login);
+                
+                // Verificar que el usuario esté activo
+                if (usuario.Activo !== 1) {
+                    console.log('Usuario inactivo - Activo:', usuario.Activo);
+                    return res.json({ success: false, message: 'Cuenta desactivada. Contacta con administración' });
+                }
                 
                 // Guardar en sesión
                 req.session.usuario = {
@@ -44,9 +49,7 @@ exports.ingresarUsuario = (req, res) => {
                 
                 // Guardar también una referencia rápida al id (compatibilidad con rama compras)
                 req.session.usuarioId = usuario.ID_login;
-                
-                console.log('Datos guardados en sesión:', req.session.usuario);
-                
+                                
                 // Guardar sesión explícitamente con mejor manejo de errores
                 try {
                     req.session.save((err) => {
@@ -54,11 +57,6 @@ exports.ingresarUsuario = (req, res) => {
                             console.error('Error al guardar sesión:', err);
                             return res.json({ success: false, message: 'Error al guardar sesión' });
                         }
-                        
-                        console.log('Sesión guardada exitosamente');
-                        console.log('Session ID:', req.sessionID);
-                        console.log('Session data:', req.session);
-                        console.log('=== FIN LOGIN ===');
                         
                         return res.json({ 
                             success: true, 
@@ -70,8 +68,6 @@ exports.ingresarUsuario = (req, res) => {
                     return res.json({ success: false, message: 'Error crítico al guardar sesión' });
                 }
             } else {
-                console.log('Usuario NO encontrado');
-                console.log('=== FIN LOGIN ===');
                 return res.json({ success: false, message: 'Correo o contraseña incorrectos' });
             }
         }
